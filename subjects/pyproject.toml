@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "courses_module"
+version = "0.1.0"
+description = ""
+authors = ["Vera Kalacheva <verkalacheva@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "^5.0.1"
+django-rest-swagger = "^2.2.0"
+python-decouple = "^3.8"
+drf-yasg = "^1.21.7"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

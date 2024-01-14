@@ -6,6 +6,7 @@ class Course(models.Model): #Таблица с данными курсов
     description = models.TextField(null=True, blank=True)
 
 class Student(models.Model): #Таблица с данными учащихся
+    student_id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=40)
     surname = models.CharField(max_length=40)
     isTeacher = models.BooleanField(default=False)

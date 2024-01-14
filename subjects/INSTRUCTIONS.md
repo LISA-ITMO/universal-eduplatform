@@ -1,9 +1,8 @@
 # Course Module
 ## Инструкция
-1. ``pip install poetry``
-2. ``poetry shell``
-3. ``poetry install``
-4. ``poetry run python manage.py migrate``
-5. ``poetry run python manage.py runserver``
+
+1. ``cd Quiz-platform/subjects``
+2. Обновить docker, если нужно ``sudo snap refresh docker --channel=latest/edge``, либо установить
+3. ``sudo docker-compose -f docker-compose.dev.yml up --build``
 
 ``docs/`` - swagger

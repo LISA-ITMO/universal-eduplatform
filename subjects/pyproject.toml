@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "courses_module"
+name = "subjects"
 version = "0.1.0"
 description = ""
 authors = ["Vera Kalacheva <verkalacheva@mail.ru>"]
@@ -9,8 +9,8 @@ readme = "README.md"
 python = "^3.10"
 django = "^5.0.1"
 django-rest-swagger = "^2.2.0"
-python-decouple = "^3.8"
 drf-yasg = "^1.21.7"
+python-decouple = "^3.8"
 
 
 [build-system]

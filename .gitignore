@@ -7,6 +7,7 @@
 __pycache__/
 local_settings.py
 media
+config.ini
 
 ### Linux ###
 *~

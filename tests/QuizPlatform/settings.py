@@ -10,49 +10,43 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-import os
-from dotenv import load_dotenv, find_dotenv
-import datetime
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&d!q-f*=&%m4k(d#d8rtc5^56(7)0xjdq1qxjtfib3%dg3!n8t'
+SECRET_KEY = 'django-insecure-&=(f()*5ka%m=2*ho!qj+9s*ja=n6iy#jj_$=-5k675s0wi!=2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS =  [
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users.apps.UsersConfig',
+    'tests.apps.TestsConfig',
     'rest_framework',
-    'drf_yasg',
     'rest_framework.authtoken',
-    'djoser',
+    'drf_yasg',
     'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -80,7 +74,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'QuizPlatform.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -90,7 +83,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -110,7 +102,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -121,7 +112,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -145,15 +135,8 @@ REST_FRAMEWORK = {
     ),
 }
 
-DJOSER = {
-    'TOKEN': {
-        'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=1),  # Set the token duration to 1 day
-    }
-}
-
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
-    "http://127.0.0.1:8000"
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True

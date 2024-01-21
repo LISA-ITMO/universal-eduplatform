@@ -25,7 +25,7 @@ from django.conf import settings
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Course Module",
+        title="Subjects Module",
         default_version='v1',
         description="API documentation",
         contact=openapi.Contact(email="verkalacheva@mail.ru"),
@@ -38,7 +38,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls), #интерфейс для админа
     path("",include("courses.urls")),
-    path('docs/', schema_view.with_ui('swagger', cache_timeout=0),name='schema-swagger-ui'), #swagger
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0),name='schema-swagger-ui'), #swagger
 ]
 
 if settings.DEBUG:

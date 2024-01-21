@@ -1,18 +1,25 @@
 from django.db import models
 from django.urls import reverse
 
-class Course(models.Model): #Таблица с данными курсов
-    name_subject = models.CharField(max_length=40)
-    description = models.TextField(null=True, blank=True)
+class Subject(models.Model): #Таблица с данными предметов
+    name_subject = models.CharField(max_length=100)
 
 class Student(models.Model): #Таблица с данными учащихся
-    student_id = models.IntegerField(primary_key=True)
+    id_student = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=40)
     surname = models.CharField(max_length=40)
-    isTeacher = models.BooleanField(default=False)
-    student_courses = models.ManyToManyField(Course, blank=True, related_name='study_courses')
-    teacher_courses = models.ManyToManyField(Course, blank=True, related_name='teach_courses')
+    isExpert = models.BooleanField(default=False)
 
 class Theme(models.Model): #Таблица с темами тестов
-    name_theme = models.CharField(max_length=40)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    name_theme = models.CharField(max_length=100)
+    id_subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+
+class Course(models.Model):
+    id_subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    id_expert = models.ForeignKey(Student, on_delete=models.CASCADE)
+    description = models.TextField(null=True, blank=True)
+
+class Student_Course_Subject(models.Model):
+    id_student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='course_id_student')
+    id_subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='course_id_subject')
+    id_expert = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='course_id_expert')

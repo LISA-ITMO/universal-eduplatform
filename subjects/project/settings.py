@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 #DEBUG = config('DEBUG', default=False, cast=bool)
 #ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=lambda v: [s.strip() for s in v.split(',')])
 SECRET_KEY = 'django-insecure-5njx2bi1^5l@w+pep%p()41tg(=ac7cez*%t2^71h#fobwd9ai' 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['*']
 DEBUG = True
 
 # Application definition

@@ -201,3 +201,5 @@ ENV/
 
 # mkdocs documentation
 /site
+
+!/client/build

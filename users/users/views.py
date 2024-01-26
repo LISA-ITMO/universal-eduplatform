@@ -8,7 +8,7 @@ from .serializers import ProfileSerializer, UserSerializer, ProfileDetailSeriali
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-@swagger_auto_schema(tags=["Profile"])
+# @swagger_auto_schema(tags=["Profile"])
 @api_view(['POST'])
 def register_user(request):
     user_serializer = UserSerializer(data=request.data)
@@ -26,10 +26,10 @@ def register_user(request):
     return Response({'status': 'Error', 'errors': user_serializer.errors + profile_serializer.errors},
                     status=status.HTTP_400_BAD_REQUEST)
 
-@swagger_auto_schema(tags=["Profile"])
+# @swagger_auto_schema(tags=["Profile"])
 @api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+# @authentication_classes([TokenAuthentication])
+# @permission_classes([IsAuthenticated])
 def get_user_profile(request):
     profile = Profile.objects.get(user=request.user)
     serializer = ProfileDetailSerializer(profile)

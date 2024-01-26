@@ -1,7 +1,10 @@
 from django.urls import path
-from . import views
+from .views import register_user, get_user_profile
+from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
-    path('profile/<int:pk>/', views.ProfileDetail.as_view(), name='profile-detail'),
-    path('profile/adminstatus/', views.ProfileAdminStatus.as_view(), name='profile-adminstatus')
+    path('users/register/', register_user, name='register-user'),
+    path('users/login/', obtain_auth_token, name='login'),
+    path('users/get/', get_user_profile, name='get-user-profile'),
 ]
+

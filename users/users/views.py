@@ -1,58 +1,36 @@
-from rest_framework import generics
-from rest_framework.exceptions import MethodNotAllowed
-from rest_framework.response import Response
-from .models import Profile
-from .serializers import ProfileSerializer, ProfileUserSerializer
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.views import APIView
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework import status
+from .models import Profile
+from .serializers import ProfileSerializer, UserSerializer, ProfileDetailSerializer
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
-class ProfileAdminStatus(APIView):
-    @swagger_auto_schema(tags=["Profile"])
-    def get(self, request):
-        profile = Profile.objects.get(user=request.user)
-        return Response({"is_admin": profile.user.is_superuser})
+@swagger_auto_schema(tags=["Profile"])
+@api_view(['POST'])
+def register_user(request):
+    user_serializer = UserSerializer(data=request.data)
+    profile_serializer = ProfileSerializer(data=request.data)
 
+    if user_serializer.is_valid() and profile_serializer.is_valid():
+        user = user_serializer.save()
+        profile_data = {'user': user.id, 'role': request.data['role']}
+        profile_serializer = ProfileSerializer(data=profile_data)
 
-# Allows to edit both User's and Profile's view at the same time, thanks to ProfileUserSerializer
-class ProfileDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileUserSerializer
-    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+        if profile_serializer.is_valid():
+            profile_serializer.save()
+            return Response({'status': 'OK'}, status=status.HTTP_201_CREATED)
 
-    @swagger_auto_schema(tags=["Profile"])
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+    return Response({'status': 'Error', 'errors': user_serializer.errors + profile_serializer.errors},
+                    status=status.HTTP_400_BAD_REQUEST)
 
-    @swagger_auto_schema(tags=["Profile"])
-    def post(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-    @swagger_auto_schema(tags=["Profile"])
-    def put(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-    @swagger_auto_schema(tags=["Profile"])
-    def delete(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-    @swagger_auto_schema(tags=["Profile"])
-    def patch(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-
-class ProfileMoneyUpdateAPIView(generics.UpdateAPIView):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
-
-    def put(self, request, *args, **kwargs):
-        raise MethodNotAllowed('PUT')
-
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.money = request.data.get('money', instance.money)
-        instance.save()
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+@swagger_auto_schema(tags=["Profile"])
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_user_profile(request):
+    profile = Profile.objects.get(user=request.user)
+    serializer = ProfileDetailSerializer(profile)
+    return Response(serializer.data)

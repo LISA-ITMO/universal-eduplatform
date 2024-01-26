@@ -55,6 +55,7 @@ const Variants = ({variants, setVariants}) => {
 // const tt = {''}
 
 let questions = [];
+let answers = [];
 
 const CreationTest = ({subjectId, subjectName, themeId, themeName}) => {
     const bgButton = useColorModeValue('gray.200', 'gray.700');
@@ -69,6 +70,7 @@ const CreationTest = ({subjectId, subjectName, themeId, themeName}) => {
 
     useEffect(() => {
         questions = [];
+        answers =[];
     }, [])
 
     const handleSubmit = (e) => {

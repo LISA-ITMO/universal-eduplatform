@@ -12,7 +12,7 @@ This repository contains a tool for interactively performing smart cross-testing
 ![](./docs/img/Architecture.jpg)
 
 ## Methods
-A test for mastering the material after a lecture session is to compile tests and pass them. As a result, 2 numerical characteristics are obtained.
+To check their mastery of the material after the lecture, students make their own tests. Tests of other students are then completed before the next lesson. As a result, 2 numerical characteristics are obtained.
 
 1 numerical characteristic – analyticity.
 Analyticity – the ability to analyze data and information. This characteristic is calculated using the student's test scores and the average formula, but outliers are excluded if there are any.

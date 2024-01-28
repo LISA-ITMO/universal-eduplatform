@@ -9,10 +9,8 @@ This repository contains a tool for interactively performing smart cross-testing
 *in the process of implementation
 
 ## Architecture
-<p align="center">
-  ![](./docs/img/Architecture.jpg)
 
-</p>
+![](./docs/img/Architecture.jpg)
 
 ## Methods
 To check their mastery of the material after the lecture, students make their own tests. Then, before the next class, students take tests from other students. As a result, 2 numerical characteristics are obtained:

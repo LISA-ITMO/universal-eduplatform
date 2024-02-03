@@ -18,10 +18,9 @@ export const API_TESTS = {
         add: async ({authorId, subjectId, themeId, questions, expertId}) => {
             const sendData = {
                 "author_id": authorId,
-                "subject_id": subjectId,
-                "theme_id": themeId,
+                "subject_id": Number(subjectId),
+                "theme_id": Number(themeId),
                 "questions": questions,
-                "expert_id": expertId,
             };
             const answer = await getAPIClient.post(`/tests/add`, sendData);
             return answer;

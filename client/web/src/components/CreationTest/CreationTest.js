@@ -77,13 +77,13 @@ const CreationTest = ({subjectId, subjectName, themeId, themeName}) => {
         e.preventDefault();
         if (currentCount < COUNT_QUESTION-1) {
             setCurrentCount(prev => ++prev);
-            questions.push({'question_text': problem, 'answers': Object.values(variants), 'correct_answer': Object.values(variants)[rightAnswer], 'addition_info': info})
+            questions.push({'question_text': problem, 'answers': Object.values(variants).map((item) => ({'answer_text': item})), 'correct_answer': Object.values(variants)[rightAnswer], 'addition_info': info})
         }
         else {
 
-            questions.push({'question_text': problem, 'answers': Object.values(variants), 'correct_answer': Object.values(variants)[rightAnswer], 'addition_info': info})
+            questions.push({'question_text': problem, 'answers': Object.values(variants).map((item) => ({'answer_text': item})), 'correct_answer': Object.values(variants)[rightAnswer], 'addition_info': info})
 
-            API_TESTS.tests.add({authorId: 1, questions: questions, subjectId: subjectId, themeId:themeId, expertId: 1}).then(() => {
+            API_TESTS.tests.add({authorId: 1, questions: questions, subjectId: subjectId, themeId:themeId}).then(() => {
                 navigate(`/creation/${subjectId}/${themeId}`);
             }).catch(() => {
                 navigate(`/creation/${subjectId}/${themeId}`);

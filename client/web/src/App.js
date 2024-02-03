@@ -29,7 +29,7 @@ function App() {
 
     return (
         <ChakraProvider theme={theme}>
-            <HStack position={'relative'} overflowY={'auto'} minH={'100vh'} h={'100%'} w={'100%'}
+            <HStack position={'relative'} overflowY={'auto'} spacing={'0px'} minH={'100vh'} h={'100%'} w={'100%'}
                     justifyContent={'stretch'} alignItems={'stretch'}>
                 <Suspense fallback={<Loader/>}>
                     {/*basename*/}

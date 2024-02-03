@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Flex, useColorModeValue, VStack} from '@chakra-ui/react';
 import {useParams} from 'react-router-dom';
 import SelectCourse from '@components/CreationTest/SelectCourse';
 import CreationTest from '@components/CreationTest/CreationTest';
+import {API_SUBJECTS} from '@utils/api/apiSubjects';
 
 
 const subjects = [{id: 1, name: 'Свободный предмет'}]
@@ -11,6 +12,20 @@ const themes = [{id: 1, name: 'Свободная тема'}]
 
 const Creation = () => {
     const bg = useColorModeValue('gray.100', 'gray.900');
+
+    // const [subjects, setSubjects] = ([]);
+    // const [themes, setThemes] = ([]);
+
+    useEffect(() => {
+
+        API_SUBJECTS.subjects.list()
+            .then((res) => {
+                console.log(res)
+            })
+            .catch((err) => {
+
+            })
+    },[]);
 
     const { subjectId, themeId } = useParams();
 

@@ -21,14 +21,14 @@ const SelectCourse = ({subjects, themes}) => {
                     <FormLabel ml="5px" whiteSpace={'nowrap'}>Предмет</FormLabel>
                     <Select value={subject} onChange={(e) => setSubject(e.target.value)}
                             placeholder={'Выберите предмет'} bg={bgButton} w={'250px'} mr={'25px'}>
-                        {subjects.map((item) => <option key={`key-model-${item}`} value={item.id}>{item.name}</option>)}
+                        {subjects?.map((item) => <option key={`key-model-${item}`} value={item.id}>{item.name}</option>)}
                     </Select>
                 </FormControl>
                 <FormControl isRequired>
                     <FormLabel ml="5px" whiteSpace={'nowrap'}>Тема</FormLabel>
                     <Select value={theme} onChange={(e) => setTheme(e.target.value)} placeholder={'Выберите тему'}
                             bg={bgButton} w={'250px'} mr={'25px'}>
-                        {themes.map((item) => <option key={`key-model-${item}`} value={item.id}>{item.name}</option>)}
+                        {themes?.map((item) => <option key={`key-model-${item}`} value={item.id}>{item.name}</option>)}
                     </Select>
                 </FormControl>
 

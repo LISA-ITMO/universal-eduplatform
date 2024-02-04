@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Test, Answer, Question
+from .models import Test, Answer, Question, Grade
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -49,3 +49,9 @@ class TestGetSerializer(serializers.ModelSerializer):
 class CorrectAnswerSerializer(serializers.Serializer):
     question_id = serializers.IntegerField()
     correct_answer = serializers.CharField()
+
+
+class GradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Grade
+        fields = ['user_id', 'test_id', 'question_id', 'answer']

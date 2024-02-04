@@ -21,7 +21,13 @@ class Answer(models.Model):
     answer_text = models.CharField(max_length=100, null=False, blank=False)
 
 
-# User can solve test only once
 class TestUser(models.Model):
     user_id = models.IntegerField(null=False, blank=False)
     test_id = models.IntegerField(null=False, blank=False)
+
+
+class Grade(models.Model):
+    user_id = models.IntegerField(null=False, blank=False)
+    test_id = models.IntegerField(null=False, blank=False)
+    question_id = models.IntegerField(null=False, blank=False)
+    answer = models.CharField(max_length=255)

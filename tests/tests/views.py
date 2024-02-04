@@ -1,11 +1,12 @@
-from rest_framework import status
-from .models import Test, Question, Answer
+from rest_framework import status, generics
+from .models import Test, Question, Answer, Grade
 from .serializers import (TestSerializer,
                           QuestionSerializer,
                           AnswerSerializer,
                           TestListSerializer,
                           TestGetSerializer,
-                          CorrectAnswerSerializer)
+                          CorrectAnswerSerializer,
+                          GradeSerializer)
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.views import APIView
@@ -93,4 +94,33 @@ class GetCorrectAnswerByQuestionIdView(APIView):
 
         serializer = CorrectAnswerSerializer(correct_answer_data)
 
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GradeAPIView(APIView):
+    @swagger_auto_schema(tags=["Result"])
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        user_id = data.get('user_id')
+        test_id = data.get('test_id')
+        results = data.get('results', [])
+
+        for result in results:
+            result['user_id'] = user_id
+            result['test_id'] = test_id
+
+        serializer = GradeSerializer(data=results, many=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AllGradesAPIView(APIView):
+    @swagger_auto_schema(tags=["Result"])
+    def get(self, request, *args, **kwargs):
+        grades = Grade.objects.all()
+        serializer = GradeSerializer(grades, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

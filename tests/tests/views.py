@@ -17,31 +17,26 @@ class TestAddView(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
         serializer = TestSerializer(data=data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if serializer.is_valid():
-            test_instance = serializer.save()
+            # Create Test instance
+        test_instance = Test.objects.create(
+            author_id=data['author_id'],
+            subject_id=data['subject_id'],
+            theme_id=data['theme_id']
+        )
 
-            for question_data in data.get('questions', []):
-                answers_data = question_data.pop('answers', [])
-                question_serializer = QuestionSerializer(data=question_data)
+        # Create Question and Answer instances
+        for question_data in data['questions']:
+            answers_data = question_data.pop('answers', [])
 
-                if question_serializer.is_valid():
-                    question_instance = question_serializer.save(test=test_instance)
+            question_instance = Question.objects.create(test=test_instance, **question_data)
 
-                    for answer_data in answers_data:
-                        answer_serializer = AnswerSerializer(data=answer_data)
+            for answer_data in answers_data:
+                Answer.objects.create(question=question_instance, **answer_data)
 
-                        if answer_serializer.is_valid():
-                            answer_serializer.save(question=question_instance)
-                        else:
-                            # Handle invalid answer data
-                            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    # Handle invalid question data
-                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class TestListView(APIView):

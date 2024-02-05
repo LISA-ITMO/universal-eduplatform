@@ -119,6 +119,7 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
     useEffect( () => {
         answers = [];
         test = {};
+        setCountCorrect(0);
         loadTest().then(() => {
             loadRightAnswer();
         })
@@ -235,13 +236,13 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
                         />
                     </FormControl>
                 }
-                <Flex w={'100%'} mt={'70px'} justifyContent={'center'} alignItems={'center'}>
+                <Flex w={'100%'} mt={'50px'} justifyContent={'center'} alignItems={'center'}>
                     {(!isGetAnswer && !isTimeIsUp) ?
-                        <Button bg={bgButton} type={'submit'} w={'300px'}>
+                        <Button bg={bgButton} type={'submit'} w={'100%'} maxW={'300px'}>
                             Записать ответ
                         </Button>
                         :
-                        <Button isDisabled={isDisabled} bg={bgButton} onClick={handleNextQuestion} w={'300px'}>
+                        <Button isDisabled={isDisabled} bg={bgButton} onClick={handleNextQuestion} w={'100%'} maxW={'300px'}>
                             {currentCount < COUNT_QUESTION-1 ? 'Следующий вопрос' : 'Получить результат'}
                         </Button>
                     }

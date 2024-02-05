@@ -157,8 +157,8 @@ const CreationTest = ({subjectId, subjectName, themeId, themeName}) => {
                         onChange={e => setInfo(e.target.value)}
                     />
                 </FormControl>
-            <Flex w={'100%'} mt={'70px'} justifyContent={'center'} alignItems={'center'}>
-                <Button bg={bgButton} type={'submit'} w={'300px'}>
+            <Flex w={'100%'} mt={'50px'} mb={'35px'}  justifyContent={'center'} alignItems={'center'}>
+                <Button bg={bgButton} type={'submit'} w={'100%'} maxW={'300px'}>
                     {currentCount < COUNT_QUESTION-1 ? 'Следующий вопрос' : 'Создать тест'}
                 </Button>
             </Flex>

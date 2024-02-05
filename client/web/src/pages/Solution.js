@@ -45,8 +45,8 @@ const Creation = () => {
     }, [subjectId, themeId])
 
     return (
-        <Flex position={'relative'} zIndex={105} w={'100%'} minH={'100vh'} maxH={'100vh'} p={'60px 10px 30px 0'} justifyContent={'center'} alignItems={'center'}>
-            <VStack overflowY={'auto'} alignItems={'flex-start'} minH={'350px'} maxW={'800px'} w={'100%'} minW={'400px'} p={'20px'} bg={bg} maxH={'100%'}
+        <Flex position={'relative'} zIndex={105} w={'100%'} minH={'100vh'} p={'20px 10px 30px 10px'} justifyContent={'center'} overflowY={'hidden'} alignItems={'center'}>
+            <VStack overflowY={'visible'} alignItems={'flex-start'} minH={'350px'} maxW={'800px'} w={'100%'} p={'20px'} bg={bg}
                     spacing={'20px'}>
                 {((subjectId === undefined || themeId === undefined || testId === undefined) && !pathname.includes('result')) && <SelectCourse path={'solution'} isSolution={true} goToText={'Перейти к решению теста'} />}
                 {(subjectId !== undefined && themeId !== undefined && testId !== undefined && !pathname.includes('result')) && <SolutionTest subjectName={subjectName} themeName={themeName} setCountCorrect={setCountCorrect} subjectId={subjectId} themeId={themeId} testId={testId} />}

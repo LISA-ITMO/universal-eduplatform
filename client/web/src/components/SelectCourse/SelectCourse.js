@@ -99,14 +99,14 @@ const SelectCourse = ({path, goToText, isSolution}) => {
                 <FormControl isRequired>
                     <FormLabel ml="5px" whiteSpace={'nowrap'}>Предмет</FormLabel>
                     <Select value={subject} onChange={(e) => setSubject(e.target.value)}
-                            placeholder={'Выберите предмет'} bg={bgButton} w={'350px'} mr={'25px'}>
+                            placeholder={'Выберите предмет'} bg={bgButton} w={'100%'} maxW={'350px'} mr={'25px'}>
                         {subjects?.map((item) => <option key={`key-subject-${item?.id}`} value={item?.id}>{item?.name_subject}</option>)}
                     </Select>
                 </FormControl>
                 <FormControl isRequired>
                     <FormLabel ml="5px" mt={'20px'} whiteSpace={'nowrap'}>Тема</FormLabel>
                     <Select value={theme} onChange={(e) => setTheme(e.target.value)} placeholder={'Выберите тему'}
-                            bg={bgButton} w={'350px'} mr={'25px'}>
+                            bg={bgButton} w={'100%'} maxW={'350px'} mr={'25px'}>
                         {themes.map((item) => {
                             return <option style={{color: 'black'}} key={`option-theme-${item?.id}`} value={item?.id}>{item?.name_theme}</option>
                         })}
@@ -116,7 +116,7 @@ const SelectCourse = ({path, goToText, isSolution}) => {
                 {isSolution && <FormControl isRequired>
                     <FormLabel ml="5px" mt={'20px'} whiteSpace={'nowrap'}>Тест</FormLabel>
                     <Select value={test} onChange={(e) => setTest(e.target.value)} placeholder={'Выберите тест'}
-                            bg={bgButton} w={'350px'} mr={'25px'}>
+                            bg={bgButton} w={'100%'} maxW={'350px'} mr={'25px'}>
                         {tests.map((item) => {
                             return <option style={{color: 'black'}} key={`option-test-${item?.id}`} value={item?.id}>id: {item?.id}, автор: {item?.author_id}, эксперт: {item?.expert_id}, решено {item?.times_solved} раз</option>
                         })}
@@ -125,7 +125,7 @@ const SelectCourse = ({path, goToText, isSolution}) => {
 
 
                 <Flex w={'100%'} mt={'70px'} justifyContent={'center'} alignItems={'center'}>
-                    <Button bg={bgButton} type={'submit'} isDisabled={subject === '' && theme === ''} w={'300px'}>
+                    <Button bg={bgButton} type={'submit'} isDisabled={subject === '' && theme === ''} w={'100%'} maxW={'300px'}>
                         {goToText}
                     </Button>
                 </Flex>

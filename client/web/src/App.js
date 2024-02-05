@@ -46,7 +46,7 @@ function App() {
                             <Route path={'/creation/info?/:subjectId?/:themeId?/'} element={isAuth ? <Creation /> : <Navigate to="/login"/>}/>
                             <Route path={'/solution/:subjectId?/:themeId?/:testId?/result?'} element={isAuth ? <Solution /> : <Navigate to="/login"/>}/>
                             <Route path={'/students'} element={isAuth ? <Students /> : <Navigate to="/login"/>}/>
-                            <Route path={'/moderation'} element={isAuth && !!localStorage.getItem(QUIZ_TOKEN) ? <Moderation /> : <Navigate to="/login"/>}/>
+                            <Route path={'/moderation'} element={isAuth && localStorage.getItem(QUIZ_TOKEN) == 123 ? <Moderation /> : <Navigate to="/login"/>}/>
 
 
                             <Route path='/login' element={<Login setIsAuth={setIsAuth} isRegistration={false}/>}/>

@@ -238,11 +238,11 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
                 }
                 <Flex w={'100%'} mt={'50px'} justifyContent={'center'} alignItems={'center'}>
                     {(!isGetAnswer && !isTimeIsUp) ?
-                        <Button bg={bgButton} type={'submit'} w={'100%'} maxW={'300px'}>
+                        <Button noOfLines={1} overflowX={'hidden'} bg={bgButton} type={'submit'} w={'100%'} maxW={'300px'}>
                             Записать ответ
                         </Button>
                         :
-                        <Button isDisabled={isDisabled} bg={bgButton} onClick={handleNextQuestion} w={'100%'} maxW={'300px'}>
+                        <Button noOfLines={1} overflowX={'hidden'} isDisabled={isDisabled} bg={bgButton} onClick={handleNextQuestion} w={'100%'} maxW={'300px'}>
                             {currentCount < COUNT_QUESTION-1 ? 'Следующий вопрос' : 'Получить результат'}
                         </Button>
                     }

@@ -158,7 +158,7 @@ const CreationTest = ({subjectId, subjectName, themeId, themeName}) => {
                     />
                 </FormControl>
             <Flex w={'100%'} mt={'50px'} mb={'35px'}  justifyContent={'center'} alignItems={'center'}>
-                <Button bg={bgButton} type={'submit'} w={'100%'} maxW={'300px'}>
+                <Button noOfLines={1} overflowX={'hidden'} bg={bgButton} type={'submit'} w={'100%'} maxW={'300px'}>
                     {currentCount < COUNT_QUESTION-1 ? 'Следующий вопрос' : 'Создать тест'}
                 </Button>
             </Flex>

@@ -125,7 +125,7 @@ const SelectCourse = ({path, goToText, isSolution}) => {
 
 
                 <Flex w={'100%'} mt={'70px'} justifyContent={'center'} alignItems={'center'}>
-                    <Button bg={bgButton} type={'submit'} isDisabled={subject === '' && theme === ''} w={'100%'} maxW={'300px'}>
+                    <Button  bg={bgButton} noOfLines={1} overflowX={'hidden'} type={'submit'} isDisabled={subject === '' && theme === ''} w={'100%'} maxW={'300px'}>
                         {goToText}
                     </Button>
                 </Flex>

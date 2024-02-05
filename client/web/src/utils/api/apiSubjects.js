@@ -22,6 +22,10 @@ export const API_SUBJECTS = {
             const answer = await getAPIClient.post('/subjects/add/', data);
             return answer;
         },
+        get: async ({id}) => {
+            const answer = await getAPIClient.get(`/subjects/get/${id}/`);
+            return answer;
+        },
         list: async () => {
             const answer = await getAPIClient.get('/subjects/list/');
             return answer;
@@ -38,6 +42,10 @@ export const API_SUBJECTS = {
                 'name_theme': theme
             }
             const answer = await getAPIClient.post('/themes/add/', data);
+            return answer;
+        },
+        get: async ({id}) => {
+            const answer = await getAPIClient.get(`/themes/get/${id}/`);
             return answer;
         },
         getBySubjectId: async ({id}) => {

@@ -80,10 +80,10 @@ const Login = ({setIsAuth, isRegistration}) => {
                 .catch((err) => {
                     toast({ title: 'Неверный логин или пароль', status: 'error' })
                     setPassword('');
-                    localStorage.setItem(QUIZ_TOKEN, "test");
-                    localStorage.setItem(QUIZ_TOKEN_REFRESH, "test");
-                    setIsAuth(true);
-                    navigate('/');
+                    // localStorage.setItem(QUIZ_TOKEN, "test");
+                    // localStorage.setItem(QUIZ_TOKEN_REFRESH, "test");
+                    // setIsAuth(true);
+                    // navigate('/');
                 })
         }
         if (isRegistration && email && password && userName) {

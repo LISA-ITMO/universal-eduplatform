@@ -25,18 +25,36 @@ export const API_TESTS = {
             const answer = await getAPIClient.post(`/tests/add`, sendData);
             return answer;
         },
-        // logout: async () => {
-        //     const answer = await getAPIClient.post('/token/logout/');
-        //     return answer;
-        // },
-        // register: async ({email, username, password}) => {
-        //     const sendData = {
-        //         email,
-        //         username,
-        //         password,
-        //     };
-        //     const answer = await axios.post(`${API_BASE_URL}/users/`, sendData);
-        //     return answer;
-        // },
+        list: async ({ subjectId, themeId, }) => {
+            // const sendData = {
+            //     "subject_id": Number(subjectId),
+            //     "theme_id": Number(themeId),
+            // };
+            const answer = await getAPIClient.get(`/tests/list?subject_id=${subjectId}&theme_id=${themeId}`);
+            return answer;
+        },
+        get: async ({id}) => {
+            const answer = await getAPIClient.get(`/tests/${id}`);
+            return answer;
+        },
+        getAnswers: async ({id}) => {
+            const answer = await getAPIClient.get(`/tests/get-all-correct-answers/${id}`);
+            return answer;
+        }
+    },
+    results: {
+        grade: async ({userId, testId, results}) => {
+            const sendData = {
+                "user_id": userId,
+                "test_id": Number(testId),
+                "results": results,
+            };
+            const answer = await getAPIClient.post(`/results/grade`, sendData);
+            return answer;
+        },
+        get: async ({id}) => {
+            const answer = await getAPIClient.get(`/results/${id}`);
+            return answer;
+        },
     },
 }

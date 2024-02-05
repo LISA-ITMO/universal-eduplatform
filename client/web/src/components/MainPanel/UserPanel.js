@@ -26,7 +26,7 @@ const UserBar = ({logout, isFullPanel}) => {
                 </Tooltip>
             }
             <ColorModeSwitcher />
-            <Button onClick={handleLogout} size={"md"} variant='ghost' pt={"2px"} colorScheme={'red'}><Icon w={"25px"} h={"25px"} as={BiLogOut} /></Button>
+            {!!localStorage.getItem(QUIZ_TOKEN) && <Button onClick={handleLogout} size={"md"} variant='ghost' pt={"2px"} colorScheme={'red'}><Icon w={"25px"} h={"25px"} as={BiLogOut} /></Button>}
         </Flex>
     );
 };

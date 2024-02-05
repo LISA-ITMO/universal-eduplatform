@@ -51,7 +51,6 @@ const DeleteSubject = () => {
                     <FormLabel>Предмет:</FormLabel>
                     <Select
                         placeholder="Выберите предмет"
-                        color={id === '' ? 'gray' : 'black'}
                         value={id}
                         onChange={e => setId(e.target.value)}
                     >

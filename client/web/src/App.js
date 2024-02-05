@@ -16,7 +16,8 @@ import Moderation from '@pages/Moderation';
 
 
 function App() {
-    const [isAuth, setIsAuth] = useState(!!localStorage.getItem(QUIZ_TOKEN));
+    // const [isAuth, setIsAuth] = useState(!!localStorage.getItem(QUIZ_TOKEN));
+    const [isAuth, setIsAuth] = useState(true);
     const [isFullPanel, setIsFullPanel] = useState(true);
 
     const {user, setUser} = useContext(UserContext);
@@ -42,10 +43,10 @@ function App() {
 
                             <Route path={'/courses'} element={isAuth ? <Courses /> : <Navigate to="/login"/>}/>
                             <Route path={'/requests'} element={isAuth ? <Requests /> : <Navigate to="/login"/>}/>
-                            <Route path={'/creation/:subjectId?/:themeId?'} element={isAuth ? <Creation /> : <Navigate to="/login"/>}/>
-                            <Route path={'/solution'} element={isAuth ? <Solution /> : <Navigate to="/login"/>}/>
+                            <Route path={'/creation/info?/:subjectId?/:themeId?/'} element={isAuth ? <Creation /> : <Navigate to="/login"/>}/>
+                            <Route path={'/solution/:subjectId?/:themeId?/:testId?/result?'} element={isAuth ? <Solution /> : <Navigate to="/login"/>}/>
                             <Route path={'/students'} element={isAuth ? <Students /> : <Navigate to="/login"/>}/>
-                            <Route path={'/moderation'} element={isAuth ? <Moderation /> : <Navigate to="/login"/>}/>
+                            <Route path={'/moderation'} element={isAuth && !!localStorage.getItem(QUIZ_TOKEN) ? <Moderation /> : <Navigate to="/login"/>}/>
 
 
                             <Route path='/login' element={<Login setIsAuth={setIsAuth} isRegistration={false}/>}/>

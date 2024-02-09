@@ -4,8 +4,7 @@ from .views import (TestAddView,
                     TestGetView,
                     GetAllCorrectAnswersView,
                     GetCorrectAnswerByQuestionIdView,
-                    GradeAPIView,
-                    AllGradesAPIView)
+                    ResultsView)
 
 urlpatterns = [
     path('tests/add', TestAddView.as_view(), name='tests-add'),
@@ -15,6 +14,14 @@ urlpatterns = [
          name='tests-get-all-right-answers'),
     path('tests/get-correct-answer-by-question-id/<int:question_pk>', GetCorrectAnswerByQuestionIdView.as_view(),
          name='tests-get-right-answer'),
-    path('results/grade', GradeAPIView.as_view(), name='results-grade'),
-    path('results/all', AllGradesAPIView.as_view(), name='results-all-grades'),
+
+    path('results/add', ResultsView.as_view({'post': 'add'}), name='results-add'),
+    path('results/list', ResultsView.as_view({'get': 'list'}), name='results-list'),
+    path('results/getByResultId/<int:id>', ResultsView.as_view({'get': 'getByResultId'}), name='results-getByResultId'),
+    path('results/getByStudentTestId/<int:studentId>/<int:testId>', ResultsView.as_view({'get': 'getByStudentTestId'}), name='results-getByStudentTestId'),
+    path('results/getByStudentId/<int:studentId>', ResultsView.as_view({'get': 'getByStudentId'}), name='results-getByStudentId'),
+    path('results/getByTestId/<int:testId>', ResultsView.as_view({'get': 'getByTestId'}), name='results-getByTestId'),
+    path('results/full/getByStudentTestId/<int:studentId>/<int:testId>', ResultsView.as_view({'get': 'fullStudentTestId'}), name='results-full'),
+    path('results/full/getByStudentId/<int:studentId>', ResultsView.as_view({'get': 'fullStudentId'}), name='results-fullStudentId'),
+    path('results/full/getByTestId/<int:testId>', ResultsView.as_view({'get': 'fullTestId'}), name='results-fullTestId')
 ]

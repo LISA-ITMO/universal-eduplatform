@@ -1,12 +1,16 @@
-from rest_framework import status, generics
-from .models import Test, Question, Answer, Grade
+from rest_framework import status, generics, viewsets
+from .models import Test, Question, Answer,Solutions, TestUser
 from .serializers import (TestSerializer,
                           QuestionSerializer,
                           AnswerSerializer,
                           TestListSerializer,
                           TestGetSerializer,
                           CorrectAnswerSerializer,
-                          GradeSerializer)
+                          GradeSerializer,
+                          ResultsSerializer,
+                          SolutionsSerializer,
+                          SolutionsResultsSerializer,
+                          TestUserSerializer)
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.views import APIView
@@ -97,30 +101,134 @@ class GetCorrectAnswerByQuestionIdView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class GradeAPIView(APIView):
+class ResultsView(viewsets.ModelViewSet):
+    serializer_class = ResultsSerializer
+
     @swagger_auto_schema(tags=["Result"])
-    def post(self, request, *args, **kwargs):
+    def add(self, request, *args, **kwargs):
         data = request.data
-        user_id = data.get('user_id')
-        test_id = data.get('test_id')
-        results = data.get('results', [])
+        user_id = data.get('idStudent')
+        test_id = data.get('idTest')
+        results = data.get('solutions', [])
+
+        serializer = TestUserSerializer(data={'user_id':user_id, 'test_id':test_id})
+        if serializer.is_valid():
+            serializer.save()
+        id_result = list(TestUser.objects.filter(user_id=user_id).filter(test_id=test_id).values_list('id', flat=True))[0]
 
         for result in results:
-            result['user_id'] = user_id
-            result['test_id'] = test_id
+            result['id_result'] = id_result
 
-        serializer = GradeSerializer(data=results, many=True)
-
+        serializer = SolutionsResultsSerializer(data=results, many=True)
+    
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AllGradesAPIView(APIView):
+    
     @swagger_auto_schema(tags=["Result"])
-    def get(self, request, *args, **kwargs):
-        grades = Grade.objects.all()
-        serializer = GradeSerializer(grades, many=True)
+    def list(self, request, *args, **kwargs):
+        data = list(TestUser.objects.all().values())
+        result_data = []
+        for result in data:
+            data_solutions = list(Solutions.objects.filter(id_result_id=result['id']).values('answer', 'correct_answer'))
+            result_data.append(
+                {
+                    'id_result_id': result['id'], 
+                    'idStudent': result['user_id'],
+                    'idTest': result['test_id'],
+                    'solutions': data_solutions
+                }
+            )
+
+        serializer = ResultsSerializer(result_data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @swagger_auto_schema(tags=["Result"])
+    def getByResultId(self, request, *args, **kwargs):
+        data = list(TestUser.objects.filter(id=kwargs['id']).values())
+        result_data = []
+        for result in data:
+            data_solutions = list(Solutions.objects.filter(id_result_id=result['id']).values('answer', 'correct_answer'))
+            result_data.append(
+                {
+                    'id_result_id': result['id'], 
+                    'idStudent': result['user_id'],
+                    'idTest': result['test_id'],
+                    'solutions': data_solutions
+                }
+            )
+
+        serializer = ResultsSerializer(result_data, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @swagger_auto_schema(tags=["Result"])
+    def getByStudentTestId(self, request, *args, **kwargs):
+        data = list(TestUser.objects.filter(test_id=kwargs['testId']).filter(user_id=kwargs['studentId']).values_list('id', flat = True))
+        return Response(data)
+    
+    @swagger_auto_schema(tags=["Result"])
+    def getByStudentId(self, request, *args, **kwargs):
+        data = list(TestUser.objects.filter(user_id=kwargs['studentId']).values_list('id', flat=True))
+        return Response(data)
+    
+    @swagger_auto_schema(tags=["Result"])
+    def getByTestId(self, request, *args, **kwargs):
+        data = list(TestUser.objects.filter(test_id=kwargs['testId']).values_list('id', flat=True))
+        return Response(data)
+    
+    @swagger_auto_schema(tags=["Result"])
+    def fullStudentTestId(self, request, *args, **kwargs):
+        data = list(TestUser.objects.filter(test_id=kwargs['testId']).filter(user_id=kwargs['studentId']).values())
+        result_data = []
+        for result in data:
+            data_solutions = list(Solutions.objects.filter(id_result_id=result['id']).values('answer', 'correct_answer'))
+            result_data.append(
+                {
+                    'id_result_id': result['id'], 
+                    'idStudent': result['user_id'],
+                    'idTest': result['test_id'],
+                    'solutions': data_solutions
+                }
+            )
+
+        serializer = ResultsSerializer(result_data, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @swagger_auto_schema(tags=["Result"])
+    def fullStudentId(self, request, *args, **kwargs):
+        data = list(TestUser.objects.filter(user_id=kwargs['studentId']).values())
+        result_data = []
+        for result in data:
+            data_solutions = list(Solutions.objects.filter(id_result_id=result['id']).values('answer', 'correct_answer'))
+            result_data.append(
+                {
+                    'id_result_id': result['id'], 
+                    'idStudent': result['user_id'],
+                    'idTest': result['test_id'],
+                    'solutions': data_solutions
+                }
+            )
+
+        serializer = ResultsSerializer(result_data, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @swagger_auto_schema(tags=["Result"])
+    def fullTestId(self, request, *args, **kwargs):
+        data = list(TestUser.objects.filter(test_id=kwargs['testId']).values())
+        result_data = []
+        for result in data:
+            data_solutions = list(Solutions.objects.filter(id_result_id=result['id']).values('answer', 'correct_answer'))
+            result_data.append(
+                {
+                    'id_result_id': result['id'], 
+                    'idStudent': result['user_id'],
+                    'idTest': result['test_id'],
+                    'solutions': data_solutions
+                }
+            )
+
+        serializer = ResultsSerializer(result_data, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+

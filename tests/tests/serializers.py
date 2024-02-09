@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Test, Answer, Question, Grade
+from .models import Test, Answer, Question, Grade, TestUser, Solutions
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -50,8 +50,31 @@ class CorrectAnswerSerializer(serializers.Serializer):
     question_id = serializers.IntegerField()
     correct_answer = serializers.CharField()
 
+class TestUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TestUser
+        fields = "__all__"
+
+class SolutionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Solutions
+        fields = ['answer', 'correct_answer']
+
+class ResultsSerializer(serializers.ModelSerializer):
+    idStudent = serializers.IntegerField()
+    idTest = serializers.IntegerField()
+    solutions = SolutionsSerializer(many=True)
+    class Meta:
+        model = Solutions
+        fields = ['id_result_id', 'idStudent', 'idTest', 'solutions']
+
+class SolutionsResultsSerializer(serializers.ModelSerializer):
+    class Meta:
+            model = Solutions
+            fields = "__all__"
 
 class GradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grade
         fields = ['user_id', 'test_id', 'question_id', 'answer']
+

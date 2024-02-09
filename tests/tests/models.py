@@ -31,3 +31,8 @@ class Grade(models.Model):
     test_id = models.IntegerField(null=False, blank=False)
     question_id = models.IntegerField(null=False, blank=False)
     answer = models.CharField(max_length=255)
+
+class Solutions(models.Model):
+    id_result = models.ForeignKey(TestUser, on_delete=models.CASCADE, related_name='results')
+    answer = models.CharField(max_length=255)
+    correct_answer = models.CharField(max_length=255)

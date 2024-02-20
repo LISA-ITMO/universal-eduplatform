@@ -17,6 +17,7 @@ COPY poetry.lock pyproject.toml /courses
 RUN pip3 install poetry
 RUN poetry config virtualenvs.create false
 
+RUN pip install gunicorn==20.1.0
 # Install dependencies
 RUN poetry install
 # Copy entrypoint.sh
@@ -25,5 +26,8 @@ COPY ./docker/dev/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 COPY . /courses/
+
+# костыль, чтоб установить модуль, подидеи должен устанавливаться в зависимостях
+RUN pip install django-cors-headers
 
 ENTRYPOINT [ "/entrypoint.sh" ]

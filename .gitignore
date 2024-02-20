@@ -203,3 +203,7 @@ ENV/
 /site
 
 !/client/web/build
+
+dbs
+
+/subjects/static/

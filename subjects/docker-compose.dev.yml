@@ -5,9 +5,9 @@ services:
       context: .
       dockerfile: docker/dev/Dockerfile
     image: subjects-api
-    command: poetry run python manage.py runserver 0.0.0.0:6000
+    command: poetry run python manage.py runserver 
     volumes:
       - .:/courses
     ports:
-      - '6000:6000'
+      - '8000:8000'
     restart: unless-stopped

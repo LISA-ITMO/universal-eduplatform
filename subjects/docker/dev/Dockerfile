@@ -27,7 +27,4 @@ RUN chmod +x /entrypoint.sh
 
 COPY . /courses/
 
-# костыль, чтоб установить модуль, подидеи должен устанавливаться в зависимостях
-RUN pip install django-cors-headers
-
 ENTRYPOINT [ "/entrypoint.sh" ]

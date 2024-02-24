@@ -15,13 +15,13 @@ services:
       context: ../subjects
       dockerfile: docker/dev/Dockerfile
     image: subjects-api
-    command: gunicorn --bind 0.0.0.0:6000 project.wsgi 
+    command: gunicorn --bind 0.0.0.0:9000 project.wsgi 
     # command: poetry run python manage.py runserver 0.0.0.0:6000
     volumes:
       # - ../subjects:/courses
       - ../dbs/subjects_db.sqlite3:/courses/db.sqlite3
     ports:
-      - '6000:6000'
+      - 9000:9000
     restart: unless-stopped
 
   users:

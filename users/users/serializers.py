@@ -1,24 +1,35 @@
 from rest_framework import serializers
-from .models import Profile
-from django.contrib.auth.models import User
+from .models import User
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+class LoginSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
 
-class ProfileSerializer(serializers.ModelSerializer):
-     class Meta:
-         model = Profile
-         fields = ['user', 'description', 'role']
+        # добавьте дополнительные данные в payload токена
+        token['username'] = user.username
+        token['role'] = user.role
 
-class UserSerializer(serializers.ModelSerializer):
-     class Meta:
-         model = User
-         fields = ['email', 'password', 'username']
-         extra_kwargs = {'password': {'write_only': True}}
+        return token
+    
 
-     def create(self, validated_data):
-         user = User.objects.create_user(**validated_data)
-         return user
+class RegistrationSerializer(serializers.ModelSerializer):
 
-class ProfileDetailSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        max_length=128,
+        min_length=8,
+        write_only=True
+    )
+
     class Meta:
-        model = Profile
-        fields = '__all__'
+        model = User
+        fields = ['email', 'username', 'password', 'role']
+
+    def create(self, validated_data):
+        return User.objects.create_user(**validated_data)
+    
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'username', 'role']

@@ -143,9 +143,13 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'EXCEPTION_HANDLER': 'QuizPlatform.exceptions.core_exception_handler',
+    'NON_FIELD_ERRORS_KEY': 'error',
 }
 
+AUTH_USER_MODEL = 'users.User'
 DJOSER = {
     'TOKEN': {
         'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=1),  # Set the token duration to 1 day

@@ -35,11 +35,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('admin/', admin.site.urls),
-
-#     path('api/v1/', include('djoser.urls')),
-#     re_path(r'^api/v1/', include('djoser.urls.authtoken')),
-
-    path('api/v1/', include('users.urls')),
+    path('users/', include('users.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:

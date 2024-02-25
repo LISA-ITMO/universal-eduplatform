@@ -1,36 +1,50 @@
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from rest_framework import status
-from .models import Profile
-from .serializers import ProfileSerializer, UserSerializer, ProfileDetailSerializer
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from .models import User
+from .serializers import LoginSerializer, RegistrationSerializer, UserSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import viewsets
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from .decorators import (
+    student_access_only,
+    teacher_access_only,
+    admin_access_only
+)
 
-# @swagger_auto_schema(tags=["Profile"])
-@api_view(['POST'])
-def register_user(request):
-    user_serializer = UserSerializer(data=request.data)
-    profile_serializer = ProfileSerializer(data=request.data)
+class LoginView(TokenObtainPairView):
+    serializer_class = LoginSerializer
+    
 
-    if user_serializer.is_valid() and profile_serializer.is_valid():
-        user = user_serializer.save()
-        profile_data = {'user': user.id, 'role': request.data['role']}
-        profile_serializer = ProfileSerializer(data=profile_data)
+class RegistrationAPIView(viewsets.ModelViewSet):
+    permission_classes = (AllowAny,)
+    serializer_class = RegistrationSerializer
 
-        if profile_serializer.is_valid():
-            profile_serializer.save()
-            return Response({'status': 'OK'}, status=status.HTTP_201_CREATED)
+    def signup(self, request, *args, **kwargs):
+        user = request.data
+        serializer = RegistrationSerializer(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'status': 'OK'}, status=status.HTTP_201_CREATED)
+    
 
-    return Response({'status': 'Error', 'errors': user_serializer.errors + profile_serializer.errors},
-                    status=status.HTTP_400_BAD_REQUEST)
+class UserAPIView(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserSerializer
+    queryset = User
 
-# @swagger_auto_schema(tags=["Profile"])
-@api_view(['GET'])
-# @authentication_classes([TokenAuthentication])
-# @permission_classes([IsAuthenticated])
-def get_user_profile(request):
-    profile = Profile.objects.get(user=request.user)
-    serializer = ProfileDetailSerializer(profile)
-    return Response(serializer.data)
+    def get_user(self, request, *args, **kwargs):
+        data = list(User.objects.filter(id=kwargs['pk']).values('id', 'username', 'email', 'role'))
+        return Response(data, status=status.HTTP_200_OK)
+    
+    @admin_access_only()
+    def admin(self, request, *args, **kwargs):
+        return Response(True)
+
+    @teacher_access_only()
+    def teacher(self, request, *args, **kwargs):
+        return Response(True)
+    
+    @student_access_only()
+    def student(self, request, *args, **kwargs):
+        return Response()

@@ -1,10 +1,15 @@
-from django.urls import path
-from .views import register_user, get_user_profile
-from rest_framework.authtoken.views import obtain_auth_token
+from django.urls import path, re_path
+from .views import *
+from rest_framework_simplejwt import views as jwt_views
+
 
 urlpatterns = [
-    path('users/register/', register_user, name='register-user'),
-    path('users/login/', obtain_auth_token, name='login'),
-    path('users/get/', get_user_profile, name='get-user-profile'),
+    re_path(r'^signin/$', LoginView.as_view(), name='login'),
+    re_path(r'^signup/$', RegistrationAPIView.as_view({'post':'signup'}), name='register'),
+    re_path(r'^refresh/$', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
+    path('get_user/<int:pk>', UserAPIView.as_view({'get': 'get_user'}), name='get_user'),
+    path('admin/<str:token>', UserAPIView.as_view({'get': 'admin'}), name='get_admin'),
+    path('teacher/<str:token>', UserAPIView.as_view({'get': 'teacher'}), name='get_teacher'),
+    path('student/<str:token>', UserAPIView.as_view({'get': 'student'}), name='get_student')
 ]
 

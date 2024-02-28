@@ -47,4 +47,4 @@ class UserAPIView(viewsets.ModelViewSet):
     
     @student_access_only()
     def student(self, request, *args, **kwargs):
-        return Response()
+        return Response(True)

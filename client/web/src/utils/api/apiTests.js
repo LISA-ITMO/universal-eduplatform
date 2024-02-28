@@ -45,15 +45,15 @@ export const API_TESTS = {
     results: {
         grade: async ({userId, testId, results}) => {
             const sendData = {
-                "user_id": userId,
-                "test_id": Number(testId),
-                "results": results,
+                "idStudent": userId,
+                "idTest": Number(testId),
+                "solutions": results,
             };
-            const answer = await getAPIClient.post(`/results/grade`, sendData);
+            const answer = await getAPIClient.post(`/results/add`, sendData);
             return answer;
         },
         get: async ({id}) => {
-            const answer = await getAPIClient.get(`/results/${id}`);
+            const answer = await getAPIClient.get(`/results/getByResultId/${id}`);
             return answer;
         },
     },

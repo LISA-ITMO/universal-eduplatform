@@ -138,7 +138,7 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
         else {
             toastIdRef.current = toast({ description: 'Отправляем результаты теста, пожалуйста, подождите', status: 'loading'});
 
-            API_TESTS.results.grade({userId: 1, results: answers, testId: testId})
+            API_TESTS.results.grade({userId: 1, testId: testId, results: answers})
                 .then(() => {
                     toast.update(toastIdRef.current, { description: 'Результаты сохранены', status: 'success'});
                     navigate(`/solution/${subjectId}/${themeId}/${testId}/result`);
@@ -153,7 +153,7 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        answers.push({question_id: test.questions[currentCount].question_id, answer: variants?.[rightAnswer]?.answer_text});
+        answers.push({'answer': variants?.[rightAnswer]?.answer_text, 'correct_answer': rightAnswers[currentCount]});
         if (variants?.[rightAnswer]?.answer_text === rightAnswers[currentCount])
             setCountCorrect((prev) => ++prev);
         setIsGetAnswer(true);

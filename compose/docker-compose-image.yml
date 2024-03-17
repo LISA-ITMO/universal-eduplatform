@@ -1,0 +1,53 @@
+version: '3.3'
+volumes:
+  static:
+
+services:
+  client:
+    image: niktimo/client
+    volumes:
+      - static:/client/build/
+  
+  api: &api
+    build:
+      context: ../subjects
+      dockerfile: docker/dev/Dockerfile
+    image: subjects-api
+    command: gunicorn --bind 0.0.0.0:9000 project.wsgi 
+    volumes:
+      - ../dbs/subjects_db.sqlite3:/courses/db.sqlite3
+    ports:
+      - 9000:9000
+    restart: unless-stopped
+    depends_on:
+      - client
+
+  users:
+    build: ../users/
+    ports:
+      - 8000:8000    
+    volumes:
+      - ../dbs/users_db.sqlite3:/app/db.sqlite3
+    depends_on:
+      - client
+
+  tests:
+    build: ../tests/
+    ports:
+      - 7000:7000    
+    volumes:
+      - ../dbs/tests_db.sqlite3:/app/db.sqlite3
+    depends_on:
+      - client
+
+  gateway:
+    image: nginx
+    ports:
+      - 8888:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - static:/usr/share/nginx/html/
+
+    depends_on:
+      - client
+      - users

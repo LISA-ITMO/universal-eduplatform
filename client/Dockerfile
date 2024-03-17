@@ -5,5 +5,5 @@ RUN npm install
 COPY ./client/web .
 COPY ./compose/env/.env.client ./.env
 # ENTRYPOINT ["tail", "-f", "/dev/null"]
-ENV NODE_OPTIONS=--max_old_space_size=600
+ENV NODE_OPTIONS=--max_old_space_size=7168
 RUN npm run build

@@ -21,6 +21,8 @@ services:
     ports:
       - 9000:9000
     restart: unless-stopped
+    depends_on:
+      - client
 
   users:
     build: ../users/

@@ -13,13 +13,15 @@ import Creation from '@pages/Creation';
 import Solution from '@pages/Solution';
 import Students from '@pages/Students';
 import Moderation from '@pages/Moderation';
+import {cookies} from '@utils/api/apiUser';
 
 
 function App() {
-    // const [isAuth, setIsAuth] = useState(!!localStorage.getItem(QUIZ_TOKEN));
-    const [isAuth, setIsAuth] = useState(true);
+    const [isAuth, setIsAuth] = useState(!!cookies.get('access_token'));
+    // const [isAuth, setIsAuth] = useState(true);
     const [isFullPanel, setIsFullPanel] = useState(true);
-
+    // const csrftoken = getCookie('csrftoken')
+    // const accessToken = getCookie('access')
     const {user, setUser} = useContext(UserContext);
     // const { t } = useTranslation();
 

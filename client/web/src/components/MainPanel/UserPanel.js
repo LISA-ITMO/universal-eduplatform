@@ -6,16 +6,18 @@ import {QUIZ_TOKEN, QUIZ_TOKEN_REFRESH} from '@utils/common';
 import {UserContext} from '@providers/UserProvider';
 import {ColorModeSwitcher} from '@components/ColorModeSwitcher';
 import {useNavigate} from 'react-router-dom';
+import {API_USER} from '@utils/api/apiUser';
+import {cookies} from '@utils/api/apiUser';
 
 const UserBar = ({logout, isFullPanel}) => {
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        localStorage.removeItem(QUIZ_TOKEN);
-        localStorage.removeItem(QUIZ_TOKEN_REFRESH);
+        cookies.remove('access_token')
+        cookies.remove('refresh_token')
         logout();
-        navigate('login');
+        navigate('/login');
     }
 
     return (
@@ -26,7 +28,7 @@ const UserBar = ({logout, isFullPanel}) => {
                 </Tooltip>
             }
             <ColorModeSwitcher />
-            {!!localStorage.getItem(QUIZ_TOKEN) && <Button onClick={handleLogout} size={"md"} variant='ghost' pt={"2px"} colorScheme={'red'}><Icon w={"25px"} h={"25px"} as={BiLogOut} /></Button>}
+            <Button onClick={handleLogout} size={"md"} variant='ghost' pt={"2px"} colorScheme={'red'}><Icon w={"25px"} h={"25px"} as={BiLogOut} /></Button>
         </Flex>
     );
 };

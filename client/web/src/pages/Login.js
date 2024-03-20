@@ -14,6 +14,8 @@ import {ColorModeSwitcher} from "@components/ColorModeSwitcher";
 import {API_USER} from '@utils/api/apiUser';
 import {QUIZ_TOKEN, QUIZ_TOKEN_REFRESH} from '@utils/common';
 import {useNavigate} from 'react-router-dom';
+import {cookies} from '@utils/api/apiUser';
+import { TLoginButton, TLoginButtonSize } from 'react-telegram-auth';
 
 const Login = ({setIsAuth, isRegistration}) => {
     const toast = useToast({
@@ -38,7 +40,7 @@ const Login = ({setIsAuth, isRegistration}) => {
     const handleClick = () => setShow(!show);
 
     useEffect(() => {
-        if (!!localStorage.getItem(QUIZ_TOKEN)) {
+        if (!!cookies.get('access_token')) {
             navigate('/');
         }
     }, [])
@@ -57,15 +59,21 @@ const Login = ({setIsAuth, isRegistration}) => {
         if (!password) {
             setErrorNoPassword(true);
         }
-        if (!isRegistration && email && password) {
-            API_USER.login({username: email, password})
+        if (!isRegistration && userName && password) {
+            API_USER.login({username: userName, password})
                 .then((res) => {
-                    localStorage.setItem(QUIZ_TOKEN, res.data.auth_token);
-                    localStorage.setItem(QUIZ_TOKEN_REFRESH, res.data.refresh_token);
+                    cookies.set("access_token", res.data.access_token, {
+                        path: "/",
+                      });
+                    cookies.set("refresh_token", res.data.refresh_token, {
+                    path: "/",
+                      });
+                    // localStorage.setItem('access_token', res.data.access_token);
+                    // localStorage.setItem('refresh_token', res.data.refresh_token);
                     setIsAuth(true);
                     navigate('/');
                 })
-                .then(() => {
+                // .then(() => {
                     // API.authenticate
                     //     .me()
                     //     .then((res) => {
@@ -76,7 +84,7 @@ const Login = ({setIsAuth, isRegistration}) => {
                     //     .catch(() => {
                     //       toast({ title: 'Не удалось получить информацию о пользователе', status: 'error' })
                     //     })
-                })
+                // })
                 .catch((err) => {
                     toast({ title: 'Неверный логин или пароль', status: 'error' })
                     setPassword('');
@@ -87,14 +95,14 @@ const Login = ({setIsAuth, isRegistration}) => {
                 })
         }
         if (isRegistration && email && password && userName) {
-            // API.users.signup({name: userName, email, password})
-            //     .then(() => {
-            //         toast({ description: 'Пользователь зарегистрирован', status: 'success' });
-            //         navigate('/login');
-            //     })
-            //     .catch(() => {
-            //         toast({ description: 'Не удается зарегистрироваться', status: 'error' });
-            //     })
+            API_USER.register({email, username: userName, password})
+                .then(() => {
+                    toast({ description: 'Пользователь зарегистрирован', status: 'success' });
+                    navigate('/login');
+                })
+                .catch(() => {
+                    toast({ description: 'Не удается зарегистрироваться', status: 'error' });
+                })
         }
     };
 
@@ -109,7 +117,19 @@ const Login = ({setIsAuth, isRegistration}) => {
                     </Flex>
                     <Text fontSize={'22px'} fontWeight={'400'} py={'5px'}
                           textAlign={'center'}>{isRegistration ? 'Регистрация' : 'Авторизация'}</Text>
-                    <FormControl isInvalid={errorNoEmail && !email}>
+
+                    {/* <TLoginButton
+                            botName="Quiz_login_bot"
+                            buttonSize={TLoginButtonSize.Large}
+                            lang="en"
+                            usePic={false}
+                            cornerRadius={20}
+                            onAuthCallback={(user) => {
+                            console.log('Hello, user!', user);
+                            }}
+                            requestAccess={'write'}
+                        /> */}
+                    {isRegistration && <FormControl isInvalid={errorNoEmail && !email}>
                         <FormLabel>Email:</FormLabel>
                         <Input
                             bg={bgInput}
@@ -122,8 +142,8 @@ const Login = ({setIsAuth, isRegistration}) => {
                                 Поле email пустое
                             </FormErrorMessage>
                         )}
-                    </FormControl>
-                    {isRegistration && <FormControl isInvalid={errorNoUserName && !userName}>
+                    </FormControl>}
+                    <FormControl isInvalid={errorNoUserName && !userName}>
                         <FormLabel>Username:</FormLabel>
                         <Input
                             bg={bgInput}
@@ -136,7 +156,7 @@ const Login = ({setIsAuth, isRegistration}) => {
                                 Поле username пустое
                             </FormErrorMessage>
                         )}
-                    </FormControl>}
+                    </FormControl>
                     <FormControl isInvalid={errorNoPassword && !password}>
                         <FormLabel>Пароль:</FormLabel>
                         <InputGroup size="md">
@@ -167,18 +187,18 @@ const Login = ({setIsAuth, isRegistration}) => {
                                 <Button bg={bgButton} type="submit" width="50%" variant="solid">
                                     Зарегистрироваться
                                 </Button>
-                                {/*<Button bg={bgButton} onClick={() => navigate('/email')} width="40%" variant="solid">*/}
-                                {/*    Авторизация*/}
-                                {/*</Button>*/}
+                                <Button bg={bgButton} onClick={() => navigate('/login')} width="40%" variant="solid">
+                                   Авторизация
+                                </Button>
                             </Flex>
                             :
                             <Flex pt={'15px'} justifyContent={'space-between'} width="100%">
                                 <Button bg={bgButton} type="submit" width="45%" variant="solid">
                                     Войти
                                 </Button>
-                                {/*<Button bg={bgButton} onClick={() => navigate('/register')} width="45%" variant="solid">*/}
-                                {/*    Регистрация*/}
-                                {/*</Button>*/}
+                                <Button bg={bgButton} onClick={() => navigate('/register')} width="45%" variant="solid">
+                                   Регистрация
+                                </Button>
                             </Flex>
                     }
                 </Stack>

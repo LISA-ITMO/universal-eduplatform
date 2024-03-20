@@ -1,10 +1,9 @@
-from drf_yasg.utils import swagger_auto_schema
 from rest_framework.response import Response
 from rest_framework import status
 from .models import User
-from .serializers import LoginSerializer, RegistrationSerializer, UserSerializer
+from .serializers import LoginSerializer, RegistrationSerializer, UserSerializer, LogoutSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .decorators import (
     student_access_only,
@@ -13,20 +12,23 @@ from .decorators import (
 )
 
 class LoginView(TokenObtainPairView):
+    permission_classes = (AllowAny, )
     serializer_class = LoginSerializer
-    
 
-class RegistrationAPIView(viewsets.ModelViewSet):
+    def post(self, request, * args, ** kwargs):
+        response = super().post(request, * args, ** kwargs) # Get tokens as usual
+
+        # Set access token as HttpOnly cookie
+        response.set_cookie('access_token', response.data['access'], httponly = True)
+
+        # Set refresh token as HttpOnly cookie
+        response.set_cookie('refresh_token', response.data['refresh'], httponly = True)
+
+        return response
+    
+class RegistrationAPIView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = RegistrationSerializer
-
-    def signup(self, request, *args, **kwargs):
-        user = request.data
-        serializer = RegistrationSerializer(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({'status': 'OK'}, status=status.HTTP_201_CREATED)
-    
 
 class UserAPIView(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
@@ -48,3 +50,17 @@ class UserAPIView(viewsets.ModelViewSet):
     @student_access_only()
     def student(self, request, *args, **kwargs):
         return Response(True)
+
+class LogoutAPIView(generics.GenericAPIView):
+    serializer_class = LogoutSerializer
+
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    

@@ -15,30 +15,37 @@ services:
       context: ../subjects
       dockerfile: docker/dev/Dockerfile
     image: subjects-api
-    command: gunicorn --bind 0.0.0.0:9000 project.wsgi 
-    volumes:
-      - ../dbs/subjects_db.sqlite3:/courses/db.sqlite3
+    command: ./cmd.subjects.sh
     ports:
       - 9000:9000
+    volumes:
+      - ../dbs/subjects_db.sqlite3:/courses/db.sqlite3
+      - ./startscripts/cmd.subjects.sh:/courses/cmd.subjects.sh
     restart: unless-stopped
     depends_on:
       - client
 
   users:
     build: ../users/
+    env_file:
+      - ./env/.env.users
+    command: ./cmd.users.sh
     ports:
-      - 8000:8000    
+      - 8000:8000
     volumes:
       - ../dbs/users_db.sqlite3:/app/db.sqlite3
+      - ./startscripts/cmd.users.sh:/app/cmd.users.sh
     depends_on:
       - client
 
   tests:
     build: ../tests/
+    command: ./cmd.tests.sh
     ports:
-      - 7000:7000    
+      - 7000:7000
     volumes:
       - ../dbs/tests_db.sqlite3:/app/db.sqlite3
+      - ./startscripts/cmd.tests.sh:/app/cmd.tests.sh
     depends_on:
       - client
 

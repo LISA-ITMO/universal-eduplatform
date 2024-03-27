@@ -190,3 +190,4 @@ SIMPLE_JWT = {
   'AUTH_COOKIE_SAMESITE': 'Lax',  # Whether to set the flag restricting cookie leaks on cross-site requests. This can be 'Lax', 'Strict', or None to disable the flag.
 }
 FORCE_SCRIPT_NAME = '/users'
+CSRF_TRUSTED_ORIGINS = ['http://87.249.49.46']

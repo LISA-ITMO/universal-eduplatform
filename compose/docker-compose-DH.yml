@@ -4,9 +4,7 @@ volumes:
 
 services:
   client:
-    build:
-      context: ../
-      dockerfile: client/Dockerfile
+    image: niktimo/lisa-frontend-client
     volumes:
       - static:/client/build/
   

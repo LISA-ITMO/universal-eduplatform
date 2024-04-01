@@ -1,8 +1,6 @@
 from .views import *
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from rest_framework.urlpatterns import format_suffix_patterns
-from .views import SubjectView, StudentView, ThemeView, CourseView
+from django.urls import path
+from .views import SubjectView, ThemeView, CourseView
 
 urlpatterns = [
     path('subjects/add/', SubjectView.as_view({'post': 'add'}), name='subjects-add'),
@@ -24,9 +22,9 @@ urlpatterns = [
     path('courses/getByIdExpert/<int:expert_id>/', CourseView.as_view({'get': 'getByIdExpert',}), name='courses-byIdExpert'),
     path('courses/get/<int:expert_id>/<int:subject_id>', CourseView.as_view({'get': 'getExpertInfo',}), name='courses-ExpertInfo'),
 
-    path('students/list/',  StudentView.as_view({'get': 'list'}), name='students-list'),
-    path('students/getById/<int:pk>/', StudentView.as_view({'get': 'retrieve'}), name='students-list-id'),
-    path('students/getBySubjectId/<int:subject_id>/', StudentView.as_view({'get': 'getBySubjectId',}), name='students-bySubjects'),
-    path('students/getByIdExpert/<int:expert_id>/', StudentView.as_view({'get': 'getByIdExpert',}), name='students-byIdExpert'),
-    path('students/get/<int:expert_id>/<int:subject_id>', StudentView.as_view({'get': 'getStudentsInfo',}), name='students-StudentsInfo'),
+    # path('students/list/',  StudentView.as_view({'get': 'list'}), name='students-list'),
+    # path('students/getById/<int:pk>/', StudentView.as_view({'get': 'retrieve'}), name='students-list-id'),
+    # path('students/getBySubjectId/<int:subject_id>/', StudentView.as_view({'get': 'getBySubjectId',}), name='students-bySubjects'),
+    # path('students/getByIdExpert/<int:expert_id>/', StudentView.as_view({'get': 'getByIdExpert',}), name='students-byIdExpert'),
+    # path('students/get/<int:expert_id>/<int:subject_id>', StudentView.as_view({'get': 'getStudentsInfo',}), name='students-StudentsInfo'),
 ]

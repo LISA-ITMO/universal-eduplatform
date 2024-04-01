@@ -6,12 +6,6 @@ class SubjectSerializer(serializers.ModelSerializer):
         model = Subject
         fields = "__all__"
 
-class StudentSerializer(serializers.ModelSerializer):
-    class Meta():
-        model = Student
-        fields = "__all__"
-
-
 class ThemeSerializer(serializers.ModelSerializer):
     class Meta():
         model = Theme

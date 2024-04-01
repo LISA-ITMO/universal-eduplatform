@@ -38,32 +38,32 @@ class SubjectView(viewsets.ModelViewSet):
             status_code = status.HTTP_400_BAD_REQUEST
             return Response({"message": "Data not found", "status": status_code}, status_code)
 
-class StudentView(viewsets.ModelViewSet):
-    queryset = Student.objects.all()
-    serializer_class = StudentSerializer
+# class StudentView(viewsets.ModelViewSet):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        data = list(Student.objects.filter(id_student=kwargs['pk']).values())
-        return Response(data)    
+#     def retrieve(self, request, *args, **kwargs):
+#         data = list(Student.objects.filter(id_student=kwargs['pk']).values())
+#         return Response(data)    
     
-    def getBySubjectId(self, request, *args, **kwargs):
-        students_id = list(Student_Course_Subject.objects.filter(id_subject=kwargs['subject_id']).values_list("id_student", flat=True))
-        data = list(Student.objects.filter(pk__in=students_id).values())
-        return Response(data)
+#     def getBySubjectId(self, request, *args, **kwargs):
+#         students_id = list(Student_Course_Subject.objects.filter(id_subject=kwargs['subject_id']).values_list("id_student", flat=True))
+#         data = list(Student.objects.filter(pk__in=students_id).values())
+#         return Response(data)
     
-    def list(self, request, *args, **kwargs):
-        data = list(Student.objects.all().values())
-        return Response(data)
+#     def list(self, request, *args, **kwargs):
+#         data = list(Student.objects.all().values())
+#         return Response(data)
     
-    def getByIdExpert(self, request, *args, **kwargs):
-        students_id = list(Student_Course_Subject.objects.filter(id_expert=kwargs['expert_id']).values_list("id_student", flat=True))
-        data = list(Student.objects.filter(pk__in=students_id).values())
-        return Response(data)
+#     def getByIdExpert(self, request, *args, **kwargs):
+#         students_id = list(Student_Course_Subject.objects.filter(id_expert=kwargs['expert_id']).values_list("id_student", flat=True))
+#         data = list(Student.objects.filter(pk__in=students_id).values())
+#         return Response(data)
     
-    def getStudentsInfo(self, request, *args, **kwargs):
-        students_id = list(Student_Course_Subject.objects.filter(id_expert=kwargs['expert_id']).filter(id_subject=kwargs['subject_id']).values_list('id_student',  flat=True))
-        data = list(Student.objects.filter(pk__in=students_id).values())
-        return Response(data)
+#     def getStudentsInfo(self, request, *args, **kwargs):
+#         students_id = list(Student_Course_Subject.objects.filter(id_expert=kwargs['expert_id']).filter(id_subject=kwargs['subject_id']).values_list('id_student',  flat=True))
+#         data = list(Student.objects.filter(pk__in=students_id).values())
+#         return Response(data)
 
 class ThemeView(viewsets.ModelViewSet):
     queryset =Theme.objects.all()

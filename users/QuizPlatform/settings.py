@@ -191,3 +191,6 @@ SIMPLE_JWT = {
 }
 FORCE_SCRIPT_NAME = '/users'
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=lambda v: [s.strip() for s in v.split(',')])
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True

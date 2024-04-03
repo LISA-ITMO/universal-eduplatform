@@ -23,8 +23,9 @@ class LoginView(TokenObtainPairView):
 
         # Set refresh token as HttpOnly cookie
         response.set_cookie('refresh_token', response.data['refresh'], httponly = True)
+        data = list(User.objects.filter(username=request.data['username']).values('id', 'username', 'email', 'role', 'is_active'))
 
-        return response
+        return Response(data, status=status.HTTP_200_OK)
     
 class RegistrationAPIView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
@@ -34,10 +35,6 @@ class UserAPIView(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = UserSerializer
     queryset = User
-
-    def get_user(self, request, *args, **kwargs):
-        data = list(User.objects.filter(id=kwargs['pk']).values('id', 'username', 'email', 'role'))
-        return Response(data, status=status.HTTP_200_OK)
     
     @admin_access_only()
     def admin(self, request, *args, **kwargs):

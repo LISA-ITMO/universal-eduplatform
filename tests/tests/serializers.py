@@ -1,80 +1,78 @@
 from rest_framework import serializers
-from .models import Test, Answer, Question, Grade, TestUser, Solutions
+from .models import Test, Question, Solutions, Answer, Result
 
 
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ['answer_text']
+        fields = ['answer_text', 'is_correct']
 
+class AnswerAllSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Answer
+        fields = ['answer_text']
 
 class QuestionSerializer(serializers.ModelSerializer):
     answers = AnswerSerializer(many=True)
 
     class Meta:
         model = Question
-        fields = ['question_text', 'correct_answer', 'addition_info', 'answers']
+        fields = ['question_text','addition_info', 'question_points', 'answers']
 
-
-class QuestionWithoutRightAnswerSerializer(serializers.ModelSerializer):
-    answers = AnswerSerializer(many=True)
+class QuestionAllAnswersSerializer(serializers.ModelSerializer):
+    answers = AnswerAllSerializer(many=True)
 
     class Meta:
         model = Question
-        fields = ['question_text', 'addition_info', 'answers']
-
+        fields = ['question_text','addition_info', 'question_points', 'answers']
 
 class TestSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True)
 
     class Meta:
         model = Test
-        fields = ['author_id', 'subject_id', 'theme_id', 'expert_id', 'questions']
+        fields = ['author_id', 'subject_id', 'theme_id', 'expert_id', 'max_points', 'questions']
 
 
 class TestListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Test
-        fields = ['id', 'author_id', 'subject_id', 'theme_id', 'times_solved', 'expert_id']
+        fields = ['id', 'author_id', 'subject_id', 'theme_id', 'times_solved', 'expert_id', 'max_points']
 
 
 class TestGetSerializer(serializers.ModelSerializer):
-    questions = QuestionWithoutRightAnswerSerializer(many=True)
+    questions = QuestionAllAnswersSerializer(many=True)
 
     class Meta:
         model = Test
-        fields = ['author_id', 'subject_id', 'theme_id', 'expert_id', 'questions']
+        fields = ['author_id', 'subject_id', 'theme_id', 'expert_id', 'max_points', 'questions']
 
 
 class CorrectAnswerSerializer(serializers.Serializer):
-    question_id = serializers.IntegerField()
-    correct_answer = serializers.CharField()
+    correct_answers = AnswerSerializer(many=True)
+    id_question = serializers.IntegerField()
 
 class TestUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TestUser
+        model = Result
         fields = "__all__"
 
 class SolutionsSerializer(serializers.ModelSerializer):
+    correct_answer = AnswerAllSerializer(many=True)
+    user_answer = AnswerAllSerializer(many=True)
     class Meta:
         model = Solutions
-        fields = ['answer', 'correct_answer']
+        fields = ['id_question', 'user_answer', 'correct_answer']
 
 class ResultsSerializer(serializers.ModelSerializer):
-    idStudent = serializers.IntegerField()
-    idTest = serializers.IntegerField()
     solutions = SolutionsSerializer(many=True)
     class Meta:
-        model = Solutions
-        fields = ['id_result_id', 'idStudent', 'idTest', 'solutions']
+        model = Result
+        fields = ['id', 'id_user', 'id_test', 'points_user', 'solutions']
 
 class SolutionsResultsSerializer(serializers.ModelSerializer):
     class Meta:
             model = Solutions
             fields = "__all__"
 
-class GradeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Grade
-        fields = ['user_id', 'test_id', 'question_id', 'answer']
 

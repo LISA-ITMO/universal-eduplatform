@@ -7,32 +7,39 @@ class Test(models.Model):
     theme_id = models.IntegerField(null=False, blank=False)
     times_solved = models.IntegerField(default=0, null=False, blank=False)
     expert_id = models.IntegerField(default=0, null=False, blank=False)
+    max_points = models.IntegerField(default=0, null=False, blank=False)
+
+    def __str__(self):
+        return f"Test {self.pk} by {self.author_id}"
 
 
 class Question(models.Model):
-    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='questions')
+    id_test = models.ForeignKey(Test, on_delete=models.CASCADE)
     question_text = models.CharField(max_length=100, null=False, blank=False)
-    correct_answer = models.CharField(max_length=100, null=False, blank=False)
     addition_info = models.TextField(null=False, blank=False)
+    question_points = models.IntegerField(null=False, blank=False)
+
+    def __str__(self):
+        return f"Question {self.pk} in test {self.test}"
 
 
 class Answer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
-    answer_text = models.CharField(max_length=100, null=False, blank=False)
+    answer_text = models.TextField(null=False, blank=False)
+    id_question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    is_correct = models.BooleanField()
+
+    def __str__(self):
+        return self.answer_text
 
 
-class TestUser(models.Model):
-    user_id = models.IntegerField(null=False, blank=False)
-    test_id = models.IntegerField(null=False, blank=False)
+class Result(models.Model):
+    id_user = models.IntegerField(null=False, blank=False)
+    id_test = models.ForeignKey(Test, on_delete=models.CASCADE)
+    points_user = models.IntegerField(null=True, blank=False)
 
-
-class Grade(models.Model):
-    user_id = models.IntegerField(null=False, blank=False)
-    test_id = models.IntegerField(null=False, blank=False)
-    question_id = models.IntegerField(null=False, blank=False)
-    answer = models.CharField(max_length=255)
 
 class Solutions(models.Model):
-    id_result = models.ForeignKey(TestUser, on_delete=models.CASCADE, related_name='results')
-    answer = models.CharField(max_length=255)
-    correct_answer = models.CharField(max_length=255)
+    id_result = models.ForeignKey(Result, on_delete=models.CASCADE)
+    id_question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    user_answer = models.TextField(null=False, blank=False)
+    correct_answer = models.TextField(null=False, blank=False)

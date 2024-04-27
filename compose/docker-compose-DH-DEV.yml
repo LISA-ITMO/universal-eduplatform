@@ -1,0 +1,64 @@
+version: '3.3'
+volumes:
+  static:
+
+services:
+  client:
+    image: niktimo/lisa-frontend-client
+    volumes:
+      - static:/client/build/
+  
+  api: &api
+    build:
+      context: ../subjects
+      dockerfile: docker/dev/Dockerfile
+    env_file:
+      - ./env/.env.subjects
+    command: ./cmd.subjects.sh
+    volumes:
+      - ../dbs/subjects_db.sqlite3:/app/db.sqlite3
+      - ./startscripts/cmd.subjects.sh:/app/cmd.subjects.sh
+      - static:/app/static/
+    restart: unless-stopped
+    depends_on:
+      - client
+
+  users:
+    build: ../users/
+    env_file:
+      - ./env/.env.users
+    command: ./cmd.users.sh
+    volumes:
+      - ../dbs/users_db.sqlite3:/app/db.sqlite3
+      - ./startscripts/cmd.users.sh:/app/cmd.users.sh
+      - static:/app/static/
+    depends_on:
+      - client
+    restart: unless-stopped
+
+  tests:
+    build: ../tests/
+    env_file:
+      - ./env/.env.tests
+    command: ./cmd.tests.sh
+    volumes:
+      - ../dbs/tests_db.sqlite3:/app/db.sqlite3
+      - ./startscripts/cmd.tests.sh:/app/cmd.tests.sh
+      - static:/app/static/
+    depends_on:
+      - client
+    restart: unless-stopped
+
+  gateway:
+    image: nginx
+    ports:
+      - 8888:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - static:/usr/share/nginx/html/
+    restart: unless-stopped
+    depends_on:
+      - client
+      - users
+      - tests
+      - api

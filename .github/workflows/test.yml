@@ -22,3 +22,4 @@ jobs:
           rm -rf DEV
           mkdir -p DEV/compose
           mv ./env DEV/compose
+#

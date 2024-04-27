@@ -7,7 +7,7 @@ services:
   client:
     image: ishutachkaa/frontend:PROD
     volumes:
-      - static-prod:/client/build/
+      - static:/client/build/
   
   api: &api
     build:
@@ -19,7 +19,7 @@ services:
     volumes:
       - ../dbs/subjects_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.subjects.sh:/app/cmd.subjects.sh
-      - static-prod:/app/static/
+      - static:/app/static/
     restart: unless-stopped
     depends_on:
       - client
@@ -32,7 +32,7 @@ services:
     volumes:
       - ../dbs/users_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.users.sh:/app/cmd.users.sh
-      - static-prod:/app/static/
+      - static:/app/static/
     depends_on:
       - client
     restart: unless-stopped
@@ -45,7 +45,7 @@ services:
     volumes:
       - ../dbs/tests_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.tests.sh:/app/cmd.tests.sh
-      - static-prod:/app/static/
+      - static:/app/static/
     depends_on:
       - client
     restart: unless-stopped

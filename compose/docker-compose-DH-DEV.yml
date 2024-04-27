@@ -4,14 +4,12 @@ volumes:
 
 services:
   client:
-    image: niktimo/lisa-frontend-client
+    image: ishutachkaa/frontend:DEV
     volumes:
       - static:/client/build/
   
   api: &api
-    build:
-      context: ../subjects
-      dockerfile: docker/dev/Dockerfile
+    image: ishutachkaa/subjects:DEV
     env_file:
       - ./env/.env.subjects
     command: ./cmd.subjects.sh
@@ -24,7 +22,7 @@ services:
       - client
 
   users:
-    build: ../users/
+    image: ishutachkaa/users:DEV
     env_file:
       - ./env/.env.users
     command: ./cmd.users.sh
@@ -37,7 +35,7 @@ services:
     restart: unless-stopped
 
   tests:
-    build: ../tests/
+    image: ishutachkaa/tests:DEV
     env_file:
       - ./env/.env.tests
     command: ./cmd.tests.sh

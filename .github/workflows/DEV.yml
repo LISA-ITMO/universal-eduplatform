@@ -108,6 +108,16 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
+    - name: Executing remote ssh commands to stop docker and clean up
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        password: ${{ secrets.SSH_PASSPHRASE }}
+        script: |
+          docker compose -f DEV/compose/docker-compose-DH-DEV.yml down
+          rm -rf DEV/!(compose)
+          rm -rf DEV/compose/!(env)
     - name: Copy infra via ssh
       uses: appleboy/scp-action@master
       with:
@@ -124,4 +134,7 @@ jobs:
         password: ${{ secrets.SSH_PASSPHRASE }}
         script: |
           mkdir DEV/dbs
-          touch DEV/dbs/1
+          touch DEV/dbs/users_db.sqlite3
+          touch DEV/dbs/tests_db.sqlite3
+          touch DEV/dbs/subjects_db.sqlite3
+          docker compose -f DEV/compose/docker-compose-DH-DEV.yml up --build -d

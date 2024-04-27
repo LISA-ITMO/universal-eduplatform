@@ -1,6 +1,7 @@
 version: '3.3'
 volumes:
   static:
+name: compose-dev
 
 services:
   client:
@@ -9,7 +10,7 @@ services:
       - static:/client/build/
   
   api: &api
-    image: ishutachkaa/subjects:DEV
+    image: ishutachkaa/backend-subjects:DEV
     env_file:
       - ./env/.env.subjects
     command: ./cmd.subjects.sh
@@ -22,7 +23,7 @@ services:
       - client
 
   users:
-    image: ishutachkaa/users:DEV
+    image: ishutachkaa/backend-users:DEV
     env_file:
       - ./env/.env.users
     command: ./cmd.users.sh
@@ -35,7 +36,7 @@ services:
     restart: unless-stopped
 
   tests:
-    image: ishutachkaa/tests:DEV
+    image: ishutachkaa/backend-tests:DEV
     env_file:
       - ./env/.env.tests
     command: ./cmd.tests.sh

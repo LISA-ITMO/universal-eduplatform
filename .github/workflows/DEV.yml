@@ -1,4 +1,4 @@
-name: Main devops_demo workflow
+name: DEV workflow
 
 on:
   push:
@@ -69,6 +69,7 @@ jobs:
       - name: Push to DockerHub
         uses: docker/build-push-action@v5.3.0
         with:
+          context: ./tests
           file: tests/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/backend-tests:DEV
@@ -92,6 +93,6 @@ jobs:
         uses: docker/build-push-action@v5.3.0
         with:
           context: ./subjects
-          file: docker/dev/Dockerfile
+          file: subjects/docker/dev/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/backend-subjects:DEV

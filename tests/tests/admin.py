@@ -26,7 +26,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 @admin.register(Solutions)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('user_id', 'test_id', 'answer', 'correct_answer' )
+    list_display = ('id_result', 'answer', 'correct_answer' )
 
 
 

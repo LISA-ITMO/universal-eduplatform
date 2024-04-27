@@ -100,11 +100,11 @@ jobs:
   deploy:
     name: Деплой на сервер
     runs-on: ubuntu-latest
-    needs: 
-      - build_and_push_subjects_to_docker_hub
-      - build_and_push_users_to_docker_hub
-      - build_and_push_tests_to_docker_hub
-      - build_and_push_front_to_docker_hub
+#    needs: 
+#      - build_and_push_subjects_to_docker_hub
+#      - build_and_push_users_to_docker_hub
+#      - build_and_push_tests_to_docker_hub
+#      - build_and_push_front_to_docker_hub
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
@@ -113,6 +113,6 @@ jobs:
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USER }}
-        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        password: ${{ secrets.SSH_PASSPHRASE }}
         script: |
           rm -rf DEV

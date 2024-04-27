@@ -52,7 +52,7 @@ services:
   gateway:
     image: nginx
     ports:
-      - 8888:80
+      - 9999:80
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - static:/usr/share/nginx/html/

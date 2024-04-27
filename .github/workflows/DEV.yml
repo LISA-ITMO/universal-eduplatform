@@ -3,7 +3,7 @@ name: DEV workflow
 on:
   push:
     branches:
-      - DEV
+#      - DEV
 jobs:
   build_and_push_front_to_docker_hub:
     name: Push Docker frontend image to DockerHub

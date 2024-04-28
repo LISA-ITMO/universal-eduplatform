@@ -58,11 +58,9 @@ class TestUserSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class SolutionsSerializer(serializers.ModelSerializer):
-    correct_answer = AnswerAllSerializer(many=True)
-    user_answer = AnswerAllSerializer(many=True)
     class Meta:
         model = Solutions
-        fields = ['id_question', 'user_answer', 'correct_answer']
+        fields = ['id_question', 'user_answer']
 
 class ResultsSerializer(serializers.ModelSerializer):
     solutions = SolutionsSerializer(many=True)

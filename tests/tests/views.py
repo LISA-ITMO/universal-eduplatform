@@ -130,7 +130,7 @@ class TestListView(viewsets.ModelViewSet):
         serializer = TestListSerializer(data, many=True)
         return Response(serializer.data)
         
-class TestGetView(APIView):
+class TestGetView(viewsets.ModelViewSet):
     serializer_class = TestGetSerializer
     queryset = Test.objects.all()
 

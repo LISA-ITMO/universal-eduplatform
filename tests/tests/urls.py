@@ -9,7 +9,7 @@ from .views import (TestAPIView,
 urlpatterns = [
     path('tests/add', TestAPIView.as_view({'post': 'add'}), name='tests-add'),
     path('tests/list/<int:subject_id>/<int:theme_id>', TestListView.as_view({'get': 'get'}), name='tests-list'),
-    path('tests/<int:pk>', TestGetView.as_view(), name='tests-get'),
+    path('tests/<int:pk>', TestGetView.as_view({'get': 'get'}), name='tests-get'),
     path('tests/get-all-correct-answers/<int:pk>', GetAllCorrectAnswersView.as_view({'get': 'get'}), name='tests-get-all-right-answers'),
      path('tests/get-correct-answer-by-question-id/<int:question_pk>', GetAllCorrectAnswersByQuestionView.as_view({'get': 'get'}),
           name='question-get-right-answer'),

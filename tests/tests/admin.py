@@ -1,33 +1,23 @@
 from django.contrib import admin
 
-from .models import Question, Test, Answer, TestUser, Grade, Solutions
+from .models import Question, Test, Answer, Result, Solutions
 
 @admin.register(Test)
 class TestAdmin(admin.ModelAdmin):
-    list_display = ('author_id', 'subject_id', 'theme_id', 'times_solved' , 'expert_id')
+    list_display = ('author_id', 'subject_id', 'theme_id', 'times_solved' , 'expert_id', 'max_points')
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('test', 'question_text', 'correct_answer', 'addition_info' )
+    list_display = ('id_test', 'question_text', 'addition_info', 'question_points')
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
-    list_display = ('question', 'answer_text' )
+    list_display = ('id_question', 'answer_text', 'is_correct')
 
-
-@admin.register(TestUser)
+@admin.register(Result)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('user_id', 'test_id')
-
-
-@admin.register(Grade)
-class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('user_id', 'test_id', 'question_id', 'answer' )
+    list_display = ('id_user', 'id_test', 'points_user')
 
 @admin.register(Solutions)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('id_result', 'answer', 'correct_answer' )
-
-
-
-# Register your models here.
+    list_display = ('id_result', 'id_question', 'user_answer' )

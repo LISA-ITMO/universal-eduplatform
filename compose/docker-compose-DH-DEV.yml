@@ -48,6 +48,19 @@ services:
       - client
     restart: unless-stopped
 
+  analytics:
+    image: ishutachkaa/backend-analytics:DEV
+    env_file:
+      - ./env/.env.analytics
+    command: ./cmd.analytics.sh
+    volumes:
+      - ../dbs/analytics_db.db:/app/db.sqlite3
+      - ./startscripts/cmd.analytics.sh:/app/cmd.analytics.sh
+      - static:/app/static/
+    depends_on:
+      - client
+    restart: unless-stopped
+
   gateway:
     image: nginx
     ports:
@@ -61,3 +74,4 @@ services:
       - users
       - tests
       - api
+      - analytics

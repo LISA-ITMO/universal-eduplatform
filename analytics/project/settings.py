@@ -120,3 +120,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = 'Quiz-platform/static/'
+
+FORCE_SCRIPT_NAME = '/analytics'

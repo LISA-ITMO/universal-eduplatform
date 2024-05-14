@@ -97,6 +97,29 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/backend-subjects:DEV
 
+  build_and_push_analytics_to_docker_hub:
+    name: Push Docker analytics image to DockerHub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          ref: 'DEV'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.2.0
+      - name: Login to Docker 
+        uses: docker/login-action@v3.1.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Push to DockerHub
+        uses: docker/build-push-action@v5.3.0
+        with:
+          context: ./analytics
+          file: analytics/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/backend-analytics:DEV
+
   deploy:
     name: Деплой на сервер
     runs-on: ubuntu-latest
@@ -104,6 +127,7 @@ jobs:
       - build_and_push_subjects_to_docker_hub
       - build_and_push_users_to_docker_hub
       - build_and_push_tests_to_docker_hub
+      - build_and_push_analytics_to_docker_hub
       - build_and_push_front_to_docker_hub
     steps:
     - name: Checkout repo
@@ -120,7 +144,7 @@ jobs:
           rm -rf DEV
           mkdir -p DEV/compose
           mv ./env DEV/compose
-    - name: Copy infra via ssh
+    - name: Copy compose via ssh
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.HOST }}
@@ -139,4 +163,5 @@ jobs:
           touch DEV/dbs/users_db.sqlite3
           touch DEV/dbs/tests_db.sqlite3
           touch DEV/dbs/subjects_db.sqlite3
+          touch DEV/dbs/analytics_db.sqlite3
           docker compose -f DEV/compose/docker-compose-DH-DEV.yml up --build -d

@@ -50,7 +50,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'analytics.urls'
+# ROOT_URLCONF = 'analytics.urls'
+ROOT_URLCONF = 'project.urls'
 
 TEMPLATES = [
     {
@@ -118,7 +119,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = 'Quiz-platform/static/'
+STATIC_URL = 'static_django_analytics/'
+STATIC_ROOT = BASE_DIR / 'static/static_django_analytics/'
 
 FORCE_SCRIPT_NAME = '/analytics'

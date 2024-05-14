@@ -12,7 +12,7 @@ class Question(models.Model):
     id_test = models.ForeignKey(Test, on_delete=models.CASCADE)
     question_text = models.CharField(max_length=100, null=False, blank=False)
     addition_info = models.TextField(null=False, blank=False)
-    question_points = models.IntegerField(null=False, blank=False)
+    question_points = models.IntegerField(default=0, null=False, blank=False)
 
 class Answer(models.Model):
     answer_text = models.TextField(null=False, blank=False)

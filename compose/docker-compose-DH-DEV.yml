@@ -54,7 +54,7 @@ services:
       - ./env/.env.analytics
     command: ./cmd.analytics.sh
     volumes:
-      - ../dbs/analytics_db.db:/app/db.sqlite3
+      - ../dbs/analytics_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.analytics.sh:/app/cmd.analytics.sh
       - static:/app/static/
     depends_on:

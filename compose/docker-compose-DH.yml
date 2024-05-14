@@ -1,17 +1,16 @@
 version: '3.3'
 volumes:
   static:
+name: compose-prod
 
 services:
   client:
-    image: niktimo/lisa-frontend-client
+    image: ishutachkaa/frontend:PROD
     volumes:
       - static:/client/build/
   
   api: &api
-    build:
-      context: ../subjects
-      dockerfile: docker/dev/Dockerfile
+    image: ishutachkaa/backend-subjects:PROD
     env_file:
       - ./env/.env.subjects
     command: ./cmd.subjects.sh
@@ -24,7 +23,7 @@ services:
       - client
 
   users:
-    build: ../users/
+    image: ishutachkaa/backend-users:PROD
     env_file:
       - ./env/.env.users
     command: ./cmd.users.sh
@@ -37,7 +36,7 @@ services:
     restart: unless-stopped
 
   tests:
-    build: ../tests/
+    image: ishutachkaa/backend-tests:PROD
     env_file:
       - ./env/.env.tests
     command: ./cmd.tests.sh

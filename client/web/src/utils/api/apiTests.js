@@ -21,7 +21,9 @@ export const API_TESTS = {
                 "subject_id": Number(subjectId),
                 "theme_id": Number(themeId),
                 "questions": questions,
+                "max_points": 0
             };
+            
             const answer = await getAPIClient.post(`/tests/add`, sendData);
             return answer;
         },
@@ -30,7 +32,8 @@ export const API_TESTS = {
             //     "subject_id": Number(subjectId),
             //     "theme_id": Number(themeId),
             // };
-            const answer = await getAPIClient.get(`/tests/list?subject_id=${subjectId}&theme_id=${themeId}`);
+            // const answer = await getAPIClient.get(`/tests/list?subject_id=${subjectId}&theme_id=${themeId}`);
+            const answer = await getAPIClient.get(`/tests/list/${subjectId}/${themeId}`);
             return answer;
         },
         get: async ({id}) => {

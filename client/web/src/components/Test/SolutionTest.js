@@ -19,6 +19,7 @@ const TIME_FOR_QUESTION = 60;
 
 
 const Variants = ({variants, isShowAnswer}) => {
+    
     const borderColor = useColorModeValue('gray.400', 'gray.600');
 
 
@@ -53,7 +54,10 @@ const Variants = ({variants, isShowAnswer}) => {
 let answers = [];
 let test = {};
 
+
 const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCountCorrect}) => {
+    
+
     const bgButton = useColorModeValue('gray.200', 'gray.700');
     const bgInput = useColorModeValue('gray.200', 'gray.800');
     // const [questions, setQuestions] = useState([]);
@@ -84,7 +88,8 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
         return API_TESTS.tests.get({id: testId})
             .then((res) => {
                 test = res.data;
-                setQuestion(0);
+                
+                setQuestion(1);
                 toast.update(toastIdRef.current, { description: 'Тест загружен', status: 'success'})
             })
             .catch(() => {
@@ -114,6 +119,8 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
         setRightAnswer('-1');
         setIsGetAnswer(false);
         setIsIsTimeIsUp(false);
+        debugger
+        console.log(test?.questions[1])
     }
 
     useEffect( () => {
@@ -123,7 +130,7 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
         loadTest().then(() => {
             loadRightAnswer();
         })
-
+        
     }, [])
 
     useEffect(() => {

@@ -37,13 +37,18 @@ export const API_SUBJECTS = {
     },
     themes: {
         add: async ({subjectId, theme}) => {
+            
             const data = {
-                'id_subject': subjectId,
+                'id_subject': Number(subjectId),
                 'name_theme': theme
             }
+            
+            
             const answer = await getAPIClient.post('/themes/add/', data);
             return answer;
         },
+       
+
         get: async ({id}) => {
             const answer = await getAPIClient.get(`/themes/get/${id}/`);
             return answer;

@@ -136,27 +136,9 @@ class TestGetView(viewsets.ModelViewSet):
 
     @swagger_auto_schema(tags=["Test"])
     def get(self, request, *args, **kwargs):
-        test_obj =  list(Test.objects.filter(pk=kwargs['pk']).values())
-        if len(test_obj) == 0:
-            return Response("test doesn't exist", status=status.HTTP_404_NOT_FOUND)
-        test = test_obj[0]
-        questions = list(Question.objects.filter(id_test=kwargs['pk']).values('pk'))
-        result_data = {
-                    'author_id': test['author_id'],
-                    'subject_id': test['subject_id'],
-                    'theme_id': test['theme_id'],
-                    'expert_id': test['expert_id'],
-                    'max_points': test['max_points'],
-                    'questions': {},
-                }
-        for question in questions:
-            answers = Answer.objects.filter(id_question=question['pk']).values('answer_text')
-            data_answers = []
-            for answer in answers:
-                data_answers.append(answer['answer_text'])
-            result_data['questions'][question['pk']] = data_answers
-                
-        return Response(result_data, status=status.HTTP_200_OK)
+        test =  get_object_or_404(Test, pk=kwargs['pk'])
+        serializer = TestGetSerializer(test)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 class GetAllCorrectAnswersView(viewsets.ModelViewSet):
     serializer_class = CorrectAnswerSerializer

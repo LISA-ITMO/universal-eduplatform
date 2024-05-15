@@ -5,33 +5,33 @@ from .models import Test, Question, Solutions, Answer, Result
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ['answer_text', 'is_correct']
+        fields = ['id', 'answer_text', 'is_correct']
 
 class AnswerAllSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ['answer_text']
+        fields = ['id', 'answer_text']
 
 class QuestionSerializer(serializers.ModelSerializer):
     answers = AnswerSerializer(many=True)
 
     class Meta:
         model = Question
-        fields = ['question_text','addition_info', 'question_points', 'answers']
+        fields = ['id', 'question_text','addition_info', 'question_points', 'answers']
 
 class QuestionAllAnswersSerializer(serializers.ModelSerializer):
     answers = AnswerAllSerializer(many=True)
 
     class Meta:
         model = Question
-        fields = ['question_text','addition_info', 'question_points', 'answers']
+        fields = ['id', 'question_text','addition_info', 'question_points', 'answers']
 
 class TestSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True)
 
     class Meta:
         model = Test
-        fields = ['author_id', 'subject_id', 'theme_id', 'expert_id', 'max_points', 'questions']
+        fields = ['id', 'author_id', 'subject_id', 'theme_id', 'expert_id', 'max_points', 'questions']
 
 
 class TestListSerializer(serializers.ModelSerializer):
@@ -45,7 +45,7 @@ class TestGetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Test
-        fields = ['author_id', 'subject_id', 'theme_id', 'expert_id', 'max_points', 'questions']
+        fields = ['id', 'author_id', 'subject_id', 'theme_id', 'expert_id', 'max_points', 'questions']
 
 
 class CorrectAnswerSerializer(serializers.Serializer):

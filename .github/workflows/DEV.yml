@@ -144,7 +144,6 @@ jobs:
           rm -rf DEV
           mkdir -p DEV/compose
           mv ./env DEV/compose
-          for image in $(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v '<none>'); do docker pull $image; done;
     - name: Copy compose via ssh
       uses: appleboy/scp-action@master
       with:

@@ -19,7 +19,7 @@ from django.shortcuts import get_object_or_404
 class ResultsView(viewsets.ModelViewSet):
     serializer_class = ResultsSerializer
 
-    @swagger_auto_schema(tags=["Result"])
+    @swagger_auto_schema(tags=["Result"], operation_description="add student's result")
     def add(self, request, *args, **kwargs):
         data = request.data
         id_user = data.get('id_user')
@@ -43,46 +43,46 @@ class ResultsView(viewsets.ModelViewSet):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
         return Response(result_data, status=status.HTTP_201_CREATED)
-    @swagger_auto_schema(tags=["Result"])
+    @swagger_auto_schema(tags=["Result"], operation_description="get all results in database")
     def list(self, request, *args, **kwargs):
         results = Result.objects.all()
         serializer = ResultsSerializer(results, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    @swagger_auto_schema(tags=["Result"])
+    @swagger_auto_schema(tags=["Result"], operation_description="retrieve a result by id")
     def getByResultId(self, request, *args, **kwargs):
         data = get_object_or_404(Result, pk=kwargs['id'])
         serializer = ResultsSerializer(data)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    @swagger_auto_schema(tags=["Result"])
+    @swagger_auto_schema(tags=["Result"],  operation_description="retrieve all student's results (IDs) for a test")
     def getByStudentTestId(self, request, *args, **kwargs):
         data = list(Result.objects.filter(id_test=kwargs['testId']).filter(id_user=kwargs['studentId']).values_list('id', flat = True))
         return Response(data)
     
-    @swagger_auto_schema(tags=["Result"])
+    @swagger_auto_schema(tags=["Result"], operation_description="retrieve all student's results (IDs)")
     def getByStudentId(self, request, *args, **kwargs):
         data = list(Result.objects.filter(id_user=kwargs['studentId']).values_list('id', flat=True))
         return Response(data)
     
-    @swagger_auto_schema(tags=["Result"])
+    @swagger_auto_schema(tags=["Result"], operation_description="retrieve all results (IDs) for a test")
     def getByTestId(self, request, *args, **kwargs):
         data = list(Result.objects.filter(id_test=kwargs['testId']).values_list('id', flat=True))
         return Response(data)
     
-    @swagger_auto_schema(tags=["Result"])
+    @swagger_auto_schema(tags=["Result"], operation_description="retrieve all student's solutions for a test")
     def fullStudentTestId(self, request, *args, **kwargs):
         data = Result.objects.filter(id_test=kwargs['testId']).filter(id_user=kwargs['studentId'])
         serializer = ResultsSerializer(data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    @swagger_auto_schema(tags=["Result"])
+    @swagger_auto_schema(tags=["Result"], operation_description="retrieve all student's solutions for all tests")
     def fullStudentId(self, request, *args, **kwargs):
         data = Result.objects.filter(id_user=kwargs['studentId'])
         serializer = ResultsSerializer(data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    @swagger_auto_schema(tags=["Result"])
+    @swagger_auto_schema(tags=["Result"], operation_description="retrieve all solutions for a test")
     def fullTestId(self, request, *args, **kwargs):
         data = Result.objects.filter(id_test=kwargs['testId'])
         serializer = ResultsSerializer(data, many=True)
@@ -91,7 +91,7 @@ class ResultsView(viewsets.ModelViewSet):
 class TestAPIView(viewsets.ModelViewSet):
     serializer_class = TestSerializer
 
-    @swagger_auto_schema(tags=["Test"])
+    @swagger_auto_schema(tags=["Test"], operation_description="creates a test")
 
     def add(self, request, *args, **kwargs):
         data = request.data
@@ -123,7 +123,7 @@ class TestListView(viewsets.ModelViewSet):
     serializer_class = TestListSerializer
     queryset = Test.objects.all()
 
-    @swagger_auto_schema(tags=["Test"])
+    @swagger_auto_schema(tags=["Test"], operation_description="retrieve a list of tests based on subject and theme IDs")
     def get(self, request, *args, **kwargs):
         data = Test.objects.filter(subject_id=kwargs['subject_id']).filter(theme_id=kwargs['theme_id']).values()
         print(data)
@@ -134,7 +134,7 @@ class TestGetView(viewsets.ModelViewSet):
     serializer_class = TestGetSerializer
     queryset = Test.objects.all()
 
-    @swagger_auto_schema(tags=["Test"])
+    @swagger_auto_schema(tags=["Test"], operation_description="retrieve a test without correct answers")
     def get(self, request, *args, **kwargs):
         test =  get_object_or_404(Test, pk=kwargs['pk'])
         serializer = TestGetSerializer(test)
@@ -144,7 +144,7 @@ class GetAllCorrectAnswersView(viewsets.ModelViewSet):
     serializer_class = CorrectAnswerSerializer
     queryset = Question.objects.all()
 
-    @swagger_auto_schema(tags=["Test"])
+    @swagger_auto_schema(tags=["Test"], operation_description="get correct answers for every question in a test")
 
     def get(self, request, *args, **kwargs):
         questions = Question.objects.filter(id_test=kwargs['pk'])
@@ -164,7 +164,7 @@ class GetAllCorrectAnswersView(viewsets.ModelViewSet):
 class GetAllCorrectAnswersByQuestionView(viewsets.ModelViewSet):
     serializer_class = AnswerAllSerializer
 
-    @swagger_auto_schema(tags=["Test"])
+    @swagger_auto_schema(tags=["Test"], operation_description="get correct answers for a one question")
 
     def get(self, request, *args, **kwargs):
         answers = Answer.objects.filter(id_question=kwargs['question_pk']).filter(is_correct=True).values()

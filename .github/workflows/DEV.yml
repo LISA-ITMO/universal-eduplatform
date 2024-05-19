@@ -132,7 +132,7 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
-    - name: Executing remote ssh commands to stop docker, clean up and update
+    - name: Executing remote ssh commands to stop docker, clean up
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
@@ -166,3 +166,4 @@ jobs:
           touch DEV/dbs/analytics_db.sqlite3
           docker compose -f DEV/compose/docker-compose-DH-DEV.yml pull
           docker compose -f DEV/compose/docker-compose-DH-DEV.yml up --build -d
+          docker system prune -af

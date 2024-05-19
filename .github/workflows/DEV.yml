@@ -164,4 +164,5 @@ jobs:
           touch DEV/dbs/tests_db.sqlite3
           touch DEV/dbs/subjects_db.sqlite3
           touch DEV/dbs/analytics_db.sqlite3
+          docker compose -f DEV/compose/docker-compose-DH-DEV.yml pull
           docker compose -f DEV/compose/docker-compose-DH-DEV.yml up --build -d

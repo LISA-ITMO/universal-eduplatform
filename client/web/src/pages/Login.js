@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
     Box,
     Button,
@@ -16,11 +16,12 @@ import {QUIZ_TOKEN, QUIZ_TOKEN_REFRESH} from '@utils/common';
 import {useNavigate} from 'react-router-dom';
 import {cookies} from '@utils/api/apiUser';
 import { TLoginButton, TLoginButtonSize } from 'react-telegram-auth';
+import { UserContext } from '@app/providers/UserProvider';
 
 const Login = ({setIsAuth, isRegistration}) => {
     const toast = useToast({
         position: 'bottom-right',
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
     });
 
@@ -35,6 +36,8 @@ const Login = ({setIsAuth, isRegistration}) => {
     const bgButton = useColorModeValue('gray.200', 'gray.700');
     const bgInput = useColorModeValue('gray.200', 'gray.800');
     const [isSmallerThan400] = useMediaQuery('(max-width: 400px)');
+
+    const {user, setUser} = useContext(UserContext)
     const navigate = useNavigate();
 
     const handleClick = () => setShow(!show);
@@ -62,6 +65,11 @@ const Login = ({setIsAuth, isRegistration}) => {
         if (!isRegistration && userName && password) {
             API_USER.login({username: userName, password})
                 .then((res) => {
+                    
+                    setUser({
+                        info: res.data[0]
+                    })
+                    
                     cookies.set("access_token", res.data.access_token, {
                         path: "/",
                       });
@@ -72,6 +80,7 @@ const Login = ({setIsAuth, isRegistration}) => {
                     // localStorage.setItem('refresh_token', res.data.refresh_token);
                     setIsAuth(true);
                     navigate('/');
+                    console.log('user:', res.data)
                 })
                 // .then(() => {
                     // API.authenticate
@@ -96,12 +105,15 @@ const Login = ({setIsAuth, isRegistration}) => {
         }
         if (isRegistration && email && password && userName) {
             API_USER.register({email, username: userName, password})
-                .then(() => {
+                .then((res) => {
                     toast({ description: 'Пользователь зарегистрирован', status: 'success' });
+                    console.log('Регистрация:', res.data)
                     navigate('/login');
                 })
-                .catch(() => {
-                    toast({ description: 'Не удается зарегистрироваться', status: 'error' });
+                .catch((e) => {
+                    console.log('err-', e)
+                    toast({ title: "Не удается зарегистрироваться!\n",
+                    description: Object.values(e.response.data.errors), status: 'error' });
                 })
         }
     };

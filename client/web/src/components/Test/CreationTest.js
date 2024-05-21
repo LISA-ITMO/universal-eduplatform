@@ -104,7 +104,7 @@ const CreationTest = ({ subjectId, subjectName, themeId, themeName }) => {
         question_points: 0
       });
       
-      console.log(questions)
+
       setProblem("");
       setVariants({
         0: "",

@@ -16,6 +16,7 @@ const getAPIClient = axios.create({
 export const API_TESTS = {
     tests: {
         add: async ({authorId, subjectId, themeId, questions, expertId}) => {
+            
             const sendData = {
                 "author_id": authorId,
                 "subject_id": Number(subjectId),
@@ -43,14 +44,24 @@ export const API_TESTS = {
         getAnswers: async ({id}) => {
             const answer = await getAPIClient.get(`/tests/get-all-correct-answers/${id}`);
             return answer;
+        },
+        getQuestionAnswer: async ({id}) => {
+            
+            const answer = await getAPIClient.get(`/tests/get-correct-answer-by-question-id/${id}`);
+            return answer;
         }
     },
     results: {
-        grade: async ({userId, testId, results}) => {
+        grade: async ({userId, testId, results, points}) => {
+            
             const sendData = {
-                "idStudent": userId,
-                "idTest": Number(testId),
+                "id_user": userId,
+                "id_test": Number(testId),
                 "solutions": results,
+                "points_user": points
+                // "idStudent": userId,
+                // "idTest": Number(testId),
+                // "solutions": results,
             };
             const answer = await getAPIClient.post(`/results/add`, sendData);
             return answer;
@@ -59,5 +70,10 @@ export const API_TESTS = {
             const answer = await getAPIClient.get(`/results/getByResultId/${id}`);
             return answer;
         },
+
+        getAllResults: async ({id}) => {
+            const answer = await getAPIClient.get(`/results/full/getByStudentId/${id}`);
+            return answer;
     },
+}
 }

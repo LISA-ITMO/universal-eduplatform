@@ -140,6 +140,7 @@ jobs:
         password: ${{ secrets.SSH_PASSPHRASE }}
         script: |
           docker compose -f DEV/compose/docker-compose-DH-DEV.yml down
+          docker volume rm compose-dev_static
           cp -r DEV/compose/env ./env
           rm -rf DEV
           mkdir -p DEV/compose

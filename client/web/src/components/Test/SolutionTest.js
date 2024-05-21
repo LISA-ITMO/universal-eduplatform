@@ -109,7 +109,6 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
                     test.questions[i].question_id = res.data[i].id_question;
                 }
                 console.log('test', test)
-                // console.log('test', test)
             })
             .catch(() => {})
     }

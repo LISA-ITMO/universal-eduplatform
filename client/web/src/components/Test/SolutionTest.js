@@ -25,13 +25,13 @@ const Variants = ({variants, isShowAnswer}) => {
 
     const answers = () => {
         const variantsRender = [];
-
+debugger
         for (let i = 0; i < COUNT_VARIANTS ;i++) {
             variantsRender.push(
                 <Stack mt={'15px'} alignItems={'center'} key={`question-subject-theme-${i}`} direction='row'>
                     <Radio isReadOnly={isShowAnswer} borderColor={borderColor} value={`${i}`} />
                     <Text fontSize={'20px'}>
-                        {variants[i]?.answer_text}
+                        {variants?.answers[i]?.answer_text}
                     </Text>
                 </Stack>);
         }
@@ -67,7 +67,7 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
     const [isGetAnswer, setIsGetAnswer] = useState(false);
     const [currentCount, setCurrentCount] = useState(0);
     const [problem, setProblem] = useState('');
-    const [variants, setVariants] = useState({});
+    const [variants, setVariants] = useState({answers: [], id_question: null});
     const [rightAnswers, setRightAnswers] = useState([]);
     const [rightAnswer, setRightAnswer] = useState('-1');
     const [info, setInfo] = useState('');
@@ -83,12 +83,13 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
     });
 
     const loadTest = () => {
+        console.log('--loadTest')
         toastIdRef.current = toast({ description: 'Идет загрузка теста, пожалуйста, подождите', status: 'loading'});
 
         return API_TESTS.tests.get({id: testId})
             .then((res) => {
                 test = res.data;
-                
+                console.log('Res from getTest', res.data)
                 setQuestion(1);
                 toast.update(toastIdRef.current, { description: 'Тест загружен', status: 'success'})
             })
@@ -98,12 +99,16 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
     }
 
     const loadRightAnswer = () => {
+        console.log('--loadRightAnswer')
+
         API_TESTS.tests.getAnswers({id: testId})
             .then((res) => {
-                setRightAnswers(res.data?.map((item) => item?.correct_answer))
+                console.log('res', res)
+                setRightAnswers(res.data?.map((item) => item?.correct_answers))
                 for (let i = 0; i < res.data?.length; i++) {
-                    test.questions[i].question_id = res.data[i].question_id;
+                    test.questions[i].question_id = res.data[i].id_question;
                 }
+                console.log('test', test)
             })
             .catch(() => {})
     }
@@ -113,14 +118,18 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
     };
 
     const setQuestion = (count) => {
+        console.log('--setQuestion')
         setProblem(test?.questions[count]?.question_text);
-        setVariants(test?.questions[count]?.answers);
+        setVariants({
+            answers: test?.questions[count]?.answers,
+            id_question: test?.questions[count]?.id
+    });
+        
         setInfo(test?.questions[count]?.addition_info);
         setRightAnswer('-1');
         setIsGetAnswer(false);
         setIsIsTimeIsUp(false);
-        debugger
-        console.log(test?.questions[1])
+       
     }
 
     useEffect( () => {
@@ -136,7 +145,10 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
     useEffect(() => {
         if (currentCount !== 0)
             setQuestion(currentCount);
+        
     }, [currentCount])
+
+    console.log('variants' , variants)
 
     const handleNextQuestion = () => {
         if (currentCount < COUNT_QUESTION-1) {
@@ -144,7 +156,6 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
         }
         else {
             toastIdRef.current = toast({ description: 'Отправляем результаты теста, пожалуйста, подождите', status: 'loading'});
-
             API_TESTS.results.grade({userId: 1, testId: testId, results: answers})
                 .then(() => {
                     toast.update(toastIdRef.current, { description: 'Результаты сохранены', status: 'success'});
@@ -159,8 +170,9 @@ const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCo
 
 
     const handleSubmit = (e) => {
+        debugger
         e.preventDefault();
-        answers.push({'answer': variants?.[rightAnswer]?.answer_text, 'correct_answer': rightAnswers[currentCount]});
+        answers.push({'user_answer': variants?.[rightAnswer]?.answer_text, 'correct_answer': rightAnswers[currentCount]});
         if (variants?.[rightAnswer]?.answer_text === rightAnswers[currentCount])
             setCountCorrect((prev) => ++prev);
         setIsGetAnswer(true);

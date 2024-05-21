@@ -6,6 +6,7 @@ import CreationTest from '@components/Test/CreationTest';
 import {API_SUBJECTS} from '@utils/api/apiSubjects';
 import SolutionTest from '@components/Test/SolutionTest';
 import ResultTest from '@components/Test/ResultTest';
+import SolutionTest2 from '@app/components/Test/SolutionTest2';
 
 
 const Creation = () => {
@@ -49,8 +50,9 @@ const Creation = () => {
             <VStack overflowY={'visible'} alignItems={'flex-start'} minH={'350px'} maxW={'800px'} w={'100%'} p={'20px'} bg={bg}
                     spacing={'20px'}>
                 {((subjectId === undefined || themeId === undefined || testId === undefined) && !pathname.includes('result')) && <SelectCourse path={'solution'} isSolution={true} goToText={'Перейти к решению теста'} />}
-                {(subjectId !== undefined && themeId !== undefined && testId !== undefined && !pathname.includes('result')) && <SolutionTest subjectName={subjectName} themeName={themeName} setCountCorrect={setCountCorrect} subjectId={subjectId} themeId={themeId} testId={testId} />}
+                {(subjectId !== undefined && themeId !== undefined && testId !== undefined && !pathname.includes('result')) && <SolutionTest2 subjectName={subjectName} themeName={themeName} setCountCorrect={setCountCorrect} subjectId={subjectId} themeId={themeId} testId={testId} />}
                 {pathname.includes('result') && <ResultTest countCorrect={countCorrect} />}
+                {/* <ResultTest countCorrect={countCorrect} /> */}
 
             </VStack>
         </Flex>);

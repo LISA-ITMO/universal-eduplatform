@@ -1,47 +1,51 @@
+![](docs/img/logo.jpg)
 # Quiz-platform for education | Платформа викторин для образования
 
-This repository contains a tool for interactively performing smart cross-testing. Online version available at
+This repository contains a tool that is an interactive platform designed to analyse personal competencies in analytical thinking and leadership. It is intended for use in an educational environment and provides users with the ability to create their own tests and take tests from other users to assess their skills and knowledge in a particular area.
+
+- Read the user manual before you get started - [User manual]()
+
+- Available at the link - [Quiz-platform for education]()
+
 
 ## Demo
 *in the process of implementation
 
+## Restrictions on the use of the service
+
+## Upper-level algorithm of the service operation
+
+![]()
+
 ## Documentation
-*in the process of implementation
+Details of the documentation can be found at the links below:
 
-## Architecture
+[The architecture of the Quiz platform for education]() - the overall architecture and modules of the platform are described here
 
-![](./docs/img/Architecture.jpg)
+![](docs/img/Architecture.jpg)
 
-## Methods
-To check their mastery of the material after the lecture, students make their own tests. Then, before the next class, students take tests from other students. As a result, 2 numerical characteristics are obtained:
+[User cases of the Quiz platform for education]() - customised use cases are described here
 
-* 1 numerical characteristic – analyticity.
-  
-Analyticity – the ability to analyze data and information. This characteristic is calculated using the student's test scores and the average formula, but outliers are excluded if there are any.
-Formula robust average:
+![]()
 
-<p align="center">
-  𝑅𝑀 = 𝑚𝑒𝑑(𝑋)
+[Input and output data format, links between databases](), [Sequence Diagram]()  - this document will help you determine what data you will get out and how you can use it.
 
-</p>
+![]()
 
-Based on this formula, the average will be the median value of the grades for all classes. Using this formula minimizes the impact of outliers on a student's results.
-
-* 2 numerical characteristic – creativity.
-  
-Creativity is the ability to find non-standard solutions and come up with interesting and moderately complex questions. The student must design the test so that it will challenge other students to varying degrees of difficulty. This characteristic is calculated using the robust coefficient of variation formula.
-Formula for robust coefficient of variation:
-<p align="center">
-  𝑅𝐶𝑉 = 𝐼𝑄𝑅/𝑚𝑒𝑑(𝑋), 
-  
-  где  𝐼𝑄R - this is the interquartile range, 𝑋 - a vector consisting of the proportion of correct answers to each question.
-</p>
+![]()
 
 
 ## Installation
 
-## Sources
+## Contacts
+This platform is being developed at ITMO University, LISA laboratory as part of the research work on "Methods and algorithms for intelligent services and applications".
 
+The team working on the project is listed below (everyone can be contacted personally):
+
+## The science component of the Quiz platform
+- [Алгоритм оценивания индивидуальных способностей в сервисе для интеллектуального кросс-тестирования](https://kmu.itmo.ru/digests/article/13777)
+- [Разработка мобильного приложения для сервиса по составлению и прохождению тестов учащимися](https://kmu.itmo.ru/digests/article/12401)
+- [Разработка интеллектуальной системы с возможностью генерации и персонализации под пользователя вопросов на основе учебных материалов](https://kmu.itmo.ru/digests/article/13672)
 - [УПРАВЛЕНИЕ ОБРАЗОВАТЕЛЬНЫМ ПРОЦЕССОМ](https://www.sciencedirect.com/science/article/pii/S1877050923020094HTTPS//science-education.ru/ru/article/view?id=13932)
 - [Образование в цифровую эпоху](https://arxiv.org/abs/2312.04330](https://magellan.pro/2019/03/04/obrazovanie-v-cifrovuju-jepohu/)https://magellan.pro/2019/03/04/obrazovanie-v-cifrovuju-jepohu/)
 

@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import status
 from .models import User
-from .serializers import LoginSerializer, RegistrationSerializer, UserSerializer, LogoutSerializer
+from .serializers import LoginSerializer, RegistrationSerializer, UserSerializer, LogoutSerializer, SignInSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import viewsets, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -14,6 +14,7 @@ import jwt
 from django.conf import settings 
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from drf_yasg.utils import swagger_auto_schema
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -24,6 +25,10 @@ def get_tokens_for_user(user):
 
 class LoginView(viewsets.ModelViewSet):
     serializer_class = LoginSerializer
+
+    @swagger_auto_schema(
+        request_body=LoginSerializer,
+        responses={200: SignInSerializer})
     def post(self, request, format=None):
         data = request.data
         response = Response()

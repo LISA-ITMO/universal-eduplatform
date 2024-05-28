@@ -14,6 +14,11 @@ class LoginSerializer(TokenObtainPairSerializer):
         
         return token
     
+class SignInSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'role', 'is_active']
+        
 class RegistrationSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(

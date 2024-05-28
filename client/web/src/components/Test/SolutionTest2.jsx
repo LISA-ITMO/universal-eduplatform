@@ -27,11 +27,9 @@ const SolutionTest2 = ({
   const [done, setDone] = useState(false);
   const [isLastQuestion, setIsLastQuestion] = useState(false);
   const [solutions, setSolutions] = useState([]);
-  const {user} = useContext(UserContext)
-  
+  const { user } = useContext(UserContext);
 
   useEffect(() => {
-   
     API_TESTS.tests
       .get({ id: testId })
       .then((res) => {
@@ -47,7 +45,14 @@ const SolutionTest2 = ({
   useEffect(() => {
     console.log("done!", done);
     if (done) {
-        API_TESTS.results.grade({userId: user.info.id, testId, results: solutions, points: match})
+      API_TESTS.results.grade({
+        userId: user.info.id,
+        testId,
+        subject: subjectName,
+        theme: themeName,
+        results: solutions,
+        points: match,
+      });
     }
   }, [done]);
 
@@ -80,7 +85,6 @@ const SolutionTest2 = ({
         solutions.push(solution);
 
         if (value == res.data[0].id) {
-            
           setMatch((prev) => ++prev);
         }
 
@@ -94,8 +98,6 @@ const SolutionTest2 = ({
         }
 
         if (isLastQuestion) setDone(true);
-
-        
 
         setValue(-1);
       })

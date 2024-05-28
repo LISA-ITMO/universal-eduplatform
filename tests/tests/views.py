@@ -47,6 +47,10 @@ class ResultsView(viewsets.ModelViewSet):
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
+        test = Test.objects.get(id=id_test)
+        times_solved = test.times_solved + 1
+        test.times_solved = times_solved
+        test.save()
         return Response({"message": "Added Sucessfully",  "status": status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
             
     @swagger_auto_schema(tags=["Result"], operation_description="get all results in database")

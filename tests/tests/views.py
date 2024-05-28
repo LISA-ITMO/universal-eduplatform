@@ -30,6 +30,9 @@ class ResultsView(viewsets.ModelViewSet):
         serializer = TestUserSerializer(data={'id_user': id_user, 'id_test': id_test, 'points_user': points_user})
         if serializer.is_valid():
             serializer.save()
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         id_result = list(Result.objects.filter(id_user=id_user).filter(id_test=id_test).values_list('id', flat=True))[-1]
 
         result_data = []
@@ -42,7 +45,8 @@ class ResultsView(viewsets.ModelViewSet):
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
-        return Response(result_data, status=status.HTTP_201_CREATED)
+        return Response({"message": "Added Sucessfully",  "status": status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
+            
     @swagger_auto_schema(tags=["Result"], operation_description="get all results in database")
     def list(self, request, *args, **kwargs):
         results = Result.objects.all()
@@ -117,7 +121,7 @@ class TestAPIView(viewsets.ModelViewSet):
             for answer_data in answers_data:
                 Answer.objects.create(id_question=question_instance, **answer_data)
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({"message": "Added Sucessfully",  "status": status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
     
 class TestListView(viewsets.ModelViewSet):
     serializer_class = TestListSerializer

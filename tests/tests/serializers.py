@@ -66,7 +66,7 @@ class ResultsSerializer(serializers.ModelSerializer):
     solutions = SolutionsSerializer(many=True)
     class Meta:
         model = Result
-        fields = ['id', 'id_user', 'id_test', 'points_user', 'solutions']
+        fields = ['id', 'id_user', 'id_test', 'subject', 'theme', 'points_user', 'solutions']
 
 class SolutionsResultsSerializer(serializers.ModelSerializer):
     class Meta:

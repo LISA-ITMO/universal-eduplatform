@@ -22,6 +22,8 @@ class Answer(models.Model):
 class Result(models.Model):
     id_user = models.IntegerField(null=False, blank=False)
     id_test = models.ForeignKey(Test, on_delete=models.CASCADE)
+    subject = models.TextField(null=False, blank=False)
+    theme = models.TextField(null=False, blank=False)
     points_user = models.IntegerField(null=True, blank=False)
 
 

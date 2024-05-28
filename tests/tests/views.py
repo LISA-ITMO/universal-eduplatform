@@ -24,10 +24,12 @@ class ResultsView(viewsets.ModelViewSet):
         data = request.data
         id_user = data.get('id_user')
         id_test = data.get('id_test')
+        subject = data.get('subject')
+        theme = data.get('theme')
         points_user = data.get('points_user')
         results = data.get('solutions', [])
 
-        serializer = TestUserSerializer(data={'id_user': id_user, 'id_test': id_test, 'points_user': points_user})
+        serializer = TestUserSerializer(data={'id_user': id_user, 'id_test': id_test, 'points_user': points_user, 'subject': subject, 'theme': theme})
         if serializer.is_valid():
             serializer.save()
         else:

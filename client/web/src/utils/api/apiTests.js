@@ -52,13 +52,15 @@ export const API_TESTS = {
         }
     },
     results: {
-        grade: async ({userId, testId, results, points}) => {
+        grade: async ({userId, testId, results, points, subject, theme}) => {
             
             const sendData = {
                 "id_user": userId,
                 "id_test": Number(testId),
                 "solutions": results,
-                "points_user": points
+                "points_user": points,
+                "subject": subject,
+                "theme": theme
                 // "idStudent": userId,
                 // "idTest": Number(testId),
                 // "solutions": results,

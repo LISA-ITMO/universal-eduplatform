@@ -3,9 +3,11 @@
 
 This repository contains a tool that is an interactive platform designed to analyse personal competencies in analytical thinking and leadership. It is intended for use in an educational environment and provides users with the ability to create their own tests and take tests from other users to assess their skills and knowledge in a particular area.
 
-- Read the user manual before you get started - [User manual]()
+- Read the user manual before you get started - [User manual](docs/user_instructions.md)
 
 - Available at the link - [Quiz-platform for education]()
+
+> Please help us improve this project, share your feedback with [opening a pull request](https://github.com/LabsWorkLISA/Quiz-platform/pulls)
 
 
 ## Demo
@@ -20,19 +22,11 @@ This repository contains a tool that is an interactive platform designed to anal
 ## Documentation
 Details of the documentation can be found at the links below:
 
-[The architecture of the Quiz platform for education]() - the overall architecture and modules of the platform are described here
+- [The architecture of the Quiz platform for education](docs/architecture.md) - the overall architecture and modules of the platform are described here
 
-![](docs/img/Architecture.jpg)
+- [Use cases of the Quiz platform for education](docs/use_case.md) - customised use cases are described here
 
-[User cases of the Quiz platform for education]() - customised use cases are described here
-
-![]()
-
-[Input and output data format, links between databases](), [Sequence Diagram]()  - this document will help you determine what data you will get out and how you can use it.
-
-![]()
-
-![]()
+- [Input and output data format, links between databases](docs/linksBetweenDatabases.md), [Sequence Diagram](docs/sequenceDiagrams.md)  - this document will help you determine what data you will get out and how you can use it.
 
 
 ## Installation

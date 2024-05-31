@@ -14,4 +14,4 @@
 
 ### The resulting analytics
 
-![](.//img/sequence_diagrams/analytics.jpg)
+![](.//img/sequence_diagrams/analytics.png)

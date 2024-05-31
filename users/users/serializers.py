@@ -5,16 +5,20 @@ from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from django.utils.text import gettext_lazy as _
 
 class LoginSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
+    def get_token(self, user):
         token = super().get_token(user)
-
-        # добавьте дополнительные данные в payload токена
+        
+        # Add custom claims
         token['username'] = user.username
         token['role'] = user.role
-
+        
         return token
-
+    
+class SignInSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'role', 'is_active']
+        
 class RegistrationSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(

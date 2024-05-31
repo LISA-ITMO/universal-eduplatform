@@ -9,12 +9,13 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+env_file_path = os.path.join(BASE_DIR, '..', '..', 'compose', 'env', '.env.analytics')
 
 
 # Quick-start development settings - unsuitable for production
@@ -33,9 +34,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework_swagger',  # Swagger
-    'rest_framework',  # Django rest framework
-    'drf_yasg',  # Yet Another Swagger generator
+    'rest_framework',
+    'drf_yasg',
     'corsheaders',
     'analytics',
 ]
@@ -50,7 +50,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'analytics.urls'
+# ROOT_URLCONF = 'analytics.urls'
+ROOT_URLCONF = 'project.urls'
 
 TEMPLATES = [
     {
@@ -118,4 +119,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static_django_analytics/'
+STATIC_ROOT = BASE_DIR / 'static/static_django_analytics/'
+
+FORCE_SCRIPT_NAME = '/analytics'

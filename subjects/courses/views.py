@@ -38,33 +38,6 @@ class SubjectView(viewsets.ModelViewSet):
             status_code = status.HTTP_400_BAD_REQUEST
             return Response({"message": "Data not found", "status": status_code}, status_code)
 
-# class StudentView(viewsets.ModelViewSet):
-#     queryset = Student.objects.all()
-#     serializer_class = StudentSerializer
-
-#     def retrieve(self, request, *args, **kwargs):
-#         data = list(Student.objects.filter(id_student=kwargs['pk']).values())
-#         return Response(data)    
-    
-#     def getBySubjectId(self, request, *args, **kwargs):
-#         students_id = list(Student_Course_Subject.objects.filter(id_subject=kwargs['subject_id']).values_list("id_student", flat=True))
-#         data = list(Student.objects.filter(pk__in=students_id).values())
-#         return Response(data)
-    
-#     def list(self, request, *args, **kwargs):
-#         data = list(Student.objects.all().values())
-#         return Response(data)
-    
-#     def getByIdExpert(self, request, *args, **kwargs):
-#         students_id = list(Student_Course_Subject.objects.filter(id_expert=kwargs['expert_id']).values_list("id_student", flat=True))
-#         data = list(Student.objects.filter(pk__in=students_id).values())
-#         return Response(data)
-    
-#     def getStudentsInfo(self, request, *args, **kwargs):
-#         students_id = list(Student_Course_Subject.objects.filter(id_expert=kwargs['expert_id']).filter(id_subject=kwargs['subject_id']).values_list('id_student',  flat=True))
-#         data = list(Student.objects.filter(pk__in=students_id).values())
-#         return Response(data)
-
 class ThemeView(viewsets.ModelViewSet):
     queryset =Theme.objects.all()
     serializer_class = ThemeSerializer
@@ -105,17 +78,26 @@ class CourseView(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
 
     def add(self, request, *args, **kwargs):
-        course_serializer_data = CourseSerializer(data=request.data)
-        if course_serializer_data.is_valid():
-            data = list(Course.objects.filter(id_expert=request.data['id_expert']).filter(id_subject=request.data['id_subject']).values())
-            if len(data) != 0:
-                return Response({"message": "Already exists"})
+        data = request.data
+        id_expert = data.get('id_expert')
+        name_course = data.get('name_course')
+        id_subject = data.get('id_subject')
+        description = data.get('description')
+
+        course_serializer_data = CourseSerializer(data=data)
+        if course_serializer_data.is_valid(raise_exception=True):
             course_serializer_data.save()
-            status_code = status.HTTP_201_CREATED
-            return Response({"message": "Added Sucessfully", "status": status_code}, status_code)
+            return Response({"message": "Added Sucessfully", "status": status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
         else:
-            status_code = status.HTTP_400_BAD_REQUEST
-            return Response({"message": "Please fill the datails", "status": status_code}, status_code)
+            if not name_course or not id_subject:
+                return Response({"error": "Both name_course and id_subject are required.", "status": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                subject = Subject.objects.get(id=id_subject)
+            except Subject.DoesNotExist:
+                return Response({"error": f"Subject with id {id_subject} does not exist.",  "status": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+            course = Course(name_course=name_course, id_subject=subject)
+            course.save()
+            return Response({"message": "Added Sucessfully",  "status": status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
         
     def retrieve(self, request, *args, **kwargs):
         data = list(Course.objects.filter(id=kwargs['pk']).values())

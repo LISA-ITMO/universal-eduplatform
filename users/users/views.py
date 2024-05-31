@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import status
 from .models import User
-from .serializers import LoginSerializer, RegistrationSerializer, UserSerializer, LogoutSerializer
+from .serializers import LoginSerializer, RegistrationSerializer, UserSerializer, LogoutSerializer, SignInSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import viewsets, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -10,22 +10,56 @@ from .decorators import (
     teacher_access_only,
     admin_access_only
 )
+import jwt
+from django.conf import settings 
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from drf_yasg.utils import swagger_auto_schema
 
-class LoginView(TokenObtainPairView):
-    permission_classes = (AllowAny, )
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+class LoginView(viewsets.ModelViewSet):
     serializer_class = LoginSerializer
 
-    def post(self, request, * args, ** kwargs):
-        response = super().post(request, * args, ** kwargs) # Get tokens as usual
-
-        # Set access token as HttpOnly cookie
-        response.set_cookie('access_token', response.data['access'], httponly = True)
-
-        # Set refresh token as HttpOnly cookie
-        response.set_cookie('refresh_token', response.data['refresh'], httponly = True)
-        data = list(User.objects.filter(username=request.data['username']).values('id', 'username', 'email', 'role', 'is_active'))
-
-        return Response(data, status=status.HTTP_200_OK)
+    @swagger_auto_schema(
+        request_body=LoginSerializer,
+        responses={200: SignInSerializer})
+    def post(self, request, format=None):
+        data = request.data
+        response = Response()
+        username = data.get('username', None)
+        password = data.get('password', None)
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                data = get_tokens_for_user(user)
+                response.set_cookie(
+                    key=settings.SIMPLE_JWT['AUTH_COOKIE'],
+                    value=data["access"],
+                    expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+                    secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                    httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                    samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+                )
+                response.set_cookie(
+                    key='refresh_token',
+                    value=data["refresh"],
+                    expires=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+                    secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                    httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                    samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+                )
+                response.data = list(User.objects.filter(username=request.data['username']).values('id', 'username', 'email', 'role', 'is_active'))
+                return response
+            else:
+                return Response({"No active": "This account is not active"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({"Invalid": "Invalid username or password"}, status=status.HTTP_404_NOT_FOUND)
     
 class RegistrationAPIView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
@@ -61,3 +95,14 @@ class LogoutAPIView(generics.GenericAPIView):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+class TokenDecode(viewsets.ViewSet):
+    def decode(self, request, *args, **kwargs):
+        try:
+            token = jwt.decode(kwargs['token'],
+                                key=settings.SECRET_KEY,
+                                algorithms=["HS256"])
+            return Response(token, status=status.HTTP_200_OK)
+        except jwt.ExpiredSignatureError:
+            return Response({"error": "Token has expired"}, status=status.HTTP_401_UNAUTHORIZED)
+        except jwt.InvalidTokenError:
+            return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)

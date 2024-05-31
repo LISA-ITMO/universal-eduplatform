@@ -51,6 +51,19 @@ services:
       - client
     restart: unless-stopped
 
+  analytics:
+    build: ../analytics/
+    env_file:
+      - ./env/.env.analytics
+    command: ./cmd.analytics.sh
+    volumes:
+      - ../dbs/analytics_db.sqlite3:/app/db.sqlite3
+      - ./startscripts/cmd.analytics.sh:/app/cmd.analytics.sh
+      - static:/app/static/
+    depends_on:
+      - client
+    restart: unless-stopped
+
   gateway:
     image: nginx
     ports:
@@ -64,3 +77,4 @@ services:
       - users
       - tests
       - api
+      - analytics

@@ -1,16 +1,16 @@
 version: '3.3'
 volumes:
   static:
-name: compose-prod
+name: compose-dev
 
 services:
   client:
-    image: ishutachkaa/frontend:PROD
+    image: huecker.io/ishutachkaa/frontend:DEV
     volumes:
       - static:/client/build/
   
   api: &api
-    image: ishutachkaa/backend-subjects:PROD
+    image: huecker.io/ishutachkaa/backend-subjects:DEV
     env_file:
       - ./env/.env.subjects
     command: ./cmd.subjects.sh
@@ -23,7 +23,7 @@ services:
       - client
 
   users:
-    image: ishutachkaa/backend-users:PROD
+    image: huecker.io/ishutachkaa/backend-users:DEV
     env_file:
       - ./env/.env.users
     command: ./cmd.users.sh
@@ -36,7 +36,7 @@ services:
     restart: unless-stopped
 
   tests:
-    image: ishutachkaa/backend-tests:PROD
+    image: huecker.io/ishutachkaa/backend-tests:DEV
     env_file:
       - ./env/.env.tests
     command: ./cmd.tests.sh
@@ -48,10 +48,23 @@ services:
       - client
     restart: unless-stopped
 
+  analytics:
+    image: huecker.io/ishutachkaa/backend-analytics:DEV
+    env_file:
+      - ./env/.env.analytics
+    command: ./cmd.analytics.sh
+    volumes:
+      - ../dbs/analytics_db.sqlite3:/app/db.sqlite3
+      - ./startscripts/cmd.analytics.sh:/app/cmd.analytics.sh
+      - static:/app/static/
+    depends_on:
+      - client
+    restart: unless-stopped
+
   gateway:
     image: nginx
     ports:
-      - 8888:80
+      - 9999:80
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - static:/usr/share/nginx/html/
@@ -61,3 +74,4 @@ services:
       - users
       - tests
       - api
+      - analytics

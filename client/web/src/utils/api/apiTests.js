@@ -16,12 +16,15 @@ const getAPIClient = axios.create({
 export const API_TESTS = {
     tests: {
         add: async ({authorId, subjectId, themeId, questions, expertId}) => {
+            
             const sendData = {
                 "author_id": authorId,
                 "subject_id": Number(subjectId),
                 "theme_id": Number(themeId),
                 "questions": questions,
+                "max_points": 0
             };
+            
             const answer = await getAPIClient.post(`/tests/add`, sendData);
             return answer;
         },
@@ -30,7 +33,8 @@ export const API_TESTS = {
             //     "subject_id": Number(subjectId),
             //     "theme_id": Number(themeId),
             // };
-            const answer = await getAPIClient.get(`/tests/list?subject_id=${subjectId}&theme_id=${themeId}`);
+            // const answer = await getAPIClient.get(`/tests/list?subject_id=${subjectId}&theme_id=${themeId}`);
+            const answer = await getAPIClient.get(`/tests/list/${subjectId}/${themeId}`);
             return answer;
         },
         get: async ({id}) => {
@@ -40,14 +44,26 @@ export const API_TESTS = {
         getAnswers: async ({id}) => {
             const answer = await getAPIClient.get(`/tests/get-all-correct-answers/${id}`);
             return answer;
+        },
+        getQuestionAnswer: async ({id}) => {
+            
+            const answer = await getAPIClient.get(`/tests/get-correct-answer-by-question-id/${id}`);
+            return answer;
         }
     },
     results: {
-        grade: async ({userId, testId, results}) => {
+        grade: async ({userId, testId, results, points, subject, theme}) => {
+            
             const sendData = {
-                "idStudent": userId,
-                "idTest": Number(testId),
+                "id_user": userId,
+                "id_test": Number(testId),
                 "solutions": results,
+                "points_user": points,
+                "subject": subject,
+                "theme": theme
+                // "idStudent": userId,
+                // "idTest": Number(testId),
+                // "solutions": results,
             };
             const answer = await getAPIClient.post(`/results/add`, sendData);
             return answer;
@@ -56,5 +72,10 @@ export const API_TESTS = {
             const answer = await getAPIClient.get(`/results/getByResultId/${id}`);
             return answer;
         },
+
+        getAllResults: async ({id}) => {
+            const answer = await getAPIClient.get(`/results/full/getByStudentId/${id}`);
+            return answer;
     },
+}
 }

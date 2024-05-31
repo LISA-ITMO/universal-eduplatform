@@ -1,6 +1,6 @@
 ## Use case
 
-![](docs/img/useCase.jpg)
+![](.//img/use_case/useCase.jpg)
 
 ### 1. Registration and authorisation
 | Use case      | The initial registration in the system |
@@ -54,4 +54,3 @@
 | Description  | User wants to take the test  |
 | Extension  |  1. The system asks the user to select a topic/subject <br> 2. The user selects a topic <br> 3. The system prompts the user to take a quiz <br> 4. User chooses to take the first test <br> 5. The system assigns the first test to the user <br> 6. The user answers the test questions <br> 7. The system checks the user's answers (If the user has not selected any answers - is it possible to move to the next question?). <br> 8. The system prompts the user to complete the test <br> 9. User completes the test <br> 10. The system displays the number of correct answers for the first test <br> 11. The system prompts the user to take the second test <br> 12. The user chooses to take the second test <br> 13. The system assigns the user the second test <br> 14. Repeat steps 6,7,8,9 <br> 15.  System displays the number of correct answers for the second test <br> 16. The system prompts you to view the results rating window. <br> 17. The user sees the results rating window. |
 | Main actor  |  7.1 The user is notified to select at least one answer <br> 7.2 The system returns to step 6 |
-

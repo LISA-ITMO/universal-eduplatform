@@ -190,7 +190,7 @@ const SelectCourse = ({ path, goToText, isSolution }) => {
           {(!isSolution )
            && 
           <CreateForm setState={setIsCreateSubject} state={isCreateSubject} 
-          refreshFunc={loadSubjectList} asyncFunc={API_SUBJECTS.subjects.add}/>}
+          refreshFunc={loadSubjectList} asyncFunc={API_SUBJECTS.subjects.add} />}
 
           <Select
             value={subject}
@@ -200,6 +200,7 @@ const SelectCourse = ({ path, goToText, isSolution }) => {
             w={"100%"}
             maxW={"350px"}
             mr={"25px"}
+            marginTop={3}
           >
             {subjects?.map((item) => (
               <option key={`key-subject-${item?.id}`} value={item?.id}>
@@ -248,6 +249,7 @@ const SelectCourse = ({ path, goToText, isSolution }) => {
             w={"100%"}
             maxW={"350px"}
             mr={"25px"}
+            marginTop={3}
           >
             {themes.map((item) => {
               return (

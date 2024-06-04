@@ -2,9 +2,11 @@ import { API_TESTS } from "@app/utils/api/apiTests";
 import {
   Button,
   ButtonGroup,
+  Highlight,
   Radio,
   RadioGroup,
   Stack,
+  Text,
 } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
 import ResultTest from "./ResultTest";
@@ -30,20 +32,23 @@ const SolutionTest2 = ({
   const { user } = useContext(UserContext);
 
   useEffect(() => {
+    if (user) {
+
+    
     API_TESTS.tests
       .get({ id: testId })
       .then((res) => {
-        console.log("Res from getTest", res.data);
         setQuestions(res.data.questions);
         setQuestionCount(res.data.questions.length);
       })
       .catch((e) => {
         console.log("err-", e);
       });
+    } else console.log('NOT AUTH')
   }, []);
 
   useEffect(() => {
-    console.log("done!", done);
+   
     if (done) {
       API_TESTS.results.grade({
         userId: user.info.id,
@@ -65,18 +70,9 @@ const SolutionTest2 = ({
     e.preventDefault();
     const questionId = questions[qNumber].id;
 
-    console.log("Form submitting");
-    console.log("value:", value);
-    console.log("question:", questionId);
-
-    // if (qNumber === questionCount - 1) {
-    //     setIsLastQuestion(true)
-    // }
-
     API_TESTS.tests
       .getQuestionAnswer({ id: questionId })
       .then((res) => {
-        console.log("Question answer", res.data);
 
         const solution = {
           id_question: questionId,
@@ -87,8 +83,6 @@ const SolutionTest2 = ({
         if (value == res.data[0].id) {
           setMatch((prev) => ++prev);
         }
-
-        console.log("match", match);
 
         const currNumber = qNumber + 1;
         setQNumber(currNumber);
@@ -117,11 +111,18 @@ const SolutionTest2 = ({
         (!done ? (
           <form onSubmit={formSubmit}>
             <RadioGroup onChange={setValue} value={value}>
-              <Stack direction="column">
+              <Stack direction="column" padding={'0 10px'}>
+              <Text fontSize="xl" fontWeight={500}  padding={'5px 10px'}>{`Вопрос №${qNumber+1}`}</Text>
+              <Text fontSize="xl" marginBottom={5} backgroundColor={'lightgrey'} padding={'5px 10px'} borderRadius={20}>{questions[qNumber].question_text}</Text>
+             
                 {questions[qNumber]?.answers.map((a) => (
+                  <>
+                  
                   <Radio key={a.id} value={String(a.id)} isRequired={true}>
                     {a.answer_text}
                   </Radio>
+                  </>
+                  
                 ))}
               </Stack>
             </RadioGroup>
@@ -136,6 +137,7 @@ const SolutionTest2 = ({
               type={"submit"}
               colorScheme={!isLastQuestion ? "blue" : "green"}
               isDisabled={value === -1}
+              marginTop={10}
             >
               {!isLastQuestion ? "Next question" : "Get result"}
             </Button>

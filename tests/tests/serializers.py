@@ -49,7 +49,7 @@ class TestGetSerializer(serializers.ModelSerializer):
 
 
 class CorrectAnswerSerializer(serializers.Serializer):
-    correct_answers = AnswerSerializer(many=True)
+    correct_answers = serializers.ListField()
     id_question = serializers.IntegerField()
 
 class TestUserSerializer(serializers.ModelSerializer):

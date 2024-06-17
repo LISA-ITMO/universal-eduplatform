@@ -2,8 +2,7 @@ import numpy as np
 from statistics import median
 from django.db.models import Sum
 from rest_framework.exceptions import ValidationError
-
-from tests_data import models as tests_models
+from tests import models as tests_models
 
 
 def convert_to_five_point_scale(rcv):

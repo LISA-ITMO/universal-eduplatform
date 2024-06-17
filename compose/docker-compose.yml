@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 
 volumes:
   static_django_analytics:
@@ -48,7 +48,7 @@ services:
     volumes:
       - ../dbs/tests_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.tests.sh:/app/cmd.tests.sh
-      - tests_data:/app/tests_data
+      - tests_data:/app/tests
       - static_django_analytics:/app/static_django_analytics/
     depends_on:
       - client
@@ -62,8 +62,8 @@ services:
     volumes:
       - ../dbs/analytics_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.analytics.sh:/app/cmd.analytics.sh
-      - tests_data:/app/tests_data
-      - static_django_analytics:/app/static_django_analytics_files/
+      - tests_data:/app/tests
+      - static_django_analytics:/app/static_django_analytics/
     depends_on:
       - tests
     restart: unless-stopped

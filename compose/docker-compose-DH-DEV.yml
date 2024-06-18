@@ -2,6 +2,7 @@ version: '3.3'
 volumes:
   tests_data:
   static:
+  static_django_analytics:
 name: compose-dev
 
 services:

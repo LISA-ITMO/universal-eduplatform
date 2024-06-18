@@ -7,12 +7,12 @@ name: compose-dev
 
 services:
   client:
-    image: huecker.io/ishutachkaa/frontend:DEV
+    image: ishutachkaa/frontend:DEV
     volumes:
       - static_django_analytics:/client/build/
   
   api: &api
-    image: huecker.io/ishutachkaa/backend-subjects:DEV
+    image: ishutachkaa/backend-subjects:DEV
     env_file:
       - ./env/.env.subjects
     command: ./cmd.subjects.sh
@@ -25,7 +25,7 @@ services:
       - client
 
   users:
-    image: huecker.io/ishutachkaa/backend-users:DEV
+    image: ishutachkaa/backend-users:DEV
     env_file:
       - ./env/.env.users
     command: ./cmd.users.sh
@@ -38,7 +38,7 @@ services:
     restart: unless-stopped
 
   tests:
-    image: huecker.io/ishutachkaa/backend-tests:DEV
+    image: ishutachkaa/backend-tests:DEV
     env_file:
       - ./env/.env.tests
     command: ./cmd.tests.sh
@@ -52,7 +52,7 @@ services:
     restart: unless-stopped
 
   analytics:
-    image: huecker.io/ishutachkaa/backend-analytics:DEV
+    image: ishutachkaa/backend-analytics:DEV
     env_file:
       - ./env/.env.analytics
     command: ./cmd.analytics.sh

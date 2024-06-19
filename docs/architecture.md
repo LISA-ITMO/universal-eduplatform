@@ -2,7 +2,7 @@
 
 The structure of the service is based on a microservice architecture that allows users to interact through the client part from different devices:
 
-![](docs/img/Architecture.jpg)
+![](.//img/Architecture.jpg)
 
 - Module `Authorisation` - allows you to register/authorise on the platform and receive an authorisation token, which allows you to interact with the platform;
 

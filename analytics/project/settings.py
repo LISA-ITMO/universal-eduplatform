@@ -9,23 +9,16 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-import os
 from pathlib import Path
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-env_file_path = os.path.join(BASE_DIR, '..', '..', 'compose', 'env', '.env.analytics')
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=lambda v: [s.strip() for s in v.split(',')])
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -35,7 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'drf_yasg',
+    'drf_spectacular',
     'corsheaders',
     'analytics',
 ]
@@ -50,7 +43,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# ROOT_URLCONF = 'analytics.urls'
 ROOT_URLCONF = 'project.urls'
 
 TEMPLATES = [
@@ -69,11 +61,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'analytics.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
@@ -82,9 +70,7 @@ DATABASES = {
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -101,10 +87,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -116,10 +98,16 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
+STATIC_URL = 'static_django_analytics_files/'
+STATIC_ROOT = BASE_DIR / 'static_django_analytics_files/static_django_analytics_files/'
 
-STATIC_URL = 'static_django_analytics/'
-STATIC_ROOT = BASE_DIR / 'static/static_django_analytics/'
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
 
-FORCE_SCRIPT_NAME = '/analytics'
+SPECTACULAR_SETTINGS = {
+    'SERVE_INCLUDE_SCHEMA': False,
+    'TITLE': 'API Documentation',
+    'DESCRIPTION': 'API for Student Analytics',
+    'VERSION': '0.0.1',
+}

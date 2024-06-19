@@ -1,6 +1,8 @@
 version: '3.3'
+
 volumes:
-  static:
+  static_django_analytics:
+  tests_data:
 
 services:
   client:
@@ -8,9 +10,9 @@ services:
       context: ../
       dockerfile: client/Dockerfile
     volumes:
-      - static:/client/build/
-  
-  api: &api
+      - static_django_analytics:/client/build/
+
+  api:
     build:
       context: ../subjects
       dockerfile: docker/dev/Dockerfile
@@ -20,7 +22,7 @@ services:
     volumes:
       - ../dbs/subjects_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.subjects.sh:/app/cmd.subjects.sh
-      - static:/app/static/
+      - static_django_analytics:/app/static_django_analytics/
     restart: unless-stopped
     depends_on:
       - client
@@ -33,7 +35,7 @@ services:
     volumes:
       - ../dbs/users_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.users.sh:/app/cmd.users.sh
-      - static:/app/static/
+      - static_django_analytics:/app/static_django_analytics/
     depends_on:
       - client
     restart: unless-stopped
@@ -46,7 +48,8 @@ services:
     volumes:
       - ../dbs/tests_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.tests.sh:/app/cmd.tests.sh
-      - static:/app/static/
+      - tests_data:/app/tests
+      - static_django_analytics:/app/static_django_analytics/
     depends_on:
       - client
     restart: unless-stopped
@@ -59,10 +62,13 @@ services:
     volumes:
       - ../dbs/analytics_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.analytics.sh:/app/cmd.analytics.sh
-      - static:/app/static/
+      - tests_data:/app/tests
+      - static_django_analytics:/app/static_django_analytics/
     depends_on:
-      - client
+      - tests
     restart: unless-stopped
+
+
 
   gateway:
     image: nginx
@@ -70,7 +76,7 @@ services:
       - 8888:80
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - static:/usr/share/nginx/html/
+      - static_django_analytics:/usr/share/nginx/html/
     restart: unless-stopped
     depends_on:
       - client

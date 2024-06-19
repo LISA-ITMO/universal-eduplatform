@@ -1,64 +1,68 @@
 version: '3.3'
 volumes:
+  tests_data:
   static:
+  static_django_analytics:
 name: compose-dev
 
 services:
   client:
-    image: huecker.io/ishutachkaa/frontend:DEV
+    image: ishutachkaa/frontend:DEV
     volumes:
-      - static:/client/build/
+      - static_django_analytics:/client/build/
   
   api: &api
-    image: huecker.io/ishutachkaa/backend-subjects:DEV
+    image: ishutachkaa/backend-subjects:DEV
     env_file:
       - ./env/.env.subjects
     command: ./cmd.subjects.sh
     volumes:
       - ../dbs/subjects_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.subjects.sh:/app/cmd.subjects.sh
-      - static:/app/static/
+      - static_django_analytics:/app/static_django_analytics/
     restart: unless-stopped
     depends_on:
       - client
 
   users:
-    image: huecker.io/ishutachkaa/backend-users:DEV
+    image: ishutachkaa/backend-users:DEV
     env_file:
       - ./env/.env.users
     command: ./cmd.users.sh
     volumes:
       - ../dbs/users_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.users.sh:/app/cmd.users.sh
-      - static:/app/static/
+      - static_django_analytics:/app/static_django_analytics/
     depends_on:
       - client
     restart: unless-stopped
 
   tests:
-    image: huecker.io/ishutachkaa/backend-tests:DEV
+    image: ishutachkaa/backend-tests:DEV
     env_file:
       - ./env/.env.tests
     command: ./cmd.tests.sh
     volumes:
       - ../dbs/tests_db.sqlite3:/app/db.sqlite3
+      - tests_data:/app/tests
       - ./startscripts/cmd.tests.sh:/app/cmd.tests.sh
-      - static:/app/static/
+      - static_django_analytics:/app/static_django_analytics/
     depends_on:
       - client
     restart: unless-stopped
 
   analytics:
-    image: huecker.io/ishutachkaa/backend-analytics:DEV
+    image: ishutachkaa/backend-analytics:DEV
     env_file:
       - ./env/.env.analytics
     command: ./cmd.analytics.sh
     volumes:
       - ../dbs/analytics_db.sqlite3:/app/db.sqlite3
+      - tests_data:/app/tests
       - ./startscripts/cmd.analytics.sh:/app/cmd.analytics.sh
-      - static:/app/static/
+      - static_django_analytics:/app/static_django_analytics/
     depends_on:
-      - client
+      - tests
     restart: unless-stopped
 
   gateway:
@@ -67,7 +71,7 @@ services:
       - 9999:80
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - static:/usr/share/nginx/html/
+      - static_django_analytics:/usr/share/nginx/html/
     restart: unless-stopped
     depends_on:
       - client

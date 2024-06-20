@@ -1,18 +1,15 @@
 version: '3.3'
-
 volumes:
-  static_django_analytics:
-  tests_data:
-
+  static:
 services:
   client:
     build:
       context: ../
       dockerfile: client/Dockerfile
     volumes:
-      - static_django_analytics:/client/build/
-
-  api:
+      - static:/client/build/
+  
+  api: &api
     build:
       context: ../subjects
       dockerfile: docker/dev/Dockerfile
@@ -22,7 +19,7 @@ services:
     volumes:
       - ../dbs/subjects_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.subjects.sh:/app/cmd.subjects.sh
-      - static_django_analytics:/app/static_django_analytics/
+      - static:/app/static/
     restart: unless-stopped
     depends_on:
       - client
@@ -35,7 +32,7 @@ services:
     volumes:
       - ../dbs/users_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.users.sh:/app/cmd.users.sh
-      - static_django_analytics:/app/static_django_analytics/
+      - static:/app/static/
     depends_on:
       - client
     restart: unless-stopped
@@ -48,26 +45,27 @@ services:
     volumes:
       - ../dbs/tests_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.tests.sh:/app/cmd.tests.sh
-      - tests_data:/app/tests
-      - static_django_analytics:/app/static_django_analytics/
+      - static:/app/static/
     depends_on:
       - client
     restart: unless-stopped
 
   analytics:
-    build: ../analytics/
+    build: 
+      context: ../
+      dockerfile: analytics/Dockerfile
     env_file:
       - ./env/.env.analytics
     command: ./cmd.analytics.sh
     volumes:
       - ../dbs/analytics_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.analytics.sh:/app/cmd.analytics.sh
-      - tests_data:/app/tests
-      - static_django_analytics:/app/static_django_analytics/
+      - static:/app/static/
+      - ../tests:/app/tests/models
     depends_on:
+      - client
       - tests
     restart: unless-stopped
-
 
 
   gateway:
@@ -76,7 +74,8 @@ services:
       - 8888:80
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - static_django_analytics:/usr/share/nginx/html/
+      - static:/usr/share/nginx/html/
+
     restart: unless-stopped
     depends_on:
       - client

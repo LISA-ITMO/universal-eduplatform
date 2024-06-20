@@ -4,11 +4,10 @@ WORKDIR /app
 
 RUN pip install gunicorn==20.1.0
 
-COPY requirements.txt ./
+COPY analytics/requirements.txt .
 
 RUN pip install -r requirements.txt --no-cache-dir
 
-COPY . /app/
-COPY . .
+COPY ./analytics .
 
-CMD ["gunicorn", "--bind", "0.0.0.0:9500", "QuizPlatform.wsgi"]
+CMD ["gunicorn", "--bind", "0.0.0.0:9500", "project.wsgi"]

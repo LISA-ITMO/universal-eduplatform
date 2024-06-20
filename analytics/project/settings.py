@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'drf_spectacular',
+    'drf_yasg',
     'corsheaders',
     'analytics',
     'tests'
@@ -99,19 +99,22 @@ USE_TZ = True
 
 
 STATIC_URL = 'static_django_analytics/'
-STATIC_ROOT = BASE_DIR / 'static_django_analytics/static_django_analytics/'
+STATIC_ROOT = BASE_DIR / 'static/static_django_analytics/'
 
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer'
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
 }
 
-SPECTACULAR_SETTINGS = {
-    'SERVE_INCLUDE_SCHEMA': False,
-    'TITLE': 'API Documentation',
-    'DESCRIPTION': 'API for Student Analytics',
-    'VERSION': '0.0.1',
-}
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://87.249.49.46",
-]
+FORCE_SCRIPT_NAME = '/analytics'
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=lambda v: [s.strip() for s in v.split(',')])

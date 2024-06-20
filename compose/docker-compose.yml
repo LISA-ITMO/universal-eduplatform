@@ -61,7 +61,8 @@ services:
       - ../dbs/analytics_db.sqlite3:/app/db.sqlite3
       - ./startscripts/cmd.analytics.sh:/app/cmd.analytics.sh
       - static:/app/static/
-      - ../tests:/app/tests/models
+      - ../tests/tests/models.py:/app/tests/models.py
+      - ../tests/db.sqlite3:/app/tests/db.sqlite3
     depends_on:
       - client
       - tests

@@ -58,7 +58,7 @@ services:
       - ./startscripts/cmd.analytics.sh:/app/cmd.analytics.sh
       - static:/app/static/
       - ../tests/tests/models.py:/app/tests/models.py
-      - ../tests/db.sqlite3:/app/tests/db.sqlite3
+      - ../dbs/tests_db.sqlite3:/app/tests/db.sqlite3
     depends_on:
       - client
       - tests

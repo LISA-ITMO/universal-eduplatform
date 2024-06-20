@@ -15,7 +15,6 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=lambda v: [s.strip() for s in v.split(',')])
@@ -98,8 +97,8 @@ USE_L10N = True
 USE_TZ = True
 
 
-STATIC_URL = 'static_django_analytics_files/'
-STATIC_ROOT = BASE_DIR / 'static_django_analytics_files/static_django_analytics_files/'
+STATIC_URL = 'static_django_analytics/'
+STATIC_ROOT = BASE_DIR / 'static_django_analytics/static_django_analytics/'
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
@@ -111,3 +110,7 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'API for Student Analytics',
     'VERSION': '0.0.1',
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://87.249.49.46",
+]

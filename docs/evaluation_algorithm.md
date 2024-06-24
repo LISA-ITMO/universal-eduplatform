@@ -8,23 +8,33 @@ The quiz platform determines the personal competences of a person by means of ro
 
 > For example: a student scores 95, 89 and 20 on several tests, in which case only the values 95 and 89 would be used, while a score of 20 would be excluded as an outlier affecting the static validity of the results.
 
-The robust mean formula for calculating the numerical characteristic of analyticity is expressed as follows:
+The analyticity score per test is obtained by normalisation:
+
 <p align="center">
-  𝑅𝑀 = 𝑚𝑒𝑑(𝑋)
+  𝑎𝑛𝑎𝑙𝑦𝑡𝑖𝑐𝑖𝑡𝑦 = 𝑀/𝑃 × 100,
 </p>
-where X is the set of grades received by a student for all tests.
+
+where `M` is the maximum test score and `P` is the number of points scored by the student.
+
+The analyticity per course is calculated using the robust average formula:
+
+<p align="center">
+  𝑅𝑀 = 𝑚𝑒𝑑(𝑋),
+</p>
+
+where `X` is the vector of scores on all tests in the course.
 
 Using this formula, the mean is calculated as the median value of all grades obtained by a student for a series of tests, and the effect of outliers on student results is minimised.
 
 ### Leadership skills
 
-**Leadership** qualities imply the ability to find non-trivial solutions, to form interesting and sufficiently complex questions. The assessed student develops test tasks in such a way that they cause varying degrees of difficulty for other students, thus demonstrating their leadership qualities.
+The leadership score for the test is obtained using the robust coefficient of variation formula:
 
-The formula used to calculate leadership qualities is the robust coefficient of variation, defined as the ratio of the interquartile range to the median of a vector consisting of the proportion of correct answers to each test question. The formula is expressed as follows:
 <p align="center">
   𝑅𝐶𝑉 = 𝐼𝑄𝑅/𝑚𝑒𝑑(𝑋), 
 </p>
-where IQR is the interquartile range, X is a vector consisting of fractions of correct answers to each test question.
+
+To calculate the `RCV` for a test for its author, data is collected on what answers other students gave to his test on the lecture given. `X` is a vector that consists of the fraction of correct answers to each question, a `IQR` is its interquartile range.
 
 ### Interpretation of results
 Interpretation of analytical and leadership assessment results is a process of assigning categorical scores based on the value of the robust coefficient of variation (RCV) and the median (RM) of the vector of shares of correct answers to test questions. 

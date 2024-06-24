@@ -50,21 +50,21 @@ services:
       - client
     restart: unless-stopped
 
-  analytics:
-    build: ../analytics/
-    env_file:
-      - ./env/.env.analytics
-    command: ./cmd.analytics.sh
-    volumes:
-      - ../dbs/analytics_db.sqlite3:/app/db.sqlite3
-      - ./startscripts/cmd.analytics.sh:/app/cmd.analytics.sh
-      - static:/app/static/
-      - ../tests/tests/models.py:/app/tests/models.py
-      - ../dbs/tests_db.sqlite3:/app/tests/db.sqlite3
-    depends_on:
-      - client
-      - tests
-    restart: unless-stopped
+  # analytics:
+  #   build: ../analytics/
+  #   env_file:
+  #     - ./env/.env.analytics
+  #   command: ./cmd.analytics.sh
+  #   volumes:
+  #     - ../dbs/analytics_db.sqlite3:/app/db.sqlite3
+  #     - ./startscripts/cmd.analytics.sh:/app/cmd.analytics.sh
+  #     - static:/app/static/
+  #     - ../tests/tests/models.py:/app/tests/models.py
+  #     - ../dbs/tests_db.sqlite3:/app/tests/db.sqlite3
+  #   depends_on:
+  #     - client
+  #     - tests
+  #   restart: unless-stopped
 
 
   gateway:
@@ -81,4 +81,4 @@ services:
       - users
       - tests
       - api
-      - analytics
+      # - analytics

@@ -9,7 +9,6 @@ def formula_1(id_result):
         correct_answers = [answer.answer_text for answer in Answer.objects.filter(id_question=question.pk, is_correct=True)]
         num_right =  len(correct_answers)
         num_all = Answer.objects.filter(id_question=question.pk).count()
-        print(num_all, num_right)
         solutions = Solutions.objects.filter(id_result=id_result, id_question=question.pk)
         for solution in solutions:
             if solution.user_answer in correct_answers:

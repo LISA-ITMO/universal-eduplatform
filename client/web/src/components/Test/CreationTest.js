@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -17,8 +17,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import { COUNT_QUESTION } from "@utils/common";
 import { API_TESTS } from "@utils/api/apiTests";
+import { UserContext } from "@app/providers/UserProvider";
 
 const COUNT_VARIANTS = 5;
+
+
 
 // TODO: array and count variants value
 
@@ -74,6 +77,8 @@ const CreationTest = ({ subjectId, subjectName, themeId, themeName }) => {
   const [rightAnswer, setRightAnswer] = useState("-1");
   const [info, setInfo] = useState("");
   const navigate = useNavigate();
+
+  const { user } = useContext(UserContext);
 
   const toastIdRef = React.useRef();
 
@@ -146,7 +151,7 @@ const CreationTest = ({ subjectId, subjectName, themeId, themeName }) => {
 
       API_TESTS.tests
         .add({
-          authorId: 1,
+          authorId: user.info.id,
           questions: questions,
           subjectId: subjectId,
           themeId: themeId,

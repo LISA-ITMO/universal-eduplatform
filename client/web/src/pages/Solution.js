@@ -36,6 +36,7 @@ const Creation = () => {
 
             API_SUBJECTS.themes.get({id: themeId})
                 .then((res) => {
+                    
                     setThemeName(res.data[0].name_theme);
                 })
                 .catch(() => {

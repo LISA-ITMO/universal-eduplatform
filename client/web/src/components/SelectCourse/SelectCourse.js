@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -15,6 +15,7 @@ import { API_SUBJECTS } from "@utils/api/apiSubjects";
 import { API_TESTS } from "@utils/api/apiTests";
 import { BiBorderRadius } from "react-icons/bi";
 import CreateForm from "./CreateForm";
+import { UserContext } from "@app/providers/UserProvider";
 
 const SelectCourse = ({ path, goToText, isSolution }) => {
   const bgButton = useColorModeValue("gray.200", "gray.700");
@@ -25,6 +26,8 @@ const SelectCourse = ({ path, goToText, isSolution }) => {
   const [subjects, setSubjects] = useState([]);
   const [themes, setThemes] = useState([]);
   const [tests, setTests] = useState([]);
+
+  const { user } = useContext(UserContext);
 
   const navigate = useNavigate();
 
@@ -95,7 +98,14 @@ const SelectCourse = ({ path, goToText, isSolution }) => {
     API_TESTS.tests
       .list({ subjectId: subject, themeId: theme })
       .then((res) => {
-        setTests(res.data);
+        console.log('res.data',res.data)
+        const filtered_tests = res.data.filter(t => {
+          console.log('t',t.author_id)
+          console.log('user.info.id',user.info.id)
+          return t.author_id != user.info.id})
+
+        setTests(filtered_tests);
+        console.log('filtered_tests', filtered_tests)
         toast.update(toastIdRef.current, {
           description: `Список тестов загружен`,
           status: "success",

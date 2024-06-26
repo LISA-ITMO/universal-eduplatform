@@ -38,8 +38,10 @@ const SolutionTest2 = ({
     API_TESTS.tests
       .get({ id: testId })
       .then((res) => {
+       
         setQuestions(res.data.questions);
         setQuestionCount(res.data.questions.length);
+        console.log(res);
       })
       .catch((e) => {
         console.log("err-", e);

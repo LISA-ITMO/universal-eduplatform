@@ -17,12 +17,13 @@ export const API_TESTS = {
     tests: {
         add: async ({authorId, subjectId, themeId, questions, expertId}) => {
             
+            const max_points = questions.reduce((sum, current) => sum + current.question_points, 0)
             const sendData = {
                 "author_id": authorId,
                 "subject_id": Number(subjectId),
                 "theme_id": Number(themeId),
                 "questions": questions,
-                "max_points": 0
+                "max_points": max_points
             };
             
             const answer = await getAPIClient.post(`/tests/add`, sendData);

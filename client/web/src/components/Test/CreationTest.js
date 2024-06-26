@@ -106,7 +106,7 @@ const CreationTest = ({ subjectId, subjectName, themeId, themeName }) => {
         is_correct: (item === Object.values(variants)[rightAnswer]) ? true : false
         })),
         addition_info: info,
-        question_points: 0
+        question_points: 1
       });
       
 
@@ -140,7 +140,7 @@ const CreationTest = ({ subjectId, subjectName, themeId, themeName }) => {
             is_correct: (item === Object.values(variants)[rightAnswer]) ? true : false
             })),
             addition_info: info,
-            question_points: 0
+            question_points: 1
           });
       }
 

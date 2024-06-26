@@ -53,9 +53,12 @@ const Profile = () => {
           <SimpleGrid columns={2} spacingX="40px" spacingY="20px">
          
             {results.map((r) => (
-              <Box bg="#F9FAFA" height="auto" borderRadius={5} border={"1px"} borderColor={"GrayText"}>
+              <Box key={r.id} bg="#F9FAFA" height="auto" borderRadius={5} border={"1px"} borderColor={"GrayText"}>
                 <Stat padding={"5px 15px"} >
-                  <StatLabel fontSize={"medium"}>{`TEST (id: ${r.id})`}</StatLabel>
+                  <StatLabel fontSize={"medium"}>{`ТЕСТ (id: ${r.id})`}</StatLabel>
+                  <StatLabel fontSize={"medium"}>{`Предмет: ${r.subject}`}</StatLabel>
+                  <StatLabel fontSize={"medium"}>{`Тема: ${r.theme}`}</StatLabel>
+
                   <Divider borderColor={"grey"}/>
                   <StatNumber>POINTS: {r.points_user}</StatNumber>
                   <StatHelpText>Всего вопросов: {r.solutions.length}</StatHelpText>

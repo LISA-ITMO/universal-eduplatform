@@ -26,9 +26,17 @@ import { FaShareFromSquare } from "react-icons/fa6";
 const Profile = () => {
   const { user } = useContext(UserContext);
 
-  const [results, setResults] = useState();
+  const [results, setResults] = useState([]);
+  const [subjects, setSubjects] = useState({})
+  const [themes, setThemes] = useState({})
 
-  useEffect(() => {}, []);
+  const [analytic, setAnalytic] = useState(null)
+
+  useEffect(() => {
+    createSets()
+   
+   
+  }, [results]);
 
   const handleButton = () => {
     API_TESTS.results
@@ -37,21 +45,74 @@ const Profile = () => {
         console.log("LOAD RES-", res.data);
         setResults(res.data);
       })
+      .then(() => {
+        // setSubjects(new Set(Array.from(results.map(r => r.subject))))
+        // setThemes(new Set(Array.from(results.map(r => r.theme))))
+        // createSets()
+        countAnalyticsCourse()
+      })
+     
       .catch((err) => console.log(err));
   };
+
+  const createSets = () => {
+    setSubjects(Array.from(new Set(Array.from(results.map(r => r.subject)))))
+    setThemes(Array.from(new Set(Array.from(results.map(r => r.theme)))))
+    console.log(subjects)
+    console.log(themes)
+  }
+
+  const countAnalyticsCourse = () => {
+    for (let s of subjects) {
+      let filter_result = results.filter(r => r.subject == s)
+      let points = Array.from(filter_result.map(r => r.points_user))
+      points.sort(function(a, b) { return a - b; });
+
+      let a
+      if (points.length % 2 == 0 ) {
+        const m = points.length / 2
+        a = ((points[m] + points[m-1]) / 2 ).toFixed(2)
+        setAnalytic(a)
+      } else {
+        const m = Math.floor(points.length / 2)
+        a = points[m].toFixed(2)
+        setAnalytic(a)
+      }
+
+
+    }
+  }
 
   return (
     <>
       <Flex direction={"column"}>
         <ProfileCard title="ПРОФИЛЬ" user={user.info} />
         <Divider marginBottom={5}/>
+
+        <Text fontWeight={800} fontSize={24}>АНАЛИТИЧНОСТЬ</Text>
+
+        {subjects?.length && (
+          subjects.map(s => <>
+          <Flex flexDirection={'row'} fontSize={24} marginBottom={15}>
+          <Text marginRight={5}>По курсу <strong>{s}</strong>:</Text>
+          <Text color={'green'} fontWeight={600}> {analytic}</Text>
+          </Flex>
+          <Divider marginBottom={5} color={'black'}/>
+          </>)
+        )}
+      
+
         <Button onClick={handleButton} variant='outline' colorScheme={"teal"}>
           <Icon as={FaShareFromSquare}></Icon>Загрузить результаты
         </Button>
 
+     
+      
         {results?.length ? (
+
+            
+          
           <SimpleGrid columns={2} spacingX="40px" spacingY="20px">
-         
             {results.map((r) => (
               <Box key={r.id} bg="#F9FAFA" height="auto" borderRadius={5} border={"1px"} borderColor={"GrayText"}>
                 <Stat padding={"5px 15px"} >

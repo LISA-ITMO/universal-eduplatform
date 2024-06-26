@@ -89,17 +89,35 @@ const Profile = () => {
         <ProfileCard title="ПРОФИЛЬ" user={user.info} />
         <Divider marginBottom={5}/>
 
-        <Text fontWeight={800} fontSize={24}>АНАЛИТИЧНОСТЬ</Text>
-
-        {subjects?.length && (
-          subjects.map(s => <>
-          <Flex flexDirection={'row'} fontSize={24} marginBottom={15}>
-          <Text marginRight={5}>По курсу <strong>{s}</strong>:</Text>
+        {/* {subjects?.length && (
+          <Text fontWeight={800} fontSize={24}>АНАЛИТИЧНОСТЬ</Text>
+        )} */}
+        
+       
+        <Text fontWeight={800} fontSize={24} borderBottom={'1px solid gray'} marginBottom={5}>ЦИФРОВОЕ ПОРТФОЛИО СТУДЕНТА</Text>
+        {subjects?.length && ( <>
+          
+          {subjects.map(s => <>
+            <Box border={'1px solid gray'} width={'fit-content'} padding={3}>
+            <Text marginRight={5} fontSize={22} borderBottom={'1px solid black'} >По курсу <strong>{s}</strong>:</Text>
+            
+            <Text fontWeight={800} fontSize={18} color={'blue'}>АНАЛИТИЧНОСТЬ</Text>
           <Text color={'green'} fontWeight={600}> {analytic}</Text>
-          </Flex>
+          
+          
+
+          <Text fontWeight={800} fontSize={20} color={'orange'}>КРЕАТИВНОСТЬ</Text>
+          <Text color={'green'} fontWeight={600}> {0.85}</Text>
+            </Box>
+            
+
           <Divider marginBottom={5} color={'black'}/>
-          </>)
+          </>)}
+        </>
+          
         )}
+
+
       
 
         <Button onClick={handleButton} variant='outline' colorScheme={"teal"}>

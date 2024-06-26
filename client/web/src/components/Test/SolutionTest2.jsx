@@ -69,16 +69,19 @@ const SolutionTest2 = ({
   }, [isLastQuestion]);
 
   const formSubmit = (e) => {
+    
     e.preventDefault();
     const questionId = questions[qNumber].id;
-
+    console.log(value)
+    console.log('ANSW: ', questions[qNumber].answers.find(a => a.id == value).answer_text)
     API_TESTS.tests
       .getQuestionAnswer({ id: questionId })
       .then((res) => {
 
         const solution = {
           id_question: questionId,
-          user_answer: res.data[0].answer_text,
+          // user_answer: res.data[0].answer_text,
+          user_answer: questions[qNumber].answers.find(a => a.id == value).answer_text,
         };
         solutions.push(solution);
 
@@ -106,6 +109,11 @@ const SolutionTest2 = ({
   const handleFinishTest = () => {
     console.log("done!", done);
   };
+
+  const handleChange = (e) => {
+  
+   
+  }
 
   return (
     <>

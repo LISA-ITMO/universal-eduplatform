@@ -1,4 +1,9 @@
-![](docs/img/logo.jpg)
+![ITMO](https://raw.githubusercontent.com/aimclub/open-source-ops/43bb283758b43d75ec1df0a6bb4ae3eb20066323/badges/ITMO_badge_rus.svg)
+[![license](https://badgen.net/static/license/MIT/blue)](https://badgen.net/static/license/MIT/blue)
+[![python](https://badgen.net/badge/python/3.9|3.10|3.11/blue?icon=python)](https://www.python.org/)
+[![react](https://badgen.net/static/react/18.2/orange)](https://github.com/LISA-ITMO/universal-eduplatform/issues)
+
+[<img src="./docs/img/logo.jpg" width="450" />](docs/img/logo.jpg)
 # Quiz-platform for education | Платформа викторин для образования
 
 This repository contains a tool that is an interactive platform designed to analyse personal competencies in analytical thinking and leadership. It is intended for use in an educational environment and provides users with the ability to create their own tests and take tests from other users to assess their skills and knowledge in a particular area.
@@ -7,7 +12,7 @@ This repository contains a tool that is an interactive platform designed to anal
 
 - Available at the link - [Quiz-platform for education]()
 
-> Please help us improve this project, share your feedback with [opening a pull request]([[https://github.com/LabsWorkLISA/Quiz-platform/pulls](https://github.com/LISA-ITMO/universal-eduplatform/issues)](https://github.com/LISA-ITMO/universal-eduplatform/issues))
+> Please help us improve this project, share your feedback with [opening issue](https://github.com/LISA-ITMO/universal-eduplatform/issues)
 
 
 ## Demo

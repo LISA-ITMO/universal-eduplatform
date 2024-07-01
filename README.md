@@ -7,7 +7,7 @@ This repository contains a tool that is an interactive platform designed to anal
 
 - Available at the link - [Quiz-platform for education]()
 
-> Please help us improve this project, share your feedback with [opening a pull request]([https://github.com/LabsWorkLISA/Quiz-platform/pulls](https://github.com/LISA-ITMO/universal-eduplatform/issues))
+> Please help us improve this project, share your feedback with [opening a pull request]([[https://github.com/LabsWorkLISA/Quiz-platform/pulls](https://github.com/LISA-ITMO/universal-eduplatform/issues)](https://github.com/LISA-ITMO/universal-eduplatform/issues))
 
 
 ## Demo

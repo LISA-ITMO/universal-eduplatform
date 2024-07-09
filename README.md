@@ -16,9 +16,12 @@ This repository contains a tool that is an interactive platform designed to anal
 
 
 ## Demo
-*in the process of implementation
 
-![]()
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=example">
+    <img src="docs/Demo.gif" alt="Demo video" style="width:100%;">
+  </a>
+</p>
 
 ## Documentation
 Details of the documentation can be found at the links below:
@@ -100,9 +103,7 @@ The team working on the project is listed below (everyone can be contacted perso
 - [Gorelik Samuel](https://edu.itmo.ru/ru/lecturers_and_professors/175676)
 
 
-## The science component of the Quiz platform
+## Publications About Quiz-platform for education
 - [Алгоритм оценивания индивидуальных способностей в сервисе для интеллектуального кросс-тестирования](https://kmu.itmo.ru/digests/article/13777)
 - [Разработка мобильного приложения для сервиса по составлению и прохождению тестов учащимися](https://kmu.itmo.ru/digests/article/12401)
 - [Разработка интеллектуальной системы с возможностью генерации и персонализации под пользователя вопросов на основе учебных материалов](https://kmu.itmo.ru/digests/article/13672)
-- [Управление образовательным процессом](https://science-education.ru/ru/article/view?id=13932)
-- [Образование в цифровую эпоху](https://magellan.pro/2019/03/04/obrazovanie-v-cifrovuju-jepohu/)

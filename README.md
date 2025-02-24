@@ -6,7 +6,11 @@
 [<img src="./docs/img/logo.jpg" width="450" />](docs/img/logo.jpg)
 # Quiz-platform for education | Платформа викторин для образования
 
-This repository contains a tool that is an interactive platform designed to analyse personal competencies in analytical thinking and leadership. It is intended for use in an educational environment and provides users with the ability to create their own tests and take tests from other users to assess their skills and knowledge in a particular area.
+This repository contains a tool — an interactive platform for analyzing personal competencies in the areas of analytical thinking and creativity. The platform is designed for educational environments and provides the ability to create tests as well as take tests from other users to assess skills and knowledge.
+
+The key advantage is the integration of an AI assistant that is trained on a limited sample of data from teachers and students, allowing it to be adapted first for one, and then for several study groups.
+
+Development is being carried out on the [DEV](https://github.com/LISA-ITMO/universal-eduplatform/tree/DEV) branch.
 
 - Read the user manual before you get started - [User manual](docs/user_manual.md)
 
@@ -20,6 +24,14 @@ This repository contains a tool that is an interactive platform designed to anal
 <p align="center">
   <a href="https://www.youtube.com/watch?v=example">
     <img src="docs/Demo.gif" alt="Demo video" style="width:100%;">
+  </a>
+</p>
+
+### How to use it in practice:
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=example">
+    <img src="docs/Conducting-cross-testing.gif" alt="Demo video of cross-testing" style="width:100%;">
   </a>
 </p>
 
@@ -104,6 +116,9 @@ The team working on the project is listed below (everyone can be contacted perso
 
 
 ## Publications About Quiz-platform for education
+- [Индивидуальный цифровой имидж человека как фактор капитализации личности](https://research-journal.org/archive/7-145-2024-july/10.60797/IRJ.2024.145.91)
+- [Как AI-ассистент и кросс-тестирование меняют подход к обучению](https://vc.ru/ai/1824697-kak-ai-assistent-i-kross-testirovanie-menyayut-podhod-k-obucheniyu)
+- [Сервис для интеллектуального кросс-тестирования учащихся](https://studnauka.itmo.ru/assets/files/sborniki/sbornik_almanac_2024_tom_2.pdf)
 - [Алгоритм оценивания индивидуальных способностей в сервисе для интеллектуального кросс-тестирования](https://kmu.itmo.ru/digests/article/13777)
 - [Разработка мобильного приложения для сервиса по составлению и прохождению тестов учащимися](https://kmu.itmo.ru/digests/article/12401)
 - [Разработка интеллектуальной системы с возможностью генерации и персонализации под пользователя вопросов на основе учебных материалов](https://kmu.itmo.ru/digests/article/13672)

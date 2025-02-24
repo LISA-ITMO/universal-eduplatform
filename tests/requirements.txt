@@ -11,6 +11,7 @@ django-cors-headers==3.14.0
 django-templated-mail==1.1.1
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.2.2
+djangorestframework-swagger==0.2.2
 djoser==2.2.0
 drf-yasg==1.21.5
 idna==3.4
@@ -37,3 +38,4 @@ tzdata==2023.3
 uritemplate==4.1.1
 urllib3==1.26.15
 python-decouple==3.8
+numpy==1.26.4

@@ -15,6 +15,7 @@ from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
+from .calculations import formula_1
 
 class ResultsView(viewsets.ModelViewSet):
     serializer_class = ResultsSerializer
@@ -26,10 +27,9 @@ class ResultsView(viewsets.ModelViewSet):
         id_test = data.get('id_test')
         subject = data.get('subject')
         theme = data.get('theme')
-        points_user = data.get('points_user')
         results = data.get('solutions', [])
 
-        serializer = TestUserSerializer(data={'id_user': id_user, 'id_test': id_test, 'points_user': points_user, 'subject': subject, 'theme': theme})
+        serializer = TestUserSerializer(data={'id_user': id_user, 'id_test': id_test, 'subject': subject, 'theme': theme})
         if serializer.is_valid():
             serializer.save()
         else:
@@ -46,7 +46,9 @@ class ResultsView(viewsets.ModelViewSet):
                 result_data.append(serializer.data)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
+        result = Result.objects.get(pk=id_result)
+        result.points_user = formula_1(id_result)
+        result.save()
         test = Test.objects.get(id=id_test)
         times_solved = test.times_solved + 1
         test.times_solved = times_solved

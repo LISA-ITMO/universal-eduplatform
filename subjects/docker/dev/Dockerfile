@@ -19,7 +19,7 @@ RUN poetry config virtualenvs.create false
 
 RUN pip install gunicorn==20.1.0
 # Install dependencies
-RUN poetry install
+RUN poetry install --no-root
 
 COPY . /app/
 

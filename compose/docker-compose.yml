@@ -1,7 +1,6 @@
 version: '3.3'
 volumes:
   static:
-
 services:
   client:
     build:
@@ -9,16 +8,17 @@ services:
       dockerfile: client/Dockerfile
     volumes:
       - static:/client/build/
-  
+
   api: &api
     build:
       context: ../subjects
       dockerfile: docker/dev/Dockerfile
     env_file:
       - ./env/.env.subjects
-    command: ./cmd.subjects.sh
+    command: sh /app/cmd.subjects.sh
     volumes:
       - ../dbs/subjects_db.sqlite3:/app/db.sqlite3
+      - ./backups/subjects_db_backup.json:/app/courses/fixtures/subjects_db_backup.json
       - ./startscripts/cmd.subjects.sh:/app/cmd.subjects.sh
       - static:/app/static/
     restart: unless-stopped
@@ -29,9 +29,10 @@ services:
     build: ../users/
     env_file:
       - ./env/.env.users
-    command: ./cmd.users.sh
+    command: sh /app/cmd.users.sh
     volumes:
       - ../dbs/users_db.sqlite3:/app/db.sqlite3
+      - ./backups/users_db_backup.json:/app/users/fixtures/users_db_backup.json
       - ./startscripts/cmd.users.sh:/app/cmd.users.sh
       - static:/app/static/
     depends_on:
@@ -42,27 +43,32 @@ services:
     build: ../tests/
     env_file:
       - ./env/.env.tests
-    command: ./cmd.tests.sh
+    command: sh /app/cmd.tests.sh
     volumes:
       - ../dbs/tests_db.sqlite3:/app/db.sqlite3
+      - ./backups/tests_db_backup.json:/app/fixtures/tests_db_backup.json
       - ./startscripts/cmd.tests.sh:/app/cmd.tests.sh
       - static:/app/static/
     depends_on:
       - client
     restart: unless-stopped
 
-  analytics:
-    build: ../analytics/
-    env_file:
-      - ./env/.env.analytics
-    command: ./cmd.analytics.sh
-    volumes:
-      - ../dbs/analytics_db.sqlite3:/app/db.sqlite3
-      - ./startscripts/cmd.analytics.sh:/app/cmd.analytics.sh
-      - static:/app/static/
-    depends_on:
-      - client
-    restart: unless-stopped
+  # analytics:
+  #   build: ../analytics/
+  #   env_file:
+  #     - ./env/.env.analytics
+  #   command: ./cmd.analytics.sh
+  #   volumes:
+  #     - ../dbs/analytics_db.sqlite3:/app/db.sqlite3
+  #     - ./startscripts/cmd.analytics.sh:/app/cmd.analytics.sh
+  #     - static:/app/static/
+  #     - ../tests/tests/models.py:/app/tests/models.py
+  #     - ../dbs/tests_db.sqlite3:/app/tests/db.sqlite3
+  #   depends_on:
+  #     - client
+  #     - tests
+  #   restart: unless-stopped
+
 
   gateway:
     image: nginx
@@ -77,4 +83,4 @@ services:
       - users
       - tests
       - api
-      - analytics
+      # - analytics

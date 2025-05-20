@@ -32,12 +32,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'tests.apps.TestsConfig',
+    'tests',
+    'analytics',
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
-    'corsheaders',
-    'analytics'
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -105,7 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -139,3 +139,5 @@ CORS_ALLOW_CREDENTIALS = True
 
 FORCE_SCRIPT_NAME = '/tests'
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=lambda v: [s.strip() for s in v.split(',')])
+
+FIXTURE_DIRS = [BASE_DIR /'fixtures']

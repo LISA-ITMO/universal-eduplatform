@@ -2,13 +2,25 @@ from django.urls import path
 from .views import StudentAnalyticsViewSet
 
 urlpatterns = [
-    path('analytics/<int:student_id>/', StudentAnalyticsViewSet.as_view({'get': 'retrieve'})),
-    path('analytics/list/', StudentAnalyticsViewSet.as_view({'get': 'list'})),
-    path('analytics/create/', StudentAnalyticsViewSet.as_view({'post': 'create'})),
-    path('analytics/update/', StudentAnalyticsViewSet.as_view({'put': 'update'})),
-    path('analytics/calculate_analyticity/', StudentAnalyticsViewSet.as_view({'patch': 'calculate_analyticity'})),
-    path('analytics/calculate_leadership/', StudentAnalyticsViewSet.as_view({'patch': 'calculate_leadership'})),
-]
+    path('analiticity/test/<int:student_id>/<int:test_id>', StudentAnalyticsViewSet.as_view({'get': 'retrieve_test_analyticity'})),
+    path('analiticity/theme/<int:student_id>/<int:theme_id>/<int:subject_id>', StudentAnalyticsViewSet.as_view({'get': 'retrieve_theme_analyticity'})),
+    path('analiticity/course/<int:student_id>/<int:subject_id>', StudentAnalyticsViewSet.as_view({'get': 'retrieve_course_analyticity'})),
+    path('analiticity/test/list_test', StudentAnalyticsViewSet.as_view({'get': 'list_test_analyticity'})),
+    path('analiticity/theme/list_theme', StudentAnalyticsViewSet.as_view({'get': 'list_theme_analyticity'})),
+    path('analiticity/course/list_course', StudentAnalyticsViewSet.as_view({'get': 'list_course_analyticity'})),
+    # path('analiticity/calculate_analyticity_test/', StudentAnalyticsViewSet.as_view({'patch': 'calculate_analyticity_test'})),
+    # path('analiticity/calculate_analyticity_theme/', StudentAnalyticsViewSet.as_view({'patch': 'calculate_analyticity_theme'})),
+
+    path('leadership/test/<int:student_id>/<int:test_id>', StudentAnalyticsViewSet.as_view({'get': 'retrieve_test_leadership'})),
+    path('leadership/theme/<int:student_id>/<int:theme_id>/<int:subject_id>', StudentAnalyticsViewSet.as_view({'get': 'retrieve_theme_leadership'})),
+    path('leadership/course/<int:student_id>/<int:subject_id>', StudentAnalyticsViewSet.as_view({'get': 'retrieve_course_leadership'})),
+    path('leadership/test/list_test', StudentAnalyticsViewSet.as_view({'get': 'list_test_leadership'})),
+    path('leadership/theme/list_theme', StudentAnalyticsViewSet.as_view({'get': 'list_theme_leadership'})),
+    path('leadership/course/list_course', StudentAnalyticsViewSet.as_view({'get': 'list_course_leadership'})),
+    # path('leadership/calculate_leadership_test/', StudentAnalyticsViewSet.as_view({'patch': 'calculate_leadership_test'})),
+    # path('leadership/calculate_leadership_theme/', StudentAnalyticsViewSet.as_view({'patch': 'calculate_leadership_theme'})),
+
+    ]
 
 # Documentation for URLs
 """

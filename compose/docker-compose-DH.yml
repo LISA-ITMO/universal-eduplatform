@@ -16,6 +16,7 @@ services:
     command: ./cmd.subjects.sh
     volumes:
       - ../dbs/subjects_db.sqlite3:/app/db.sqlite3
+      - ./backups/subjects_db_backup.json:/app/courses/fixtures/subjects_db_backup.json
       - ./startscripts/cmd.subjects.sh:/app/cmd.subjects.sh
       - static:/app/static/
     restart: unless-stopped
@@ -29,6 +30,7 @@ services:
     command: ./cmd.users.sh
     volumes:
       - ../dbs/users_db.sqlite3:/app/db.sqlite3
+      - ./backups/users_db_backup.json:/app/users/fixtures/users_db_backup.json
       - ./startscripts/cmd.users.sh:/app/cmd.users.sh
       - static:/app/static/
     depends_on:
@@ -42,6 +44,7 @@ services:
     command: ./cmd.tests.sh
     volumes:
       - ../dbs/tests_db.sqlite3:/app/db.sqlite3
+      - ./backups/tests_db_backup.json:/app/tests/fixtures/tests_db_backup.json
       - ./startscripts/cmd.tests.sh:/app/cmd.tests.sh
       - static:/app/static/
     depends_on:

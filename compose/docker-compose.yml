@@ -1,4 +1,4 @@
-version: '3.3'
+version: "3.3"
 volumes:
   static:
 services:
@@ -69,7 +69,6 @@ services:
   #     - tests
   #   restart: unless-stopped
 
-
   gateway:
     image: nginx
     ports:
@@ -77,6 +76,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - static:/usr/share/nginx/html/
+
     restart: unless-stopped
     depends_on:
       - client

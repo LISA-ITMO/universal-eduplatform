@@ -1,5 +1,4 @@
 import {
-  Divider,
   Icon,
   SimpleGrid,
   Stat,
@@ -8,13 +7,24 @@ import {
   StatNumber,
   Text,
 } from "@chakra-ui/react";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaShareFromSquare } from "react-icons/fa6";
-import { UserContext } from "../providers/UserProvider";
 import { ProfileCard } from "../components/ProfileCard";
 import { API_TESTS } from "../utils/api/apiTests";
 import { useUsers } from "../store/users";
-import { Box, Button } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  IconButton,
+  Divider,
+  Collapse,
+} from "@mui/material";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import DownloadIcon from "@mui/icons-material/Download";
+import dayjs from "dayjs";
 
 const Profile = () => {
   const { user } = useUsers();
@@ -27,7 +37,6 @@ const Profile = () => {
 
   useEffect(() => {
     createSets();
-    console.log("subjects", subjects);
   }, [results]);
 
   useEffect(() => {
@@ -42,11 +51,11 @@ const Profile = () => {
 
         const analyticityResponse =
           await API_TESTS.results.getAnalyticityCourse({
-            student_id: user.info.id,
+            student_id: user?.id,
             subject_id: subject_id,
           });
         const leadershipResponse = await API_TESTS.results.getLeadershipCourse({
-          student_id: user.info.id,
+          student_id: user?.id,
           subject_id: subject_id,
         });
 
@@ -59,7 +68,6 @@ const Profile = () => {
       Promise.all(promises)
         .then(() => {
           setAnalytic(Analytic);
-          console.log("Analytic", analytic);
         })
         .catch((error) => {
           console.error("Error fetching test details for subject", error);
@@ -71,7 +79,6 @@ const Profile = () => {
     API_TESTS.results
       .getAllResults({ id: user?.id })
       .then((res) => {
-        console.log("LOAD RES-", res.data);
         setResults(res.data);
       })
       .catch((error) => {
@@ -82,8 +89,14 @@ const Profile = () => {
   const createSets = () => {
     setSubjects(Array.from(new Set(Array.from(results.map((r) => r.subject)))));
     setThemes(Array.from(new Set(Array.from(results.map((r) => r.theme)))));
-    console.log(subjects);
-    console.log(themes);
+  };
+
+  const [isHiddenResults, setIsHiddenResults] = useState([]);
+
+  const toggleVisibility = (index) => {
+    const newHiddenResults = [...isHiddenResults];
+    newHiddenResults[index] = !newHiddenResults[index];
+    setIsHiddenResults(newHiddenResults);
   };
 
   return (
@@ -91,92 +104,162 @@ const Profile = () => {
       <Box sx={{ width: "100%" }}>
         <ProfileCard />
 
-        <Box sx={{ fontSize: 22, fontWeight: "600" }}>
-          ЦИФРОВОЕ ПОРТФОЛИО СТУДЕНТА
+        <Box sx={{ mb: 2, mx: 3, fontSize: 22, fontWeight: "600" }}>
+          Цифровое портфолио студента
         </Box>
-        {subjects?.length && (
-          <>
-            {subjects.map((subject, index) => {
-              return (
-                <React.Fragment key={index}>
+
+        {subjects?.length ? (
+          subjects.map((subject, index) => (
+            <>
+              <Box sx={{ my: 1, mx: 3, maxWidth: "900px" }}>
+                <Box sx={{ border: "1px solid black", borderRadius: 1 }}>
                   <Box
-                    border={"1px solid gray"}
-                    width={"fit-content"}
-                    padding={3}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
                   >
-                    <Text
-                      marginRight={5}
-                      fontSize={22}
-                      borderBottom={"1px solid black"}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                      }}
                     >
-                      По курсу <strong>{subject}</strong>:
-                    </Text>
-
-                    <Text fontWeight={800} fontSize={20} color={"blue"}>
-                      АНАЛИТИЧНОСТЬ
-                    </Text>
-                    <Text color={"green"} fontSize={20} fontWeight={600}>
-                      {analytic[subject]
-                        ? analytic[subject].analyticity
-                        : "loading"}
-                    </Text>
-
-                    <Text fontWeight={800} fontSize={20} color={"orange"}>
-                      КРЕАТИВНОСТЬ
-                    </Text>
-                    <Text color={"green"} fontSize={20} fontWeight={600}>
-                      {analytic[subject]
-                        ? analytic[subject].leadership
-                        : "loading"}
-                    </Text>
+                      <Box>
+                        <IconButton onClick={() => toggleVisibility(index)}>
+                          {isHiddenResults[index] ? (
+                            <KeyboardArrowUpIcon />
+                          ) : (
+                            <KeyboardArrowDownIcon />
+                          )}
+                        </IconButton>
+                      </Box>
+                      <Box>
+                        <Box
+                          component={"span"}
+                          sx={{ fontWeight: 600, fontSize: 18 }}
+                        >
+                          Курс:
+                        </Box>
+                        <Box component={"span"} sx={{ whiteSpace: "pre" }}>
+                          {" " + subject}
+                        </Box>
+                      </Box>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "grid",
+                        gridTemplateColumns: "150px 50px",
+                      }}
+                    >
+                      <Box
+                        sx={{ fontWeight: 600, fontSize: 18, color: "blue" }}
+                      >
+                        Аналитичность:
+                      </Box>
+                      <Box
+                        sx={{ fontWeight: 600, fontSize: 18, color: "green" }}
+                      >
+                        {analytic[subject]
+                          ? analytic[subject].analyticity
+                          : "loading"}
+                      </Box>
+                      <Box
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: 18,
+                          color: "orange",
+                        }}
+                      >
+                        Креативность:
+                      </Box>
+                      <Box
+                        sx={{ fontWeight: 600, fontSize: 18, color: "green" }}
+                      >
+                        {analytic[subject]
+                          ? analytic[subject].leadership
+                          : "loading"}
+                      </Box>
+                    </Box>
                   </Box>
-                  <Divider marginBottom={5} color={"black"} />
-                </React.Fragment>
-              );
-            })}
-          </>
-        )}
-
-        <Button onClick={handleButton} variant="outlined">
-          <Icon as={FaShareFromSquare}></Icon>Загрузить результаты
-        </Button>
-
-        {results?.length ? (
-          <SimpleGrid columns={2} spacingX="40px" spacingY="20px">
-            {results.map((r) => (
-              <Box
-                key={r.id}
-                bg="#F9FAFA"
-                height="auto"
-                borderRadius={5}
-                border={"1px"}
-                borderColor={"GrayText"}
-              >
-                <Stat padding={"5px 15px"}>
-                  <StatLabel
-                    fontSize={"medium"}
-                  >{`ТЕСТ (id: ${r.id})`}</StatLabel>
-                  <StatLabel
-                    fontSize={"medium"}
-                  >{`Предмет: ${r.subject}`}</StatLabel>
-                  <StatLabel
-                    fontSize={"medium"}
-                  >{`Тема: ${r.theme}`}</StatLabel>
-
-                  <Divider borderColor={"grey"} />
-                  <StatNumber>POINTS: {r.points_user}</StatNumber>
-                  <StatHelpText>
-                    Всего вопросов: {r.solutions.length}
-                  </StatHelpText>
-                  <StatHelpText>Date</StatHelpText>
-                </Stat>
+                </Box>
               </Box>
-            ))}
-          </SimpleGrid>
+
+              <Box sx={{ mx: 3, maxWidth: "900px" }}>
+                <Collapse in={isHiddenResults[index]}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {results?.length &&
+                      results
+                        .filter((result) => result.subject === subject)
+                        .map((result) => (
+                          <>
+                            <Card
+                              sx={{
+                                minWidth: 400,
+                                backgroundColor: "#efefef",
+                                m: 1,
+                              }}
+                            >
+                              <CardContent>
+                                <Box>
+                                  <Box component={"span"}>Id Теста: </Box>
+                                  <Box component={"span"}>{result.id_test}</Box>
+                                </Box>
+                                <Box>
+                                  <Box component={"span"}>Тема: </Box>
+                                  <Box component={"span"}>{result.theme}</Box>
+                                </Box>
+                                <Box sx={{ my: 1 }}>
+                                  <Divider />
+                                </Box>
+                                <Box>
+                                  <Box component={"span"}>Баллы: </Box>
+                                  <Box component={"span"}>
+                                    {result.points_user}
+                                  </Box>
+                                </Box>
+                                <Box>
+                                  <Box component={"span"}>Всего вопросов: </Box>
+                                  <Box component={"span"}>
+                                    {result.solutions.length}
+                                  </Box>
+                                </Box>
+                                <Box>
+                                  <Box component={"span"}>
+                                    Дата прохождения:{" "}
+                                  </Box>
+                                  <Box component={"span"}>
+                                    {dayjs(result.passing_date).format(
+                                      "DD.MM.YY HH:mm"
+                                    )}
+                                  </Box>
+                                </Box>
+                              </CardContent>
+                            </Card>
+                          </>
+                        ))}
+                  </Box>
+                </Collapse>
+              </Box>
+            </>
+          ))
         ) : (
-          <Text align={"center"} fontWeight={"600"} marginTop={5}>
-            Пока нет результатов
-          </Text>
+          <Button
+            sx={{ mx: 3 }}
+            onClick={handleButton}
+            variant="outlined"
+            startIcon={<DownloadIcon />}
+          >
+            Загрузить результаты
+          </Button>
         )}
       </Box>
     </>

@@ -28,7 +28,7 @@ const COUNT_VARIANTS = 5;
 
 // TODO: array and count variants value
 
-const Variants = ({ variants, setVariants }) => {
+const Variants = ({ variants, setVariants, rightAnswer, setRightAnswer }) => {
   const answers = () => {
     const variantsRender = [];
 
@@ -62,7 +62,12 @@ const Variants = ({ variants, setVariants }) => {
     <Box>
       <FormControl>
         <FormLabel>Варианты ответов</FormLabel>
-        <RadioGroup>{answers()}</RadioGroup>
+        <RadioGroup
+          value={rightAnswer}
+          onChange={(e) => setRightAnswer(e.target.value)}
+        >
+          {answers()}
+        </RadioGroup>
       </FormControl>
     </Box>
   );
@@ -200,13 +205,13 @@ const CreationTest = ({ subjectId, subjectName, themeId, themeName }) => {
             onChange={(e) => setProblem(e.target.value)}
           />
         </FormControl>
-        <RadioGroup
-          mt={"40px"}
-          value={rightAnswer}
-          onChange={(e) => setRightAnswer(e.target.value)} //change this
-        >
-          <Variants variants={variants} setVariants={setVariants} />
-        </RadioGroup>
+        <Variants
+          variants={variants}
+          setVariants={setVariants}
+          rightAnswer={rightAnswer}
+          setRightAnswer={setRightAnswer}
+        />
+
         <FormControl isRequired mt={"30px"}>
           <FormLabel mb={"2px"}>Дополнительная информация:</FormLabel>
           <Textarea

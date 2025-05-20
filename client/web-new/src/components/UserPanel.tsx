@@ -50,16 +50,17 @@ export const UserPanel = ({ logout, isFullPanel }) => {
       <Box
         display={"flex"}
         minWidth={"150px"}
-        flexDirection={isFullPanel ? "row" : "column"}
+        flexDirection={"row"}
         justifyContent={"center"}
       >
-        <ColorModeSwitcher />
+        {/* <ColorModeSwitcher /> */}
         <Button
           onClick={handleLogout}
           size={"md"}
           variant="ghost"
           pt={"2px"}
           colorScheme={"red"}
+          minWidth={"40px"}
         >
           <Icon w={"25px"} h={"25px"} as={BiLogOut} />
         </Button>

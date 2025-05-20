@@ -1,5 +1,4 @@
-import { useContext, Suspense, useState } from "react";
-import { Box, ChakraProvider, HStack, theme } from "@chakra-ui/react";
+import { useState } from "react";
 import { Route, Navigate, Routes, BrowserRouter } from "react-router-dom";
 import { Login } from "./pages/Login";
 import Profile from "./pages/Profile";
@@ -8,16 +7,16 @@ import { Requests } from "./pages/Requests";
 import Creation from "./pages/Creation";
 import Solution from "./pages/Solution";
 import { Students } from "./pages/Students";
-import Moderation from "./pages/Moderation";
-// import { cookies } from "./utils/api/apiUser";
-import { QUIZ_TOKEN } from "./utils/common";
 import MainPanel from "./components/MainPanel";
 import { useUsers } from "./store/users";
+import { useUsersAuthentication } from "./hooks/useUserAuthentication";
+import { Box } from "@mui/material";
+import { ToastContainer } from "react-toastify";
 
 export const App = () => {
   const { isLogged, clearUser } = useUsers();
-  // const [isAuth, setIsAuth] = useState(!!cookies.get("access_token"));
   const [isFullPanel, setIsFullPanel] = useState(true);
+  useUsersAuthentication();
 
   return (
     <Box
@@ -40,48 +39,39 @@ export const App = () => {
         )}
 
         <Routes>
-          <Route
-            path="/"
-            element={isLogged ? <Profile /> : <Navigate to="/login" />}
-          />
+          {/* Защищенные маршруты */}
+          {isLogged ? (
+            <>
+              <Route path="/" element={<Profile />} />
+              <Route path="/courses" element={<Courses />} />
+              <Route path="/requests" element={<Requests />} />
+              <Route
+                path="/creation/info?/:subjectId?/:themeId?"
+                element={<Creation />}
+              />
+              <Route
+                path="/solution/:subjectId?/:themeId?/:testId?/result?"
+                element={<Solution />}
+              />
+              <Route path="/students" element={<Students />} />
+            </>
+          ) : (
+            // Если пользователь не авторизован, перенаправляем на /login
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          )}
 
-          <Route
-            path={"/courses"}
-            element={isLogged ? <Courses /> : <Navigate to="/login" />}
-          />
-          <Route
-            path={"/requests"}
-            element={isLogged ? <Requests /> : <Navigate to="/login" />}
-          />
-          <Route
-            path={"/creation/info?/:subjectId?/:themeId?/"}
-            element={isLogged ? <Creation /> : <Navigate to="/login" />}
-          />
-          <Route
-            path={"/solution/:subjectId?/:themeId?/:testId?/result?"}
-            element={isLogged ? <Solution /> : <Navigate to="/login" />}
-          />
-          <Route
-            path={"/students"}
-            element={isLogged ? <Students /> : <Navigate to="/login" />}
-          />
-          {/* <Route
-            path={"/moderation"}
-            element={
-              isLogged && localStorage.getItem(QUIZ_TOKEN) == 123 ? (
-                <Moderation />
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          /> */}
-
+          {/* Публичные маршруты */}
           <Route path="/login" element={<Login isRegistration={false} />} />
           <Route path="/register" element={<Login isRegistration={true} />} />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Редирект для несуществующих маршрутов */}
+          <Route
+            path="*"
+            element={<Navigate to={isLogged ? "/" : "/login"} replace />}
+          />
         </Routes>
       </BrowserRouter>
+      <ToastContainer />
     </Box>
   );
 };

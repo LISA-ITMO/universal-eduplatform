@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import { Flex, useColorModeValue, VStack } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
-import CreationTest from "../components/CreationTest";
 import SelectCourse from "../components/SelectCourse";
 import { API_SUBJECTS } from "../utils/api/apiSubjects";
+import { TestCreationPage } from "../components/CreateTest";
+import { Box } from "@mui/material";
 
 const Creation = () => {
-  const bg = useColorModeValue("gray.100", "gray.900");
-
   const [subjectName, setSubjectName] = useState("");
   const [themeName, setThemeName] = useState("");
   const { subjectId, themeId } = useParams();
@@ -35,42 +33,23 @@ const Creation = () => {
   }, [subjectId, themeId]);
 
   return (
-    <Flex
-      position={"relative"}
-      zIndex={105}
-      w={"100%"}
-      minH={"100vh"}
-      p={"20px 10px 30px 10px"}
-      justifyContent={"center"}
-      overflowY={"hidden"}
-      alignItems={"center"}
-    >
-      <VStack
-        overflowY={"visible"}
-        alignItems={"flex-start"}
-        minH={"350px"}
-        maxW={"800px"}
-        w={"100%"}
-        p={"20px"}
-        bg={bg}
-        spacing={"20px"}
-      >
-        {(subjectId === undefined || themeId === undefined) && (
+    <Box sx={{ width: "100%" }}>
+      <Box sx={{ alignContent: "center", mx: "auto" }}>
+        {!subjectId || !themeId ? (
           <SelectCourse
             path={"creation"}
             goToText={"Перейти к созданию теста"}
           />
-        )}
-        {subjectId !== undefined && themeId !== undefined && (
-          <CreationTest
+        ) : (
+          <TestCreationPage
             subjectName={subjectName}
             themeName={themeName}
             subjectId={subjectId}
             themeId={themeId}
           />
         )}
-      </VStack>
-    </Flex>
+      </Box>
+    </Box>
   );
 };
 

@@ -2,6 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
+from django.utils import timezone
 
 
 class Migration(migrations.Migration):
@@ -29,6 +30,7 @@ class Migration(migrations.Migration):
                 ('subject', models.TextField()),
                 ('theme', models.TextField()),
                 ('points_user', models.IntegerField(null=True)),
+                ('passing_date', models.DateTimeField(default=timezone.now, editable=False))
             ],
         ),
         migrations.CreateModel(

@@ -16,6 +16,8 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from .calculations import formula_1
+from analytics.views import (calculating_leadership_test, calculating_leadership_theme, calculating_analyticity_course,
+                             calculating_analyticity_test, calculating_analyticity_theme, calculating_leadership_course)
 
 class ResultsView(viewsets.ModelViewSet):
     serializer_class = ResultsSerializer
@@ -27,9 +29,10 @@ class ResultsView(viewsets.ModelViewSet):
         id_test = data.get('id_test')
         subject = data.get('subject')
         theme = data.get('theme')
-        results = data.get('solutions', [])
+        points_user = data.get('points_user')
+        solutions = data.get('solutions', [])
 
-        serializer = TestUserSerializer(data={'id_user': id_user, 'id_test': id_test, 'subject': subject, 'theme': theme})
+        serializer = TestUserSerializer(data={'id_user': id_user, 'id_test': id_test, 'subject': subject, 'theme': theme, 'points_user': points_user})
         if serializer.is_valid():
             serializer.save()
         else:
@@ -37,22 +40,46 @@ class ResultsView(viewsets.ModelViewSet):
 
         id_result = list(Result.objects.filter(id_user=id_user).filter(id_test=id_test).values_list('id', flat=True))[-1]
 
-        result_data = []
-        for result in results:
-            result['id_result'] = id_result
-            serializer = SolutionsResultsSerializer(data=result)
+        for solution in solutions:
+            solution['id_result'] = id_result
+            serializer = SolutionsResultsSerializer(data=solution)
             if serializer.is_valid():
                 serializer.save()
-                result_data.append(serializer.data)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         result = Result.objects.get(pk=id_result)
-        result.points_user = formula_1(id_result)
+        result.score = formula_1(id_result)
         result.save()
         test = Test.objects.get(id=id_test)
         times_solved = test.times_solved + 1
         test.times_solved = times_solved
         test.save()
+        calculating_analyticity_test(data={
+                                    "student_id": id_user,
+                                    "test_id": id_test
+                                    })
+        calculating_analyticity_theme(data={
+                                    "student_id": id_user,
+                                    "theme_id": test.theme_id,
+                                    "subject_id": test.subject_id
+                                    })
+        calculating_analyticity_course(data={
+                                    "student_id": id_user,
+                                    "subject_id": test.subject_id
+                                    })
+        calculating_leadership_test(data={
+                                    "student_id": test.author_id,
+                                    "test_id": id_test
+                                    })
+        calculating_leadership_theme(data={
+                                    "student_id": test.author_id,
+                                    "theme_id": test.theme_id,
+                                    "subject_id": test.subject_id
+                                    })
+        calculating_leadership_course(data={
+                                    "student_id": test.author_id,
+                                    "subject_id": test.subject_id
+                                    })
         return Response({"message": "Added Sucessfully",  "status": status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
             
     @swagger_auto_schema(tags=["Result"], operation_description="get all results in database")

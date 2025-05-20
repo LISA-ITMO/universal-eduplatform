@@ -6,7 +6,7 @@ def formula_1(id_result):
     points_total = 0
     for question in questions:
         points_question = 0
-        correct_answers = [answer.answer_text for answer in Answer.objects.filter(id_question=question.pk, is_correct=True)]
+        correct_answers = [answer.id for answer in Answer.objects.filter(id_question=question.pk, is_correct=True)]
         num_right =  len(correct_answers)
         num_all = Answer.objects.filter(id_question=question.pk).count()
         solutions = Solutions.objects.filter(id_result=id_result, id_question=question.pk)
@@ -17,5 +17,7 @@ def formula_1(id_result):
                 points_question -= 1/num_all
         points_question *= question.question_points
         points_question = round(points_question, 2)
+        if points_question < 0:
+            points_question = 0
         points_total += points_question
     return points_total

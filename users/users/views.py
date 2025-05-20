@@ -15,6 +15,7 @@ from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.views import APIView
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -106,3 +107,12 @@ class TokenDecode(viewsets.ViewSet):
             return Response({"error": "Token has expired"}, status=status.HTTP_401_UNAUTHORIZED)
         except jwt.InvalidTokenError:
             return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+# Новый класс для возврата данных пользователя
+class UserMeView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        user = request.user  # Пользователь уже аутентифицирован через JWT
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)

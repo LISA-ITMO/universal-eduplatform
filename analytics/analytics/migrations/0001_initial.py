@@ -6,6 +6,18 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
+    """
+    Represents a database migration with its associated operations.
+
+        This class encapsulates the steps needed to evolve a database schema,
+        including dependencies on other migrations and the actual operations
+        to be performed.
+
+        Attributes:
+            initial (bool): Indicates whether this is the initial migration.
+            dependencies (list): A list of other Migration instances that must be applied before this one.
+            operations (list): A list of database operation objects to perform during the migration.
+    """
 
     initial = True
 
@@ -15,12 +27,26 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='StudentAnalytics',
+            name="StudentAnalytics",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('analyticity', models.FloatField(null=True)),
-                ('leadership', models.IntegerField(null=True)),
-                ('student', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("analyticity", models.FloatField(null=True)),
+                ("leadership", models.IntegerField(null=True)),
+                (
+                    "student",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

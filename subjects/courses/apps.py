@@ -1,5 +1,9 @@
 from django.apps import AppConfig
 
+
 class SubjectsConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'courses'
+    """
+    Configuration class for subjects within the application."""
+
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "courses"

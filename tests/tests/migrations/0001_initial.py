@@ -5,70 +5,146 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
+    """
+    Represents a database migration.
+
+        This class encapsulates the steps required to evolve a database schema,
+        including its initial state, dependencies on other migrations, and the
+        operations to be performed.
+
+        Attributes:
+            initial: The starting state of the database for this migration.
+            dependencies: Other migrations that must be applied before this one.
+            operations: A list of operations to perform during the migration.
+    """
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Question',
+            name="Question",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('question_text', models.CharField(max_length=100)),
-                ('addition_info', models.TextField()),
-                ('question_points', models.IntegerField(default=0)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("question_text", models.CharField(max_length=100)),
+                ("addition_info", models.TextField()),
+                ("question_points", models.IntegerField(default=0)),
             ],
         ),
         migrations.CreateModel(
-            name='Result',
+            name="Result",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('id_user', models.IntegerField()),
-                ('subject', models.TextField()),
-                ('theme', models.TextField()),
-                ('points_user', models.IntegerField(null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("id_user", models.IntegerField()),
+                ("subject", models.TextField()),
+                ("theme", models.TextField()),
+                ("points_user", models.IntegerField(null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Test',
+            name="Test",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('author_id', models.IntegerField()),
-                ('subject_id', models.IntegerField()),
-                ('theme_id', models.IntegerField()),
-                ('times_solved', models.IntegerField(default=0)),
-                ('expert_id', models.IntegerField(default=0)),
-                ('max_points', models.IntegerField(default=0)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("author_id", models.IntegerField()),
+                ("subject_id", models.IntegerField()),
+                ("theme_id", models.IntegerField()),
+                ("times_solved", models.IntegerField(default=0)),
+                ("expert_id", models.IntegerField(default=0)),
+                ("max_points", models.IntegerField(default=0)),
             ],
         ),
         migrations.CreateModel(
-            name='Solutions',
+            name="Solutions",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('user_answer', models.TextField()),
-                ('id_question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tests.question')),
-                ('id_result', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='solutions', to='tests.result')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("user_answer", models.TextField()),
+                (
+                    "id_question",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="tests.question"
+                    ),
+                ),
+                (
+                    "id_result",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="solutions",
+                        to="tests.result",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='result',
-            name='id_test',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tests.test'),
+            model_name="result",
+            name="id_test",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="tests.test"
+            ),
         ),
         migrations.AddField(
-            model_name='question',
-            name='id_test',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='questions', to='tests.test'),
+            model_name="question",
+            name="id_test",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="questions",
+                to="tests.test",
+            ),
         ),
         migrations.CreateModel(
-            name='Answer',
+            name="Answer",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('answer_text', models.TextField()),
-                ('is_correct', models.BooleanField()),
-                ('id_question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='answers', to='tests.question')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("answer_text", models.TextField()),
+                ("is_correct", models.BooleanField()),
+                (
+                    "id_question",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="answers",
+                        to="tests.question",
+                    ),
+                ),
             ],
         ),
     ]

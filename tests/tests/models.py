@@ -2,6 +2,9 @@ from django.db import models
 
 
 class Test(models.Model):
+    """
+    A class to represent a test with associated information."""
+
     author_id = models.IntegerField(null=False, blank=False)
     subject_id = models.IntegerField(null=False, blank=False)
     theme_id = models.IntegerField(null=False, blank=False)
@@ -10,29 +13,59 @@ class Test(models.Model):
     max_points = models.IntegerField(default=0, null=False, blank=False)
 
     class Meta:
-        app_label = 'tests'
+        app_label = "tests"
 
 
 class Question(models.Model):
-    id_test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='questions')
+    """
+    Represents a question within a test or quiz.
+
+        This class stores the details of a single question, including its text,
+        additional information, point value, and a unique identifier for testing purposes.
+    """
+
+    id_test = models.ForeignKey(
+        Test, on_delete=models.CASCADE, related_name="questions"
+    )
     question_text = models.CharField(max_length=100, null=False, blank=False)
     addition_info = models.TextField(null=False, blank=False)
     question_points = models.IntegerField(default=1, null=False, blank=False)
 
     class Meta:
-        app_label = 'tests'
+        app_label = "tests"
 
 
 class Answer(models.Model):
+    """
+    Represents an answer to a question.
+
+        This class stores the text of an answer, its associated question ID, and
+        whether it is the correct answer.
+
+        Attributes:
+            answer_text: The textual content of the answer.
+            id_question:  The identifier of the question this answer belongs to.
+            is_correct: A boolean indicating if this answer is correct.
+    """
+
     answer_text = models.TextField(null=False, blank=False)
-    id_question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
+    id_question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name="answers"
+    )
     is_correct = models.BooleanField()
 
     class Meta:
-        app_label = 'tests'
+        app_label = "tests"
 
 
 class Result(models.Model):
+    """
+    Represents the result of a user's test attempt.
+
+        This class stores information about a specific test result,
+        including user ID, test ID, subject, theme, and the points achieved by the user.
+    """
+
     id_user = models.IntegerField(null=False, blank=False)
     id_test = models.ForeignKey(Test, on_delete=models.CASCADE)
     subject = models.TextField(null=False, blank=False)
@@ -40,13 +73,18 @@ class Result(models.Model):
     points_user = models.FloatField(null=True, blank=True)
 
     class Meta:
-        app_label = 'tests'
+        app_label = "tests"
 
 
 class Solutions(models.Model):
-    id_result = models.ForeignKey(Result, on_delete=models.CASCADE, related_name='solutions')
+    """
+    A class to encapsulate solution data for a given question."""
+
+    id_result = models.ForeignKey(
+        Result, on_delete=models.CASCADE, related_name="solutions"
+    )
     id_question = models.ForeignKey(Question, on_delete=models.CASCADE)
     user_answer = models.TextField(null=False, blank=False)
 
     class Meta:
-        app_label = 'tests'
+        app_label = "tests"

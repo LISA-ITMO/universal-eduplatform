@@ -2,12 +2,21 @@ from django.urls import path
 from .views import StudentAnalyticsViewSet
 
 urlpatterns = [
-    path('analytics/<int:student_id>/', StudentAnalyticsViewSet.as_view({'get': 'retrieve'})),
-    path('analytics/list/', StudentAnalyticsViewSet.as_view({'get': 'list'})),
-    path('analytics/create/', StudentAnalyticsViewSet.as_view({'post': 'create'})),
-    path('analytics/update/', StudentAnalyticsViewSet.as_view({'put': 'update'})),
-    path('analytics/calculate_analyticity/', StudentAnalyticsViewSet.as_view({'patch': 'calculate_analyticity'})),
-    path('analytics/calculate_leadership/', StudentAnalyticsViewSet.as_view({'patch': 'calculate_leadership'})),
+    path(
+        "analytics/<int:student_id>/",
+        StudentAnalyticsViewSet.as_view({"get": "retrieve"}),
+    ),
+    path("analytics/list/", StudentAnalyticsViewSet.as_view({"get": "list"})),
+    path("analytics/create/", StudentAnalyticsViewSet.as_view({"post": "create"})),
+    path("analytics/update/", StudentAnalyticsViewSet.as_view({"put": "update"})),
+    path(
+        "analytics/calculate_analyticity/",
+        StudentAnalyticsViewSet.as_view({"patch": "calculate_analyticity"}),
+    ),
+    path(
+        "analytics/calculate_leadership/",
+        StudentAnalyticsViewSet.as_view({"patch": "calculate_leadership"}),
+    ),
 ]
 
 # Documentation for URLs

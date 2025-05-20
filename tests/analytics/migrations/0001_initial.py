@@ -4,23 +4,49 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
+    """
+    Represents a database migration with its associated operations.
+
+        This class encapsulates the steps needed to evolve a database schema,
+        including dependencies on other migrations and the actual operations
+        to be performed.
+
+        Attributes:
+            initial (bool): Indicates whether this is the initial migration.
+            dependencies (list): A list of other Migration instances that must be applied before this one.
+            operations (list): A list of database operation objects to perform during the migration.
+    """
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='StudentAnalytics',
+            name="StudentAnalytics",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('student_id', models.IntegerField(help_text='Unique identifier of the student.', unique=True)),
-                ('analyticity', models.IntegerField(default=0, help_text='Analyticity score of the student.')),
-                ('leadership', models.IntegerField(default=0, help_text='Leadership score of the student.')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                (
+                    "student_id",
+                    models.IntegerField(
+                        help_text="Unique identifier of the student.", unique=True
+                    ),
+                ),
+                (
+                    "analyticity",
+                    models.IntegerField(
+                        default=0, help_text="Analyticity score of the student."
+                    ),
+                ),
+                (
+                    "leadership",
+                    models.IntegerField(
+                        default=0, help_text="Leadership score of the student."
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'Student Analytics',
+                "verbose_name_plural": "Student Analytics",
             },
         ),
     ]

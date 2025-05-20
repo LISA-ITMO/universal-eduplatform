@@ -4,20 +4,31 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
+    """
+    A class representing a database migration.
+
+        This class encapsulates the steps needed to update a database schema,
+        including dependencies on other migrations and the actual operations
+        to be performed.
+
+        Attributes:
+            dependencies: A list of other migrations that must be applied before this one.
+            operations: A list of operations to perform during the migration.
+    """
 
     dependencies = [
-        ('tests', '0001_initial'),
+        ("tests", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='question',
-            name='question_points',
+            model_name="question",
+            name="question_points",
             field=models.IntegerField(default=1),
         ),
         migrations.AlterField(
-            model_name='result',
-            name='points_user',
+            model_name="result",
+            name="points_user",
             field=models.FloatField(blank=True, null=True),
         ),
     ]

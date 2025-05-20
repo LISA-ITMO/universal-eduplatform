@@ -16,7 +16,7 @@ class StudentAnalyticsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentAnalytics
-        fields = ['student_id', 'analyticity', 'leadership']
+        fields = ["student_id", "analyticity", "leadership"]
 
 
 class StudentIdSerializer(serializers.Serializer):
@@ -45,4 +45,3 @@ class StudentIdTestSerializer(serializers.Serializer):
 
     student_id = serializers.IntegerField()
     test_id = serializers.IntegerField()
-

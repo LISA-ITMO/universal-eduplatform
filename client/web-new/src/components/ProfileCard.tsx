@@ -6,7 +6,7 @@ export const ProfileCard: FC = () => {
   const user = useUsers((state) => state.user);
 
   return (
-    <Box sx={{ my: 5, mx: 3 }}>
+    <Box sx={{ my: 5, mx: 3, maxWidth: "900px" }}>
       <Box sx={{ border: "1px solid black", borderRadius: 1 }}>
         <Box sx={{ textAlign: "center", pt: 1, pb: 3 }}>
           <Box sx={{ fontSize: 22, fontWeight: "600" }}>

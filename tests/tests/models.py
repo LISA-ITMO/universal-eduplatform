@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Test(models.Model):
@@ -37,7 +38,9 @@ class Result(models.Model):
     id_test = models.ForeignKey(Test, on_delete=models.CASCADE)
     subject = models.TextField(null=False, blank=False)
     theme = models.TextField(null=False, blank=False)
-    points_user = models.FloatField(null=True, blank=True)
+    points_user = models.IntegerField(null=True, blank=True)
+    score = models.FloatField(null=True, blank=True)
+    passing_date = models.DateTimeField(null=True, blank=True, editable=False)
 
     class Meta:
         app_label = 'tests'
@@ -46,7 +49,7 @@ class Result(models.Model):
 class Solutions(models.Model):
     id_result = models.ForeignKey(Result, on_delete=models.CASCADE, related_name='solutions')
     id_question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    user_answer = models.TextField(null=False, blank=False)
+    user_answer = models.IntegerField(null=False, blank=False)
 
     class Meta:
         app_label = 'tests'

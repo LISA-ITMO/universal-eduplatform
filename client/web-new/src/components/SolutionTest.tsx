@@ -1,273 +1,296 @@
-import React, {useEffect, useState} from 'react';
+import React, { useState, useEffect } from "react";
 import {
-    Box,
-    Button,
-    Flex,
-    FormControl,
-    FormLabel,
-    Input,
-    Text,
-    Textarea,
-    useColorModeValue, RadioGroup, Stack, Radio, useToast
-} from '@chakra-ui/react';
-import {useNavigate} from 'react-router-dom';
-import {COUNT_QUESTION} from '@utils/common';
-import {API_TESTS} from '@utils/api/apiTests';
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Box,
+  Typography,
+  Divider,
+  Card,
+  CardContent,
+} from "@mui/material";
+import { useForm, Controller } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { useUsers } from "../store/users";
+import { API_TESTS } from "../utils/api/apiTests";
+import WestIcon from "@mui/icons-material/West";
+import EastIcon from "@mui/icons-material/East";
 
-const COUNT_VARIANTS = 5;
-const TIME_FOR_QUESTION = 60;
-
-
-const Variants = ({variants, isShowAnswer}) => {
-    
-    const borderColor = useColorModeValue('gray.400', 'gray.600');
-
-
-    const answers = () => {
-        const variantsRender = [];
-debugger
-        for (let i = 0; i < COUNT_VARIANTS ;i++) {
-            variantsRender.push(
-                <Stack mt={'15px'} alignItems={'center'} key={`question-subject-theme-${i}`} direction='row'>
-                    <Radio isReadOnly={isShowAnswer} borderColor={borderColor} value={`${i}`} />
-                    <Text fontSize={'20px'}>
-                        {variants?.answers[i]?.answer_text}
-                    </Text>
-                </Stack>);
-        }
-
-        return variantsRender;
-    }
-    return (
-        <Box>
-            <FormControl isRequired>
-                <FormLabel fontWeight={'600'} fontSize={'18px'} mb={'2px'}>Выберите правильный вариант ответа</FormLabel>
-                {answers()}
-            </FormControl>
-        </Box>
-    )
-
-}
-
-// const tt = {''}
-
-let answers = [];
-let test = {};
-
-
-const SolutionTest = ({subjectId, subjectName, themeId, themeName, testId, setCountCorrect}) => {
-    
-
-    const bgButton = useColorModeValue('gray.200', 'gray.700');
-    const bgInput = useColorModeValue('gray.200', 'gray.800');
-    // const [questions, setQuestions] = useState([]);
-    // const [test, setTest] = useState({});
-    const [currentTime, setCurrentTime] = useState(0);
-    const [isTimeIsUp, setIsIsTimeIsUp] = useState(false);
-    const [isGetAnswer, setIsGetAnswer] = useState(false);
-    const [currentCount, setCurrentCount] = useState(0);
-    const [problem, setProblem] = useState('');
-    const [variants, setVariants] = useState({answers: [], id_question: null});
-    const [rightAnswers, setRightAnswers] = useState([]);
-    const [rightAnswer, setRightAnswer] = useState('-1');
-    const [info, setInfo] = useState('');
-    const [isDisabled, setIsDisabled] = useState(false);
-    const navigate = useNavigate();
-
-    const toastIdRef = React.useRef();
-
-    const toast = useToast({
-        position: 'bottom-right',
-        duration: 5000,
-        isClosable: true,
-    });
-
-    const loadTest = () => {
-        console.log('--loadTest')
-        toastIdRef.current = toast({ description: 'Идет загрузка теста, пожалуйста, подождите', status: 'loading'});
-
-        return API_TESTS.tests.get({id: testId})
-            .then((res) => {
-                test = res.data;
-                console.log('Res from getTest', res.data)
-                setQuestion(1);
-                toast.update(toastIdRef.current, { description: 'Тест загружен', status: 'success'})
-            })
-            .catch(() => {
-                toast.update(toastIdRef.current, { description: 'Не удалось загрузить тест, пожалуйста, попробуйте снова', status: 'error'})
-            })
-    }
-
-    const loadRightAnswer = () => {
-        console.log('--loadRightAnswer')
-
-        API_TESTS.tests.getAnswers({id: testId})
-            .then((res) => {
-                console.log('res', res)
-                setRightAnswers(res.data?.map((item) => item?.correct_answers))
-                for (let i = 0; i < res.data?.length; i++) {
-                    test.questions[i].question_id = res.data[i].id_question;
-                }
-                console.log('test', test)
-            })
-            .catch(() => {})
-    }
-
-    const setTimerToEnd = () => {
-
-    };
-
-    const setQuestion = (count) => {
-        console.log('--setQuestion')
-        setProblem(test?.questions[count]?.question_text);
-        setVariants({
-            answers: test?.questions[count]?.answers,
-            id_question: test?.questions[count]?.id
-    });
-        
-        setInfo(test?.questions[count]?.addition_info);
-        setRightAnswer('-1');
-        setIsGetAnswer(false);
-        setIsIsTimeIsUp(false);
-       
-    }
-
-    useEffect( () => {
-        answers = [];
-        test = {};
-        setCountCorrect(0);
-        loadTest().then(() => {
-            loadRightAnswer();
-        })
-        
-    }, [])
-
-    useEffect(() => {
-        if (currentCount !== 0)
-            setQuestion(currentCount);
-        
-    }, [currentCount])
-
-    console.log('variants' , variants)
-
-    const handleNextQuestion = () => {
-        if (currentCount < COUNT_QUESTION-1) {
-            setCurrentCount((prev) => ++prev);
-        }
-        else {
-            toastIdRef.current = toast({ description: 'Отправляем результаты теста, пожалуйста, подождите', status: 'loading'});
-            API_TESTS.results.grade({userId: 1, testId: testId, results: answers})
-                .then(() => {
-                    toast.update(toastIdRef.current, { description: 'Результаты сохранены', status: 'success'});
-                    navigate(`/solution/${subjectId}/${themeId}/${testId}/result`);
-                })
-                .catch(() => {
-                    toast.update(toastIdRef.current, { description: 'Не удалось сохранить результаты, пожалуйста, попробуйте снова', status: 'error'})
-                })
-        }
-
-    }
-
-
-    const handleSubmit = (e) => {
-        debugger
-        e.preventDefault();
-        answers.push({'user_answer': variants?.[rightAnswer]?.answer_text, 'correct_answer': rightAnswers[currentCount]});
-        if (variants?.[rightAnswer]?.answer_text === rightAnswers[currentCount])
-            setCountCorrect((prev) => ++prev);
-        setIsGetAnswer(true);
-
-
-        // if (currentCount < COUNT_QUESTION-1) {
-        //     setCurrentCount(prev => ++prev);
-        //     questions.push({'question_text': problem, 'answers': Object.values(variants).map((item) => ({'answer_text': item})), 'correct_answer': Object.values(variants)[rightAnswer], 'addition_info': info})
-        //     setProblem('');
-        //     setVariants({
-        //         0: '',
-        //         1: '',
-        //         2: '',
-        //         3: '',
-        //         4: '',
-        //     });
-        //     setRightAnswer('-1');
-        //     setInfo('');
-        // }
-        // else {
-        //
-        //     if (currentCount == COUNT_QUESTION-1) {
-        //         setCurrentCount(prev => ++prev);
-        //         questions.push({'question_text': problem, 'answers': Object.values(variants).map((item) => ({'answer_text': item})), 'correct_answer': Object.values(variants)[rightAnswer], 'addition_info': info})
-        //     }
-        //
-        //     toastIdRef.current = toast({ description: 'Идет сохранение теста в системе, пожалуйста, подождите', status: 'loading'});
-        //
-        //     API_TESTS.tests.add({authorId: 1, questions: questions, subjectId: subjectId, themeId:themeId})
-        //         .then(() => {
-        //             setProblem('');
-        //             setVariants({
-        //                 0: '',
-        //                 1: '',
-        //                 2: '',
-        //                 3: '',
-        //                 4: '',
-        //             });
-        //             setRightAnswer('-1');
-        //             setInfo('');
-        //             questions = [];
-        //             answers = [];
-        //             setCurrentCount(0);
-        //             toast.update(toastIdRef.current, { description: 'Тест успешно сохранен в системе', status: 'success'})
-        //             navigate('/creation');
-        //         })
-        //         .catch(() => {
-        //             toast.update(toastIdRef.current, { description: 'Не удалось сохранить тест в системе, пожалуйста, попробуйте снова', status: 'error'})
-        //         })
-        // }
-
-    }
-
-    return (
-        <Box w={'100%'}>
-            <form onSubmit={handleSubmit}>
-                <Text fontSize={'18px'}>Решение теста c id: '{testId}' по предмету '{subjectName}' на тему '{themeName}' вопрос {`${currentCount < COUNT_QUESTION ? currentCount+1 : currentCount}`}</Text>
-                <Text mt={'10px'} fontSize={'18px'}>Времени осталось на {`${currentCount < COUNT_QUESTION ? currentCount+1 : currentCount}`} вопрос: -1 секунд</Text>
-                <FormControl mt={'15px'}>
-                    <FormLabel fontWeight={'600'} fontSize={'18px'} mb={'2px'}>Вопрос:</FormLabel>
-                    <Text
-                        fontSize={'20px'}
-                        fontWeight={'400'}
-                        // onChange={e => setProblem(e.target.value)}
-                    >
-                        {problem}
-                        </Text>
-                </FormControl>
-                <RadioGroup mt={'20px'} value={rightAnswer} onChange={setRightAnswer}>
-                    <Variants isShowAnswer={isGetAnswer || isTimeIsUp} variants={variants} />
-                </RadioGroup>
-                {(isGetAnswer || isTimeIsUp) &&
-                    <FormControl mt={'30px'}>
-                        <FormLabel mb={'2px'}>Дополнительная информация:</FormLabel>
-                        <Textarea
-                            bg={bgInput}
-                            placeholder="Введите дополнительную информацию"
-                            value={info}
-                            onChange={e => setInfo(e.target.value)}
-                        />
-                    </FormControl>
-                }
-                <Flex w={'100%'} mt={'50px'} justifyContent={'center'} alignItems={'center'}>
-                    {(!isGetAnswer && !isTimeIsUp) ?
-                        <Button noOfLines={1} overflowX={'hidden'} bg={bgButton} type={'submit'} w={'100%'} maxW={'300px'}>
-                            Записать ответ
-                        </Button>
-                        :
-                        <Button noOfLines={1} overflowX={'hidden'} isDisabled={isDisabled} bg={bgButton} onClick={handleNextQuestion} w={'100%'} maxW={'300px'}>
-                            {currentCount < COUNT_QUESTION-1 ? 'Следующий вопрос' : 'Получить результат'}
-                        </Button>
-                    }
-                </Flex>
-            </form>
-        </Box>)
+type TestComponentProps = {
+  subjectName: string;
+  themeName: string;
+  testId: number;
 };
 
-export default SolutionTest;
+type Answer = { id: number; answer_text: string };
+type Question = {
+  id: number;
+  question_text: string;
+  question_points: number;
+  answers: Answer[];
+};
+
+type TestData = {
+  id: number;
+  max_points: number;
+  questions: Question[];
+};
+
+const TestComponent: React.FC<TestComponentProps> = ({
+  subjectName,
+  themeName,
+  testId,
+}) => {
+  const [testData, setTestData] = useState<TestData | null>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState<
+    Record<number, number[]>
+  >({});
+  const [score, setScore] = useState<number | null>(null);
+  const user = useUsers((state) => state.user);
+  const navigate = useNavigate();
+  const { control, handleSubmit } = useForm();
+
+  useEffect(() => {
+    API_TESTS.tests.get({ id: testId }).then((data) => setTestData(data.data));
+  }, [testId]);
+
+  const handleAnswerChange = (
+    questionId: number,
+    answerId: number,
+    checked: boolean
+  ) => {
+    setSelectedAnswers((prev) => {
+      const answers = prev[questionId] || [];
+      return {
+        ...prev,
+        [questionId]: checked
+          ? [...answers, answerId]
+          : answers.filter((id) => id !== answerId),
+      };
+    });
+  };
+
+  const isQuestionAnswered = (questionId: number) =>
+    selectedAnswers[questionId]?.length > 0;
+
+  const onSubmit = async () => {
+    if (!testData) return;
+    let totalScore = 0;
+    const solutions = await Promise.all(
+      testData.questions.map(async (question) => {
+        const correctAnswers = await API_TESTS.tests.getQuestionAnswer({
+          id: question.id,
+        });
+        const correctIds = correctAnswers.data.map((a: Answer) => a.id);
+        const userAnswers = selectedAnswers[question.id] || [];
+
+        if (
+          userAnswers.length === correctIds.length &&
+          userAnswers.every((id) => correctIds.includes(id))
+        ) {
+          totalScore += question.question_points;
+        }
+
+        return userAnswers.map((answerId) => ({
+          id_question: question.id,
+          user_answer: Number(answerId),
+        }));
+      })
+    );
+
+    setScore(totalScore);
+    API_TESTS.results.grade({
+      userId: user?.id,
+      testId,
+      subject: subjectName,
+      theme: themeName,
+      results: solutions.flat(),
+      points: totalScore,
+    });
+  };
+
+  if (!testData) return <Typography>Загрузка...</Typography>;
+
+  if (score !== null) {
+    return (
+      <Card sx={{ mt: 10, mx: 5, backgroundColor: "#efefef", maxWidth: 600 }}>
+        <CardContent>
+          <Box>
+            <Box>
+              <Box>
+                <Box component={"span"} sx={{ fontSize: 18 }}>
+                  Количество баллов:{" "}
+                </Box>
+                <Box component={"span"} sx={{ fontSize: 18, fontWeight: 600 }}>
+                  {score}
+                </Box>
+              </Box>
+              <Box>
+                <Box component={"span"} sx={{ fontSize: 18 }}>
+                  Максимальный балл на тест:{" "}
+                </Box>
+                <Box component={"span"} sx={{ fontSize: 18, fontWeight: 600 }}>
+                  {testData.max_points}
+                </Box>
+              </Box>
+            </Box>
+            <Box sx={{ pt: 3 }}>
+              <Button onClick={() => navigate("/solution")} variant="contained">
+                Перейти к тестам
+              </Button>
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const question = testData.questions[currentQuestionIndex];
+
+  return (
+    <Box sx={{ mt: 10, mx: 5 }}>
+      <Box>
+        <Box component={"span"} sx={{ fontSize: 18 }}>
+          Тест по предмету:{" "}
+        </Box>
+        <Box component={"span"} sx={{ fontSize: 18, fontWeight: 600 }}>
+          {subjectName}
+        </Box>
+      </Box>
+      <Box>
+        <Box component={"span"} sx={{ fontSize: 18 }}>
+          Тема:{" "}
+        </Box>
+        <Box component={"span"} sx={{ fontSize: 18, fontWeight: 600 }}>
+          {themeName}
+        </Box>
+      </Box>
+      <Box sx={{ py: 3, maxWidth: 600 }}>
+        <Divider />
+      </Box>
+      <Box>
+        <Button
+          sx={{ mr: 3 }}
+          size="small"
+          variant="contained"
+          startIcon={<WestIcon />}
+          disabled={currentQuestionIndex === 0}
+          onClick={() => setCurrentQuestionIndex((prev) => prev - 1)}
+        >
+          <Box sx={{ fontSize: "12px", textTransform: "none" }}>
+            Предыдущий вопрос
+          </Box>
+        </Button>
+        {testData.questions.map((q, index) => (
+          <Button
+            sx={{ minWidth: "30px", mx: 0.5 }}
+            size="small"
+            key={q.id}
+            variant={
+              currentQuestionIndex === index || isQuestionAnswered(q.id)
+                ? "contained"
+                : "outlined"
+            }
+            color={
+              currentQuestionIndex === index
+                ? "primary"
+                : isQuestionAnswered(q.id)
+                ? "warning"
+                : undefined
+            }
+            onClick={() => setCurrentQuestionIndex(index)}
+          >
+            <Box sx={{ fontSize: "12px", textTransform: "none" }}>
+              {index + 1}
+            </Box>
+          </Button>
+        ))}
+        <Button
+          sx={{ ml: 3 }}
+          size="small"
+          variant="contained"
+          endIcon={<EastIcon />}
+          disabled={currentQuestionIndex === testData.questions.length - 1}
+          onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
+        >
+          <Box sx={{ fontSize: "12px", textTransform: "none" }}>
+            Следующий вопрос
+          </Box>
+        </Button>
+      </Box>
+      <Box sx={{ py: 2 }}>
+        <Button
+          size="small"
+          disabled={
+            Object.keys(selectedAnswers).length !== testData.questions.length ||
+            !Object.keys(selectedAnswers)
+              .map((index) =>
+                selectedAnswers[Number(index)].length ? true : false
+              )
+              .every((value) => value === true)
+          }
+          onClick={handleSubmit(onSubmit)}
+          variant="contained"
+          color="success"
+        >
+          <Box sx={{ fontSize: "12px", textTransform: "none" }}>
+            {" "}
+            Завершить попытку
+          </Box>
+        </Button>
+      </Box>
+      <Card
+        sx={{
+          mt: 3,
+          backgroundColor: "#efefef",
+          maxWidth: 900,
+        }}
+      >
+        <CardContent>
+          <Box sx={{ fontSize: 18, fontWeight: 600 }}>
+            Вопрос {currentQuestionIndex + 1}
+          </Box>
+          <Box sx={{ fontSize: 18, py: 1 }}>{question.question_text}</Box>
+          <Box sx={{ py: 1, maxWidth: 400 }}>
+            <Divider />
+          </Box>
+          <Box sx={{ display: "flex", flexDirection: "column" }}>
+            {question.answers.map((answer, index) => (
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box sx={{ fontSize: "16px", pr: 2 }}> {index + 1}.</Box>
+                <Controller
+                  key={answer.id}
+                  name={`question_${question.id}`}
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={
+                            selectedAnswers[question.id]?.includes(answer.id) ||
+                            false
+                          }
+                          onChange={(e) =>
+                            handleAnswerChange(
+                              question.id,
+                              answer.id,
+                              e.target.checked
+                            )
+                          }
+                        />
+                      }
+                      label={answer.answer_text}
+                    />
+                  )}
+                />
+              </Box>
+            ))}
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
+  );
+};
+
+export default TestComponent;

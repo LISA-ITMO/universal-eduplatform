@@ -1,23 +1,20 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
-  Flex,
   FormControl,
-  FormLabel,
+  InputLabel,
+  MenuItem,
   Select,
-  useColorModeValue,
-  useToast,
-} from "@chakra-ui/react";
+  SelectChangeEvent,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import CreateForm from "./CreateForm";
-import { UserContext } from "../providers/UserProvider";
 import { API_SUBJECTS } from "../utils/api/apiSubjects";
 import { API_TESTS } from "../utils/api/apiTests";
 import { useUsers } from "../store/users";
 
 const SelectCourse = ({ path, goToText, isSolution }) => {
-  const bgButton = useColorModeValue("gray.200", "gray.700");
   const [subject, setSubject] = useState("");
   const [theme, setTheme] = useState("");
   const [test, setTest] = useState("");
@@ -27,97 +24,8 @@ const SelectCourse = ({ path, goToText, isSolution }) => {
   const [tests, setTests] = useState([]);
 
   const { user } = useUsers();
-
   const navigate = useNavigate();
 
-  const toastIdRef = React.useRef();
-
-  const toast = useToast({
-    position: "bottom-right",
-    duration: 5000,
-    isClosable: true,
-  });
-
-  const loadSubjectList = () => {
-    toastIdRef.current = toast({
-      description: "Загрузка списка предметов",
-      status: "loading",
-    });
-
-    API_SUBJECTS.subjects
-      .list()
-      .then((res) => {
-        setSubjects(res.data);
-        toast.update(toastIdRef.current, {
-          description: "Список предметов загружен",
-          status: "success",
-        });
-      })
-      .catch(() => {
-        toast.update(toastIdRef.current, {
-          description: "Список предметов не удалось загрузить",
-          status: "error",
-        });
-      });
-  };
-
-  const loadThemeList = () => {
-    toastIdRef.current = toast({
-      description: `Загрузка списка тем по предмету: '${
-        subjects.find((item) => item?.id == subject)?.name_subject
-      }'`,
-      status: "loading",
-    });
-    API_SUBJECTS.themes
-      .getBySubjectId({ id: subject })
-      .then((res) => {
-        setThemes(res.data);
-        toast.update(toastIdRef.current, {
-          description: `Список тем по предмету: '${
-            subjects.find((item) => item?.id == subject)?.name_subject
-          }' загружен`,
-          status: "success",
-        });
-      })
-      .catch(() => {
-        toast.update(toastIdRef.current, {
-          description: `Не удалось загрузить список тем по предмету: '${
-            subjects.find((item) => item?.id == subject)?.name_subject
-          }'`,
-          status: "error",
-        });
-      });
-  };
-
-  const loadTestList = () => {
-    toastIdRef.current = toast({
-      description: `Загрузка тестов`,
-      status: "loading",
-    });
-    API_TESTS.tests
-      .list({ subjectId: subject, themeId: theme })
-      .then((res) => {
-        console.log("res.data", res.data);
-        const filtered_tests = res.data.filter((t) => {
-          console.log("t", t.author_id);
-          console.log("user.info.id", user?.id);
-          return t.author_id != user?.id;
-        });
-
-        setTests(filtered_tests);
-        console.log("filtered_tests", filtered_tests);
-        toast.update(toastIdRef.current, {
-          description: `Список тестов загружен`,
-          status: "success",
-        });
-      })
-      .catch(() => {
-        toast.update(toastIdRef.current, {
-          description: `Не удалось загрузить список тестов`,
-          status: "error",
-        });
-      });
-  };
   const [isCreateTheme, setIsCreateTheme] = useState(false);
   const [isCreateSubject, setIsCreateSubject] = useState(false);
 
@@ -126,162 +34,131 @@ const SelectCourse = ({ path, goToText, isSolution }) => {
   }, []);
 
   useEffect(() => {
-    if (subject !== "") loadThemeList();
+    if (subject) loadThemeList();
   }, [subject]);
 
   useEffect(() => {
-    if (isSolution && theme !== "") loadTestList();
+    if (isSolution && theme) loadTestList();
   }, [theme]);
+
+  const loadSubjectList = async () => {
+    try {
+      const res = await API_SUBJECTS.subjects.list();
+      setSubjects(res.data);
+    } catch {
+      console.error("Ошибка загрузки списка предметов");
+    }
+  };
+
+  const loadThemeList = async () => {
+    try {
+      const res = await API_SUBJECTS.themes.getBySubjectId({ id: subject });
+      setThemes(res.data);
+    } catch {
+      console.error("Ошибка загрузки списка тем");
+    }
+  };
+
+  const loadTestList = async () => {
+    try {
+      const res = await API_TESTS.tests.list({
+        subjectId: subject,
+        themeId: theme,
+      });
+      setTests(res.data.filter((t) => t.author_id !== user?.id));
+    } catch {
+      console.error("Ошибка загрузки списка тестов");
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isSolution) navigate(`/${path}/${subject}/${theme}/${test}`);
-    else navigate(`/${path}/${subject}/${theme}`);
+    const url = isSolution
+      ? `/${path}/${subject}/${theme}/${test}`
+      : `/${path}/${subject}/${theme}`;
+    navigate(url);
   };
 
   return (
-    <Box w={"100%"}>
-      <form onSubmit={handleSubmit}>
-        <FormControl isRequired>
-          <FormLabel ml="5px" whiteSpace={"nowrap"}>
-            Предмет
-          </FormLabel>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{ width: "100%", maxWidth: 400, mx: "auto", mt: 5 }}
+    >
+      <Box sx={{ textAlign: "center", pt: 3, fontSize: 18, fontWeight: 600 }}>
+        Выбор предмета и темы
+      </Box>
+      <FormControl fullWidth margin="normal" required>
+        <InputLabel>Предмет</InputLabel>
+        <Select
+          value={subject}
+          onChange={(e: SelectChangeEvent) => setSubject(e.target.value)}
+        >
+          {subjects.map((item) => (
+            <MenuItem key={item.id} value={item.id}>
+              {item.name_subject}
+            </MenuItem>
+          ))}
+        </Select>
+        {!isSolution && (
+          <CreateForm
+            setState={setIsCreateSubject}
+            state={isCreateSubject}
+            refreshFunc={loadSubjectList}
+            asyncFunc={API_SUBJECTS.subjects.add}
+          />
+        )}
+      </FormControl>
 
-          {!isSolution && (
-            <CreateForm
-              setState={setIsCreateSubject}
-              state={isCreateSubject}
-              refreshFunc={loadSubjectList}
-              asyncFunc={API_SUBJECTS.subjects.add}
-            />
-          )}
+      <FormControl fullWidth margin="normal" required>
+        <InputLabel>Тема</InputLabel>
+        <Select
+          value={theme}
+          onChange={(e: SelectChangeEvent) => setTheme(e.target.value)}
+        >
+          {themes.map((item) => (
+            <MenuItem key={item.id} value={item.id}>
+              {item.name_theme}
+            </MenuItem>
+          ))}
+        </Select>
+        {!isSolution && subject && (
+          <CreateForm
+            setState={setIsCreateTheme}
+            state={isCreateTheme}
+            refreshFunc={loadThemeList}
+            asyncFunc={API_SUBJECTS.themes.add}
+            payload={subject}
+          />
+        )}
+      </FormControl>
 
+      {isSolution && (
+        <FormControl fullWidth margin="normal" required>
+          <InputLabel>Тест</InputLabel>
           <Select
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            placeholder={"Выберите предмет"}
-            bg={bgButton}
-            w={"100%"}
-            maxW={"350px"}
-            mr={"25px"}
-            marginTop={3}
+            value={test}
+            onChange={(e: SelectChangeEvent) => setTest(e.target.value)}
           >
-            {subjects?.map((item) => (
-              <option key={`key-subject-${item?.id}`} value={item?.id}>
-                {item?.name_subject}
-              </option>
+            {tests.map((item) => (
+              <MenuItem key={item.id} value={item.id}>
+                id: {item.id}, автор: {item.author_id}, эксперт:{" "}
+                {item.expert_id}, решено {item.times_solved} раз
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
-        <FormControl isRequired>
-          <FormLabel ml="5px" mt={"20px"} whiteSpace={"nowrap"}>
-            Тема
-          </FormLabel>
+      )}
 
-          {/* Изменить стили (подключить ChakraUI! Сделать рефакторинг */}
-
-          {!isSolution && subject !== "" && (
-            <CreateForm
-              setState={setIsCreateTheme}
-              state={isCreateTheme}
-              refreshFunc={loadThemeList}
-              asyncFunc={API_SUBJECTS.themes.add}
-              payload={subject}
-            />
-          )}
-
-          {/* {!isSolution && <div style={newThemeStyle} onClick={addTheme}> {isCreateTheme ? "-" : "+"}Новая тема</div>}
-
-          {isCreateTheme && (
-            <form onSubmit={createThemeSubmit}>
-              <input
-                value={newThemeTitle}
-                type="text"
-                placeholder="Введите тему"
-                style={inputStyle}
-                onChange={(e) => {
-                  setNewThemeTitle(e.target.value);
-                }}
-              />
-              <button type="submit" onClick={createThemeSubmit}>
-                Создать тему
-              </button>
-            </form>
-          )} */}
-
-          <Select
-            value={theme}
-            onChange={(e) => setTheme(e.target.value)}
-            placeholder={"Выберите тему"}
-            bg={bgButton}
-            w={"100%"}
-            maxW={"350px"}
-            mr={"25px"}
-            marginTop={3}
-          >
-            {themes.map((item) => {
-              return (
-                <option
-                  style={{ color: "black" }}
-                  key={`option-theme-${item?.id}`}
-                  value={item?.id}
-                >
-                  {item?.name_theme}
-                </option>
-              );
-            })}
-          </Select>
-        </FormControl>
-
-        {isSolution && (
-          <FormControl isRequired>
-            <FormLabel ml="5px" mt={"20px"} whiteSpace={"nowrap"}>
-              Тест
-            </FormLabel>
-            <Select
-              value={test}
-              onChange={(e) => setTest(e.target.value)}
-              placeholder={"Выберите тест"}
-              bg={bgButton}
-              w={"100%"}
-              maxW={"350px"}
-              mr={"25px"}
-            >
-              {tests.map((item) => {
-                return (
-                  <option
-                    style={{ color: "black" }}
-                    key={`option-test-${item?.id}`}
-                    value={item?.id}
-                  >
-                    id: {item?.id}, автор: {item?.author_id}, эксперт:{" "}
-                    {item?.expert_id}, решено {item?.times_solved} раз
-                  </option>
-                );
-              })}
-            </Select>
-          </FormControl>
-        )}
-
-        <Flex
-          w={"100%"}
-          mt={"70px"}
-          justifyContent={"center"}
-          alignItems={"center"}
-        >
-          <Button
-            bg={bgButton}
-            noOfLines={1}
-            overflowX={"hidden"}
-            type={"submit"}
-            isDisabled={subject === "" && theme === ""}
-            w={"100%"}
-            maxW={"300px"}
-          >
-            {goToText}
-          </Button>
-        </Flex>
-      </form>
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        sx={{ mt: 3 }}
+        disabled={!subject || !theme}
+      >
+        {goToText}
+      </Button>
     </Box>
   );
 };

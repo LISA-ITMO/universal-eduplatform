@@ -8,12 +8,7 @@ const getAPIClient = axios.create({
 
 export const API_TESTS = {
   tests: {
-    add: async ({ authorId, subjectId, themeId, questions, expertId }) => {
-      console.log(authorId, subjectId, themeId, questions);
-      const max_points = questions.reduce(
-        (sum, current) => sum + current.question_points,
-        0
-      );
+    add: async ({ authorId, subjectId, themeId, questions, max_points }) => {
       const sendData = {
         author_id: authorId,
         subject_id: Number(subjectId),
@@ -57,9 +52,6 @@ export const API_TESTS = {
         points_user: points,
         subject: subject,
         theme: theme,
-        // "idStudent": userId,
-        // "idTest": Number(testId),
-        // "solutions": results,
       };
       const answer = await getAPIClient.post(`/results/add`, sendData);
       return answer;

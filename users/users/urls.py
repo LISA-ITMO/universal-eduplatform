@@ -12,5 +12,6 @@ urlpatterns = [
     path('student/<str:token>', UserAPIView.as_view({'get': 'student'}), name='get_student'),
     re_path(r'^logout/$', LogoutAPIView.as_view(), name='logout'),
     path('decode/<str:token>', TokenDecode.as_view({'get': 'decode'}), name='token_decode'),
+    path('me/', UserMeView.as_view(), name='user_me'),  # Новый endpoint
 ]
 

@@ -4,17 +4,15 @@ import Cookies from "universal-cookie";
 export const cookies = new Cookies();
 
 const API_BASE_URL = import.meta.env.VITE_API_USER_URL;
-console.log(import.meta.env)
-
 const getAPIClient = axios.create({
   baseURL: `${API_BASE_URL}/users`,
 });
 
 getAPIClient.interceptors.request.use(
   (config) => {
-    const token = cookies.get("access_token"); // Assuming you store the token in localStorage
+    const token = cookies.get("access_token");
     if (token) {
-      config.headers.Authorization = `Token ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -35,7 +33,6 @@ export const API_USER = {
         sendData,
         { withCredentials: true }
       );
-      console.log(answer.data);
       return answer;
     } catch (error) {
       console.log(error);
@@ -51,6 +48,7 @@ export const API_USER = {
     });
     return answer;
   },
+
   register: async ({ email, username, password, role = "student" }) => {
     const sendData = {
       email,
@@ -62,5 +60,15 @@ export const API_USER = {
       withCredentials: true,
     });
     return answer;
+  },
+
+  me: async () => {
+    try {
+      const answer = await getAPIClient.get("/me/");
+      return answer.data;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   },
 };

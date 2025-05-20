@@ -7,7 +7,6 @@ import {
   Container,
   Stack,
   IconButton,
-  useTheme,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useForm, Controller } from "react-hook-form";
@@ -16,9 +15,8 @@ import { API_USER, cookies } from "../utils/api/apiUser";
 import { useUsers } from "../store/users";
 
 export const Login: FC<{ isRegistration: boolean }> = ({ isRegistration }) => {
-  const theme = useTheme();
   const navigate = useNavigate();
-  const { setUser } = useUsers();
+  const { setUser, isLogged } = useUsers();
   const [showPassword, setShowPassword] = React.useState(false);
 
   const {
@@ -33,7 +31,11 @@ export const Login: FC<{ isRegistration: boolean }> = ({ isRegistration }) => {
     },
   });
 
-  const onSubmit = async (data) => {
+  useEffect(() => {
+    if (isLogged) navigate("/");
+  }, [isLogged]);
+
+  const onSubmit = async (data: any) => {
     try {
       if (isRegistration) {
         const response = await API_USER.register({
@@ -41,7 +43,6 @@ export const Login: FC<{ isRegistration: boolean }> = ({ isRegistration }) => {
           username: data.userName,
           password: data.password,
         });
-        console.log("Registration success:", response.data);
         navigate("/login");
       } else {
         const response = await API_USER.login({
@@ -50,27 +51,13 @@ export const Login: FC<{ isRegistration: boolean }> = ({ isRegistration }) => {
         });
         if (response) {
           setUser(response?.data[0]);
-          cookies.set("access_token", response?.data.access_token, {
-            path: "/",
-          });
-          cookies.set("refresh_token", response?.data.refresh_token, {
-            path: "/",
-          });
-          // setIsAuth(true);
           navigate("/");
         }
       }
     } catch (error) {
       console.error("Error:", error);
-      // Add error notification logic
     }
   };
-
-  useEffect(() => {
-    if (cookies.get("access_token")) {
-      navigate("/");
-    }
-  }, []);
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 

@@ -1,4 +1,4 @@
-import { Button } from "@chakra-ui/react";
+import { Button, TextField, Box } from "@mui/material";
 import { FormEvent, useState } from "react";
 
 export const CreateForm = ({
@@ -10,66 +10,55 @@ export const CreateForm = ({
 }) => {
   const [value, setValue] = useState("");
 
-  const inputStyle = {
-    width: "100%",
-    border: "1px solid grey",
-  };
-  const updComp = () => {
+  const toggleForm = () => {
     setState(!state);
     refreshFunc();
     setValue("");
   };
 
-  const addTheme = () => {
-    setState(!state);
-  };
-
-  const createThemeSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const createItem = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (value !== "") {
-      const data = payload
-        ? {
-            subjectId: payload,
-            theme: value,
-          }
-        : {
-            subject: value,
-          };
+    if (!value) return;
 
-      asyncFunc(data).then(() => {
-        updComp();
-      });
+    const data = payload
+      ? { subjectId: payload, theme: value }
+      : { subject: value };
+
+    try {
+      await asyncFunc(data);
+      toggleForm();
+    } catch {
+      console.error("Ошибка при создании");
     }
   };
 
   return (
-    <>
-      <Button colorScheme="gray" size="xs" onClick={addTheme}>
-        {state ? "-" : "+"}добавить
+    <Box sx={{ mt: 2 }}>
+      <Button variant="outlined" size="small" onClick={toggleForm}>
+        {state ? "-" : "+"} Добавить
       </Button>
 
       {state && (
-        <form>
-          <input
+        <Box component="form" sx={{ mt: 1 }}>
+          <TextField
+            fullWidth
+            size="small"
+            label="Введите название"
             value={value}
-            type="text"
-            placeholder="Введите название"
-            style={inputStyle}
-            onChange={(e) => {
-              setValue(e.target.value);
-            }}
+            onChange={(e) => setValue(e.target.value)}
           />
           <Button
-            colorScheme="teal"
-            size="xs"
-            onClick={(e) => createThemeSubmit(e)}
             type="submit"
+            onClick={(e) => createItem(e)}
+            variant="contained"
+            size="small"
+            sx={{ mt: 1 }}
           >
             Создать
           </Button>
-        </form>
+        </Box>
       )}
-    </>
+    </Box>
   );
 };
 

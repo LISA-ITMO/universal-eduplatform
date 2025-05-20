@@ -145,6 +145,7 @@ export const NavPanel = ({ isFullPanel }) => {
       {localStorage.getItem(QUIZ_TOKEN) == 123 && (
         <Tooltip label={"Модерация предметов"}>
           <Button
+            isDisabled={true}
             overflow={"hidden"}
             leftIcon={
               <AiOutlineSetting style={{ height: "20px", width: "20px" }} />

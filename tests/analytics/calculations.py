@@ -3,7 +3,9 @@ from statistics import median
 from django.db.models import Sum
 from rest_framework.exceptions import ValidationError
 from tests import models as tests_models
-
+from .models import StudentAnalyticsTest, StudentLeadershipTest
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 def convert_to_five_point_scale(rcv):
     """
@@ -47,7 +49,7 @@ def convert_analyticity_to_five_point_scale(analyticity_percentage):
         return 1
 
 
-def calculate_analyticity(student_id, test_id):
+def calculate_analyticity_test(student_id, test_id):
     """
     Calculate analyticity score for a student on a specific test.
 
@@ -61,72 +63,55 @@ def calculate_analyticity(student_id, test_id):
     """
 
     # Getting the maximum score on a test
-    test = tests_models.Test.objects.get(pk=test_id)
+    test = get_object_or_404(tests_models.Test, pk=test_id)
     total_max_points = test.max_points
     # Receive student test scores
-    results = tests_models.Result.objects.filter(id_user=student_id, id_test=test_id)
-    total_points = results.aggregate(total=Sum('points_user'))['total']
-
+    result = tests_models.Result.objects.filter(id_user=student_id, id_test=test_id).first()
+    score = result.score
     if total_max_points == 0:
         raise ValidationError("Invalid data")
 
     # Calculate the percentage of analyticity and convert it to a five-point scale
-    analyticity_percentage = (total_points / total_max_points) * 100
-    analyticity = convert_analyticity_to_five_point_scale(round(analyticity_percentage, 2))
+    analyticity_test = int((score / total_max_points) * 100)
 
-    return analyticity
+    return analyticity_test
 
+def calculate_analyticity_theme(student_id, theme_id, subject_id):
+    tests = list(tests_models.Test.objects.filter(theme_id=theme_id).filter(subject_id=subject_id).values_list('id', flat=True))
+    analyticyty_for_tests = list(StudentAnalyticsTest.objects.filter(student_id=student_id).filter(test_id__in=tests).values_list('analyticity_test', flat=True))
+    analyticyty_for_theme = median(analyticyty_for_tests)
+    return analyticyty_for_theme
 
-def calculate_leadership(id_student):
-    """
-    Calculate leadership score for a student based on their latest test.
+def calculate_analyticity_course(student_id, subject_id):
+    tests = list(tests_models.Test.objects.filter(subject_id=subject_id).values_list('id', flat=True))
+    analyticyty_for_tests = list(StudentAnalyticsTest.objects.filter(student_id=student_id).filter(test_id__in=tests).values_list('analyticity_test', flat=True))
+    analyticyty_for_course = median(analyticyty_for_tests)
+    return analyticyty_for_course
 
-    Args:
-        id_student (int): ID of the student.
-
-    Returns:
-        int: Calculated leadership score mapped to a five-point scale.
-    """
-
-    # Retrieve the last test created by the author
-    latest_test = tests_models.Test.objects.filter(author_id=id_student).latest('id')
-    # Retrieving questions from the last test
-    questions = tests_models.Question.objects.filter(id_test=latest_test)
-    response_density = []
-
-    # Retrieving the results of the last test
-    results = tests_models.Result.objects.filter(id_test=latest_test)
-
-    for result in results:
-        total_correct_responses = 0
-        total_responses = 0
-
-        for question in questions:
-            solutions = tests_models.Solutions.objects.filter(id_result=result, id_question=question)
-            # Receiving decisions on a question
-            correct_responses = sum(1 for solution in solutions if
-                                    solution.user_answer == solution.id_question.answers.get(
-                                        is_correct=True).answer_text)
-            total_correct_responses += correct_responses
-            total_responses += solutions.count()
-        # If there are responses, calculate the density of responses
-        if total_responses > 0:
-            element_ratio = round(total_correct_responses / total_responses, 2)
-            response_density.append(element_ratio)
-
-    if not response_density:
-        leadership = 0
-    else:
-        # Calculate median value and interquartile range
-        median_value = median(response_density)
-        iqr = round(np.percentile(response_density, 75) - np.percentile(response_density, 25), 2)
-
-        if median_value == 0 or iqr == 0:
-            leadership = 0
-        else:
-            leadership = round(iqr / median_value, 2) * 100
-
+def calculate_leadership_test(test_id): 
+    test = get_object_or_404(tests_models.Test, pk=test_id)
+    scores = sorted(list(StudentAnalyticsTest.objects.filter(test=test).values_list('analyticity_test', flat=True)))
+    if len(scores) < 4:
+        return 0
+    scores_new = [score for score in scores if (score != 0 and score != scores[-1])]
     # Convert leadership to a five-point scale
-    leadership = convert_to_five_point_scale(leadership)
+    leadership = int(len(scores_new)/len(scores)*100)
 
     return leadership
+
+def calculate_leadership_theme(student_id, theme_id, subject_id): 
+    tests = list(tests_models.Test.objects.filter(theme_id=theme_id).filter(subject_id=subject_id).values_list('id', flat=True))
+    leadership_for_tests = list(StudentLeadershipTest.objects.filter(student_id=student_id).filter(test_id__in=tests).values_list('leadership_test', flat=True))
+    if len(leadership_for_tests) == 0:
+        return 0
+    leadership_for_theme = int(sum(leadership_for_tests)/len(leadership_for_tests))
+    return leadership_for_theme
+
+def calculate_leadership_course(student_id, subject_id): 
+    tests = list(tests_models.Test.objects.filter(subject_id=subject_id).values_list('id', flat=True))
+    leadership_for_tests = list(StudentLeadershipTest.objects.filter(student_id=student_id).filter(test_id__in=tests).values_list('leadership_test', flat=True))
+    if len(leadership_for_tests) == 0:
+        leadership_for_course = 0
+        return leadership_for_course
+    leadership_for_course = int(sum(leadership_for_tests)/len(leadership_for_tests))
+    return leadership_for_course

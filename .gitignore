@@ -206,4 +206,6 @@ ENV/
 
 dbs
 
+backups
+
 /subjects/static/

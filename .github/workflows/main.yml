@@ -1,4 +1,3 @@
-
 name: MAIN workflow
 
 on:
@@ -12,6 +11,8 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
+        with:
+          ref: 'main'
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3.2.0
       - name: Login to Docker 
@@ -26,3 +27,148 @@ jobs:
           file: client/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/frontend:PROD
+
+  build_and_push_users_to_docker_hub:
+    name: Push Docker Users image to DockerHub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          ref: 'main'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.2.0
+      - name: Login to Docker 
+        uses: docker/login-action@v3.1.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Push to DockerHub
+        uses: docker/build-push-action@v5.3.0
+        with:
+          context: ./users
+          file: users/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/backend-users:PROD
+
+  build_and_push_tests_to_docker_hub:
+    name: Push Docker tests image to DockerHub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          ref: 'main'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.2.0
+      - name: Login to Docker 
+        uses: docker/login-action@v3.1.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Push to DockerHub
+        uses: docker/build-push-action@v5.3.0
+        with:
+          context: ./tests
+          file: tests/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/backend-tests:PROD
+
+  build_and_push_subjects_to_docker_hub:
+    name: Push Docker subjects image to DockerHub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          ref: 'main'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.2.0
+      - name: Login to Docker 
+        uses: docker/login-action@v3.1.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Push to DockerHub
+        uses: docker/build-push-action@v5.3.0
+        with:
+          context: ./subjects
+          file: subjects/docker/dev/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/backend-subjects:PROD
+
+  build_and_push_analytics_to_docker_hub:
+    name: Push Docker analytics image to DockerHub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          ref: 'main'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.2.0
+      - name: Login to Docker 
+        uses: docker/login-action@v3.1.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Push to DockerHub
+        uses: docker/build-push-action@v5.3.0
+        with:
+          context: ./analytics
+          file: analytics/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/backend-analytics:PROD
+
+  deploy:
+    name: Деплой на сервер
+    runs-on: ubuntu-latest
+    needs: 
+      - build_and_push_subjects_to_docker_hub
+      - build_and_push_users_to_docker_hub
+      - build_and_push_tests_to_docker_hub
+      - build_and_push_analytics_to_docker_hub
+      - build_and_push_front_to_docker_hub
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+    - name: Get current datetime
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M')"
+    - name: Executing remote ssh commands to stop docker, clean up
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        password: ${{ secrets.SSH_PASSPHRASE }}
+        script: |
+          docker compose -f PROD/compose/docker-compose-DH.yml down
+          docker volume rm compose-prod_static
+          cp -r PROD/compose/env ./env
+          cp -r PROD/dbs ./dbs_backup/dbs-PROD-${{ steps.date.outputs.date }}
+          rm -rf PROD
+          mkdir -p PROD/compose
+          mv ./env PROD/compose
+    - name: Copy compose via ssh
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        password: ${{ secrets.SSH_PASSPHRASE }}
+        source: "compose"
+        target: "PROD"
+    - name: Executing remote ssh commands to deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        password: ${{ secrets.SSH_PASSPHRASE }}
+        script: |
+          mkdir PROD/dbs
+          touch PROD/dbs/users_db.sqlite3
+          touch PROD/dbs/tests_db.sqlite3
+          touch PROD/dbs/subjects_db.sqlite3
+          touch PROD/dbs/analytics_db.sqlite3
+          docker compose -f PROD/compose/docker-compose-DH.yml pull
+          docker compose -f PROD/compose/docker-compose-DH.yml up --build -d
+          docker system prune -af

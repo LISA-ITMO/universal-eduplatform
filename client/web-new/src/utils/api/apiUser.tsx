@@ -23,20 +23,14 @@ getAPIClient.interceptors.request.use(
 
 export const API_USER = {
   login: async ({ username, password }) => {
-    try {
-      const sendData = {
-        username: username,
-        password: password,
-      };
-      const answer = await axios.post(
-        `${API_BASE_URL}/users/signin/`,
-        sendData,
-        { withCredentials: true }
-      );
-      return answer;
-    } catch (error) {
-      console.log(error);
-    }
+    const sendData = {
+      username: username,
+      password: password,
+    };
+    const answer = await axios.post(`${API_BASE_URL}/users/signin/`, sendData, {
+      withCredentials: true,
+    });
+    return answer;
   },
 
   logout: async () => {

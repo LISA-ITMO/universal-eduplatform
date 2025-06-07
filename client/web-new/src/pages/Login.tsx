@@ -13,6 +13,7 @@ import { useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { API_USER, cookies } from "../utils/api/apiUser";
 import { useUsers } from "../store/users";
+import { Bounce, toast } from "react-toastify";
 
 export const Login: FC<{ isRegistration: boolean }> = ({ isRegistration }) => {
   const navigate = useNavigate();
@@ -43,18 +44,56 @@ export const Login: FC<{ isRegistration: boolean }> = ({ isRegistration }) => {
           username: data.userName,
           password: data.password,
         });
-        navigate("/login");
+        if (response) {
+          toast.success("Пользователь успешно добавлен в систему", {
+            position: "bottom-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+          navigate("/login");
+        }
       } else {
         const response = await API_USER.login({
           username: data.userName,
           password: data.password,
         });
         if (response) {
+          toast.success("Пользователь успешно авторизован", {
+            position: "bottom-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
           setUser(response?.data[0]);
           navigate("/");
         }
       }
     } catch (error) {
+      toast.error(
+        isRegistration ? "Ошибка регистрации" : "Ошибка авторизации",
+        {
+          position: "bottom-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        }
+      );
       console.error("Error:", error);
     }
   };

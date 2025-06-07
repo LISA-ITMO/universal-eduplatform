@@ -185,7 +185,7 @@ export const TestCreationPage: React.FC<TestCreationPageProps> = ({
               Вопрос {index + 1}
             </Box>
 
-            {/* Поле для текста вопроса */}
+            {/* Поле для текста вопроса  */}
             <Controller
               name={`questions.${index}.question_text`}
               control={control}

@@ -37,7 +37,6 @@ export const NavPanel = ({ isFullPanel }) => {
       </Tooltip>
       <Tooltip label={"Предметы"}>
         <Button
-          isDisabled={true}
           overflow={"hidden"}
           leftIcon={<LiaBookSolid style={{ height: "23px", width: "23px" }} />}
           h={"50px"}

@@ -1,0 +1,177 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Answer {
+  answerText: String!
+  id: Int!
+  isCorrect: Boolean!
+  questionId: Int!
+}
+
+type AuditLog {
+  action: String!
+  createdAt: DateTime!
+  id: Int!
+  meta: JSONObject
+  user: UserType
+  userId: Int
+}
+
+type AuthPayloadType {
+  accessToken: String!
+  requires2FA: Boolean
+  user: UserType!
+}
+
+type Course {
+  description: String
+  expert: UserType
+  expertId: Int
+  id: Int!
+  nameCourse: String!
+  subject: Subject
+  subjectId: Int!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""
+The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSONObject
+
+input LoginInput {
+  identifier: String!
+  password: String!
+}
+
+type Mutation {
+  createAnswer(answerText: String!, isCorrect: Boolean!, questionId: Int!): Answer!
+  createCourse(description: String, expertId: Int, nameCourse: String!, subjectId: Int!): Course!
+  createQuestion(additionInfo: String!, questionPoints: Float!, questionText: String!, testId: Int!): Question!
+  createSubject(nameSubject: String!): Subject!
+  createTest(expertId: Int, maxPoints: Float!, subjectId: Int!, themeId: Int!): Test!
+  createTheme(nameTheme: String!, subjectId: Int!): Theme!
+  disable2FA: Boolean!
+  enable2FA: String!
+  login(input: LoginInput!): AuthPayloadType!
+  logout: Boolean!
+  refreshToken(refreshToken: String): String!
+  register(input: RegisterInput!): AuthPayloadType!
+  submitTestResult(solutions: [SolutionInput!]!, subject: String!, testId: Int!, theme: String!): Result!
+  verify2FA(code: String!): Boolean!
+}
+
+type Query {
+  allTests: [Test!]!
+  allUsers: [UserType!]!
+  analyticsByTest(testId: Int!): StudentAnalyticsTest!
+  auditLogs: [AuditLog!]!
+  coursesBySubject(subjectId: Int!): [Course!]!
+  me: UserType!
+  myAnalytics: StudentAnalytics!
+  myResults: [Result!]!
+  subject(id: Int!): Subject!
+  subjects: [Subject!]!
+  test(id: Int!): Test!
+  testsByAuthor(authorId: Int!): [Test!]!
+  testsBySubjectAndTheme(subjectId: Int!, themeId: Int!): [Test!]!
+  themesBySubject(subjectId: Int!): [Theme!]!
+  user(id: Int!): UserType!
+  users(skip: Int, take: Int): [UserType!]!
+}
+
+type Question {
+  additionInfo: String!
+  answers: [Answer!]
+  id: Int!
+  questionPoints: Int!
+  questionText: String!
+  testId: Int!
+}
+
+input RegisterInput {
+  email: String!
+  password: String!
+  role: String = "student"
+  username: String!
+}
+
+type Result {
+  id: Int!
+  passingDate: DateTime
+  pointsUser: Int
+  score: Float
+  solutions: [Solution!]
+  subject: String!
+  test: Test
+  testId: Int!
+  theme: String!
+  userId: Int!
+}
+
+type Solution {
+  id: Int!
+  questionId: Int!
+  resultId: Int!
+  userAnswer: Int!
+  userAnswers: JSONObject
+}
+
+input SolutionInput {
+  questionId: Int!
+  userAnswers: [Int!]!
+}
+
+type StudentAnalytics {
+  analyticity: Int!
+  id: Int!
+  leadership: Int!
+  studentId: Int!
+}
+
+type StudentAnalyticsTest {
+  analyticityTest: Int!
+  id: Int!
+  studentId: Int!
+  test: Test
+  testId: Int!
+}
+
+type Subject {
+  courses: [Course!]
+  id: Int!
+  nameSubject: String!
+  themes: [Theme!]
+}
+
+type Test {
+  author: UserType
+  authorId: Int!
+  expertId: Int!
+  id: Int!
+  maxPoints: Int!
+  questions: [Question!]
+  subject: Subject
+  subjectId: Int!
+  theme: Theme
+  themeId: Int!
+  timesSolved: Int!
+}
+
+type Theme {
+  id: Int!
+  nameTheme: String!
+  subjectId: Int!
+}
+
+type UserType {
+  email: String!
+  id: Float!
+  role: String!
+  username: String!
+}

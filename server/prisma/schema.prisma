@@ -1,0 +1,287 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTH MODELS
+// ============================================
+
+enum Role {
+  student
+  teacher
+  admin
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  username      String    @unique @db.VarChar(50)
+  email         String    @unique @db.VarChar(255)
+  passwordHash  String    @map("password_hash")
+  role          Role      @default(student)
+  isActive      Boolean   @default(true) @map("is_active")
+  isStaff       Boolean   @default(false) @map("is_staff")
+  isSuperuser   Boolean   @default(false) @map("is_superuser")
+  isEmailVerified Boolean @default(false) @map("is_email_verified")
+  twoFactorEnabled Boolean @default(false) @map("two_factor_enabled")
+  twoFactorSecret  String? @map("two_factor_secret")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  lastLogin     DateTime? @map("last_login")
+
+  // Relations
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+  testsCreated  Test[]     @relation("TestAuthor")
+  testsSolved   Result[]
+  studentCourseSubjects StudentCourseSubject[]
+  coursesCreated Course[]  @relation("CourseExpert")
+  studentAnalytics StudentAnalytics?
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  tokenHash String   @map("token_hash")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int      @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("refresh_tokens")
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int?     @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  meta      Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+}
+
+model ServiceKey {
+  id        Int      @id @default(autoincrement())
+  name      String
+  keyHash   String   @map("key_hash")
+  roles     Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  expiresAt DateTime? @map("expires_at")
+
+  @@map("service_keys")
+}
+
+// ============================================
+// SUBJECTS MODELS
+// ============================================
+
+model Subject {
+  id          Int      @id @default(autoincrement())
+  nameSubject String   @map("name_subject") @db.VarChar(100)
+
+  // Relations
+  themes      Theme[]
+  courses     Course[]
+  tests       Test[]
+  studentCourseSubjects StudentCourseSubject[]
+
+  @@map("subjects")
+}
+
+model Theme {
+  id        Int      @id @default(autoincrement())
+  nameTheme String   @map("name_theme") @db.VarChar(100)
+  subjectId Int      @map("subject_id")
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  // Relations
+  tests     Test[]
+
+  @@map("themes")
+}
+
+model Course {
+  id          Int      @id @default(autoincrement())
+  nameCourse  String   @map("name_course") @db.VarChar(100)
+  subjectId   Int      @map("subject_id")
+  subject     Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  expertId    Int?     @map("expert_id")
+  expert      User?    @relation("CourseExpert", fields: [expertId], references: [id], onDelete: SetNull)
+  description String?  @db.Text
+
+  @@map("courses")
+}
+
+model StudentCourseSubject {
+  id        Int      @id @default(autoincrement())
+  studentId Int?     @map("student_id")
+  student   User?    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subjectId Int      @map("subject_id")
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  expertId  Int?     @map("expert_id")
+
+  @@map("student_course_subjects")
+}
+
+// ============================================
+// TESTS MODELS
+// ============================================
+
+model Test {
+  id          Int      @id @default(autoincrement())
+  authorId    Int      @map("author_id")
+  author      User     @relation("TestAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  subjectId   Int      @map("subject_id")
+  subject     Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  themeId     Int      @map("theme_id")
+  theme       Theme    @relation(fields: [themeId], references: [id], onDelete: Cascade)
+  timesSolved Int      @default(0) @map("times_solved")
+  expertId    Int      @default(0) @map("expert_id")
+  maxPoints   Int      @default(0) @map("max_points")
+
+  // Relations
+  questions   Question[]
+  results     Result[]
+  studentAnalyticsTests StudentAnalyticsTest[]
+  studentLeadershipTests StudentLeadershipTest[]
+
+  @@map("tests")
+}
+
+model Question {
+  id            Int      @id @default(autoincrement())
+  testId        Int      @map("test_id")
+  test          Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  questionText  String   @map("question_text") @db.VarChar(100)
+  additionInfo  String   @map("addition_info") @db.Text
+  questionPoints Int     @default(1) @map("question_points")
+
+  // Relations
+  answers       Answer[]
+  solutions     Solution[]
+
+  @@map("questions")
+}
+
+model Answer {
+  id          Int      @id @default(autoincrement())
+  questionId  Int      @map("question_id")
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answerText  String   @map("answer_text") @db.Text
+  isCorrect   Boolean  @map("is_correct")
+
+  @@map("answers")
+}
+
+model Result {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testId      Int      @map("test_id")
+  test        Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  subject     String   @db.Text
+  theme       String   @db.Text
+  pointsUser  Int?     @map("points_user")
+  score       Float?
+  passingDate DateTime? @map("passing_date")
+
+  // Relations
+  solutions   Solution[]
+
+  @@map("results")
+}
+
+model Solution {
+  id          Int      @id @default(autoincrement())
+  resultId    Int      @map("result_id")
+  result      Result   @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  questionId  Int      @map("question_id")
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  userAnswer  Int      @map("user_answer")
+  userAnswers Json?    @map("user_answers")
+
+  @@map("solutions")
+}
+
+// ============================================
+// ANALYTICS MODELS
+// ============================================
+
+model StudentAnalytics {
+  id          Int      @id @default(autoincrement())
+  studentId   Int      @unique @map("student_id")
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  analyticity Int      @default(0)
+  leadership  Int      @default(0)
+
+  @@map("student_analytics")
+}
+
+model StudentAnalyticsTest {
+  id              Int      @id @default(autoincrement())
+  studentId       Int      @map("student_id")
+  testId          Int      @map("test_id")
+  test            Test     @relation(fields: [testId], references: [id], onDelete: Restrict)
+  analyticityTest Int      @default(0) @map("analyticity_test")
+
+  @@map("student_analytics_tests")
+}
+
+model StudentAnalyticsTheme {
+  id              Int      @id @default(autoincrement())
+  studentId       Int      @map("student_id")
+  themeId         Int      @map("theme_id")
+  subjectId       Int      @map("subject_id")
+  analyticityTheme Int     @default(0) @map("analyticity_theme")
+
+  @@map("student_analytics_themes")
+}
+
+model StudentAnalyticsCourse {
+  id                Int      @id @default(autoincrement())
+  studentId         Int      @map("student_id")
+  subjectId         Int      @map("subject_id")
+  analyticityCourse Int      @default(0) @map("analyticity_course")
+
+  @@map("student_analytics_courses")
+}
+
+model StudentLeadershipTest {
+  id            Int      @id @default(autoincrement())
+  studentId     Int      @map("student_id")
+  testId        Int      @map("test_id")
+  test          Test     @relation(fields: [testId], references: [id], onDelete: Restrict)
+  leadershipTest Int     @default(0) @map("leadership_test")
+
+  @@map("student_leadership_tests")
+}
+
+model StudentLeadershipTheme {
+  id              Int      @id @default(autoincrement())
+  studentId       Int      @map("student_id")
+  themeId         Int      @map("theme_id")
+  subjectId       Int      @map("subject_id")
+  leadershipTheme Int      @default(0) @map("leadership_theme")
+
+  @@map("student_leadership_themes")
+}
+
+model StudentLeadershipCourse {
+  id                Int      @id @default(autoincrement())
+  studentId         Int      @map("student_id")
+  subjectId         Int      @map("subject_id")
+  leadershipCourse  Int      @default(0) @map("leadership_course")
+
+  @@map("student_leadership_courses")
+}
+

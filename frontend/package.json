@@ -1,0 +1,25 @@
+{
+  "name": "quiz-platform-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "dev:admin": "pnpm --filter admin dev",
+    "build:web": "pnpm --filter web build",
+    "build:admin": "pnpm --filter admin build",
+    "build:all": "pnpm --filter web build && pnpm --filter admin build",
+    "lint": "pnpm -r lint"
+  },
+  "devDependencies": {
+    "prettier": "^3.2.4"
+  },
+  "dependencies": {
+    "pnpm": "^10.20.0"
+  }
+}
+
+
+

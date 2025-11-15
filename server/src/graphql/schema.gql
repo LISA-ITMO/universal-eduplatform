@@ -34,6 +34,17 @@ type Course {
   subjectId: Int!
 }
 
+input CreateUserInput {
+  email: String
+  firstName: String!
+  lastName: String!
+  middleName: String
+  password: String!
+  phone: String
+  role: String!
+  username: String!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -56,6 +67,7 @@ type Mutation {
   createSubject(nameSubject: String!): Subject!
   createTest(expertId: Int, maxPoints: Float!, subjectId: Int!, themeId: Int!): Test!
   createTheme(nameTheme: String!, subjectId: Int!): Theme!
+  createUser(input: CreateUserInput!): UserType!
   disable2FA: Boolean!
   enable2FA: String!
   login(input: LoginInput!): AuthPayloadType!
@@ -83,6 +95,7 @@ type Query {
   themesBySubject(subjectId: Int!): [Theme!]!
   user(id: Int!): UserType!
   users(skip: Int, take: Int): [UserType!]!
+  usersPage(orderByDirection: String, orderByField: String, search: String, skip: Int, take: Int): UsersPage!
 }
 
 type Question {
@@ -96,7 +109,11 @@ type Question {
 
 input RegisterInput {
   email: String!
+  firstName: String
+  lastName: String
+  middleName: String
   password: String!
+  phone: String
   role: String = "student"
   username: String!
 }
@@ -171,7 +188,17 @@ type Theme {
 
 type UserType {
   email: String!
+  firstName: String
   id: Float!
+  lastLogin: String
+  lastName: String
+  middleName: String
+  phone: String
   role: String!
   username: String!
+}
+
+type UsersPage {
+  items: [UserType!]!
+  totalCount: Int!
 }

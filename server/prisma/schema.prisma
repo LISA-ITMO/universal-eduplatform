@@ -23,7 +23,11 @@ enum Role {
 model User {
   id            Int       @id @default(autoincrement())
   username      String    @unique @db.VarChar(50)
+  firstName     String?   @map("first_name") @db.VarChar(100)
+  lastName      String?   @map("last_name") @db.VarChar(100)
+  middleName    String?   @map("middle_name") @db.VarChar(100)
   email         String    @unique @db.VarChar(255)
+  phone         String?   @map("phone") @db.VarChar(30)
   passwordHash  String    @map("password_hash")
   role          Role      @default(student)
   isActive      Boolean   @default(true) @map("is_active")

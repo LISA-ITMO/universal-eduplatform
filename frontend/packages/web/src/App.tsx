@@ -60,11 +60,7 @@ export default function App() {
                 <Route path="*" element={<Navigate to="/login" replace />} />
               )}
 
-              <Route path="/login" element={<Login isRegistration={false} />} />
-              <Route
-                path="/register"
-                element={<Login isRegistration={true} />}
-              />
+              <Route path="/login" element={<Login />} />
 
               <Route
                 path="*"

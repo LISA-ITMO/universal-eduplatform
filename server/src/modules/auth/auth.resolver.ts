@@ -20,6 +20,21 @@ export class UserType {
 
   @Field()
   role: string;
+  
+  @Field({ nullable: true })
+  firstName?: string | null;
+
+  @Field({ nullable: true })
+  lastName?: string | null;
+
+  @Field({ nullable: true })
+  middleName?: string | null;
+
+  @Field({ nullable: true })
+  phone?: string | null;
+
+  @Field({ nullable: true })
+  lastLogin?: string | null;
 }
 
 @ObjectType()
@@ -56,7 +71,9 @@ export class AuthResolver {
     const refreshToken = (payload as any).refreshToken;
     if (ctx && ctx.res && refreshToken) {
       const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days in ms - keep in sync with REFRESH_TOKEN_EXPIRES_IN
-      ctx.res.cookie('refreshToken', refreshToken, {
+      const clientId = ctx?.req?.headers?.['x-client-id'] || ctx?.req?.headers?.['x-clientid'];
+      const cookieName = clientId ? `refreshToken_${clientId}` : 'refreshToken';
+      ctx.res.cookie(cookieName, refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -75,7 +92,9 @@ export class AuthResolver {
       // If refresh token cookie is present, try to revoke it server-side
       let cookieToken: string | undefined = undefined;
       if (ctx && ctx.req && ctx.req.cookies) {
-        cookieToken = ctx.req.cookies['refreshToken'];
+        const clientId = ctx?.req?.headers?.['x-client-id'] || ctx?.req?.headers?.['x-clientid'];
+        const cookieName = clientId ? `refreshToken_${clientId}` : 'refreshToken';
+        cookieToken = ctx.req.cookies[cookieName];
       }
 
       if (cookieToken) {
@@ -88,7 +107,9 @@ export class AuthResolver {
 
       // Clear refresh token cookie on the client
       if (ctx && ctx.res) {
-        ctx.res.clearCookie('refreshToken', {
+        const clientId = ctx?.req?.headers?.['x-client-id'] || ctx?.req?.headers?.['x-clientid'];
+        const cookieName = clientId ? `refreshToken_${clientId}` : 'refreshToken';
+        ctx.res.clearCookie(cookieName, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
@@ -107,7 +128,9 @@ export class AuthResolver {
     const refreshToken = (payload as any).refreshToken;
     if (ctx && ctx.res && refreshToken) {
       const maxAge = 7 * 24 * 60 * 60 * 1000;
-      ctx.res.cookie('refreshToken', refreshToken, {
+      const clientId = ctx?.req?.headers?.['x-client-id'] || ctx?.req?.headers?.['x-clientid'];
+      const cookieName = clientId ? `refreshToken_${clientId}` : 'refreshToken';
+      ctx.res.cookie(cookieName, refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -126,7 +149,9 @@ export class AuthResolver {
   ): Promise<string> {
     // If client didn't provide refresh token explicitly, try to read it from cookie
     if (!refreshToken && ctx && ctx.req && ctx.req.cookies) {
-      refreshToken = ctx.req.cookies['refreshToken'];
+      const clientId = ctx?.req?.headers?.['x-client-id'] || ctx?.req?.headers?.['x-clientid'];
+      const cookieName = clientId ? `refreshToken_${clientId}` : 'refreshToken';
+      refreshToken = ctx.req.cookies[cookieName];
     }
 
     if (!refreshToken) {

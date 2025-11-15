@@ -21,6 +21,22 @@ export class RegisterInput {
   @IsOptional()
   @IsString()
   role?: string;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  firstName?: string;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  lastName?: string;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  middleName?: string;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  phone?: string;
 }
 
 

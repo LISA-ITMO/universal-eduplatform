@@ -16,10 +16,23 @@ async function bootstrap() {
   app.use(cookieParser());
 
   // CORS
-  app.enableCors({
-    origin: configService.get('CORS_ORIGIN') || '*',
-    credentials: true,
-  });
+  // Allow configuring multiple origins via CORS_ORIGIN env (comma-separated), or '*' to allow all.
+  const corsOrigin = configService.get<string>('CORS_ORIGIN') || '*';
+  if (corsOrigin === '*') {
+    app.enableCors({ origin: '*', credentials: true });
+  } else {
+    const allowed = corsOrigin.split(',').map((s) => s.trim()).filter(Boolean);
+    app.enableCors({
+      origin: (requestOrigin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+        // If no origin (curl, server-side), allow
+        if (!requestOrigin) return callback(null, true);
+        if (allowed.includes(requestOrigin)) return callback(null, true);
+        // Not allowed
+        return callback(new Error('Not allowed by CORS'), false);
+      },
+      credentials: true,
+    });
+  }
 
   // Validation
   app.useGlobalPipes(

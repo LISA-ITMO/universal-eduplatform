@@ -1,12 +1,13 @@
+import React from "react";
 import { Avatar, Box, TextField } from "@mui/material";
 import { useAuth } from "@quiz-platform/ui";
 
-export const ProfileCard = () => {
-  const { user } = useAuth();
+const AdminProfileCard: React.FC = () => {
+  const { user } = useAuth() as any;
 
   return (
     <Box sx={{ my: 5, mx: 3, maxWidth: "900px" }}>
-      <Box sx={{ border: "1px solid black", borderRadius: 1 }}>
+      <Box sx={{ border: "1px solid rgba(0,0,0,0.12)", borderRadius: 1 }}>
         <Box sx={{ textAlign: "center", pt: 1, pb: 3 }}>
           <Box sx={{ fontSize: 22, fontWeight: 600 }}>Профиль пользователя</Box>
         </Box>
@@ -90,3 +91,5 @@ export const ProfileCard = () => {
     </Box>
   );
 };
+
+export default AdminProfileCard;

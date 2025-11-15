@@ -61,9 +61,10 @@ export class AuthService {
   const refreshToken = await this.createRefreshToken(user.id);
 
     // Update last login
+    const now = new Date();
     await this.prisma.user.update({
       where: { id: user.id },
-      data: { lastLogin: new Date() },
+      data: { lastLogin: now },
     });
 
     return {
@@ -73,7 +74,12 @@ export class AuthService {
         username: user.username,
         email: user.email,
         role: user.role,
-      },
+        firstName: (user as any).firstName,
+        lastName: (user as any).lastName,
+        middleName: (user as any).middleName,
+        phone: (user as any).phone,
+        lastLogin: now.toISOString(),
+      } as any,
       requires2FA: user.twoFactorEnabled,
       // NOTE: refreshToken is intentionally returned here for server-side resolvers
       // that may want to set it as an httpOnly cookie. Do NOT expose this field
@@ -88,6 +94,10 @@ export class AuthService {
     email: string,
     password: string,
     roleInput?: string,
+    firstName?: string,
+    lastName?: string,
+    middleName?: string,
+    phone?: string,
   ): Promise<AuthPayload> {
     const existingUser = await this.prisma.user.findFirst({
       where: {
@@ -106,12 +116,17 @@ export class AuthService {
       : Role.student;
 
     const user = await this.prisma.user.create({
-      data: {
+      // cast to any to avoid transient type issues before prisma client is regenerated
+      data: ({
         username,
         email,
         passwordHash,
         role,
-      },
+        firstName: firstName ?? null,
+        lastName: lastName ?? null,
+        middleName: middleName ?? null,
+        phone: phone ?? null,
+      } as any),
     });
 
     return this.login(user);

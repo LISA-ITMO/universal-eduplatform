@@ -8,6 +8,11 @@ export const ME_QUERY = gql`
       username
       email
       role
+      firstName
+      lastName
+      middleName
+      phone
+      lastLogin
     }
   }
 `;
@@ -26,6 +31,25 @@ export const SUBJECTS_QUERY = gql`
         id
         nameCourse
       }
+    }
+  }
+`;
+
+export const USERS_PAGED_QUERY = gql`
+  query UsersPage($skip: Int, $take: Int, $search: String, $orderByField: String, $orderByDirection: String) {
+    usersPage(skip: $skip, take: $take, search: $search, orderByField: $orderByField, orderByDirection: $orderByDirection) {
+      items {
+        id
+        username
+        email
+        firstName
+        lastName
+        middleName
+        phone
+        role
+        lastLogin
+      }
+      totalCount
     }
   }
 `;
@@ -154,6 +178,22 @@ export const ANALYTICS_BY_TEST_QUERY = gql`
       studentId
       testId
       analyticityTest
+    }
+  }
+`;
+
+export const USERS_QUERY = gql`
+  query Users($skip: Int, $take: Int) {
+    users(skip: $skip, take: $take) {
+      id
+      username
+      email
+      firstName
+      lastName
+      middleName
+      phone
+      role
+      lastLogin
     }
   }
 `;

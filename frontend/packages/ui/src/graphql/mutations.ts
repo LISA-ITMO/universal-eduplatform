@@ -10,6 +10,11 @@ export const LOGIN_MUTATION = gql`
         username
         email
         role
+        firstName
+        lastName
+        middleName
+        phone
+        lastLogin
       }
       requires2FA
     }
@@ -25,6 +30,11 @@ export const REGISTER_MUTATION = gql`
         username
         email
         role
+        firstName
+        lastName
+        middleName
+        phone
+        lastLogin
       }
     }
   }
@@ -153,6 +163,17 @@ export const SUBMIT_TEST_RESULT_MUTATION = gql`
       pointsUser
       score
       passingDate
+    }
+  }
+`;
+
+export const CREATE_USER_MUTATION = gql`
+  mutation CreateUser($input: CreateUserInput!) {
+    createUser(input: $input) {
+      id
+      username
+      email
+      role
     }
   }
 `;

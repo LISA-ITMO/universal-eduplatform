@@ -50,6 +50,11 @@ export const useAuth = () => {
                   username
                   email
                   role
+                  firstName
+                  lastName
+                  middleName
+                  phone
+                  lastLogin
                 }
               }
             `,
@@ -92,7 +97,8 @@ export const useAuth = () => {
   const logout = async () => {
     // Call server to clear refresh cookie
     try {
-      const client = createApolloClient();
+      // use shared client instance to ensure we can reset cache afterwards
+      const client = (await import('../graphql/client')).apolloClient;
       await client.mutate({
         mutation: gql`
           mutation Logout {
@@ -100,6 +106,13 @@ export const useAuth = () => {
           }
         `,
       });
+
+      // clear Apollo cache to avoid stale data
+      try {
+        await client.clearStore();
+      } catch (e) {
+        // ignore cache clear errors
+      }
     } catch (e) {
       // ignore errors
     }
@@ -126,6 +139,11 @@ export const useAuth = () => {
                   username
                   email
                   role
+                  firstName
+                  lastName
+                  middleName
+                  phone
+                  lastLogin
                 }
               }
             `,

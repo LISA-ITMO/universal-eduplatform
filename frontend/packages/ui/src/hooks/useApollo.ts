@@ -11,10 +11,11 @@ export const refreshAccessTokenViaCookie = async (): Promise<string | null> => {
 
   refreshPromise = (async () => {
     try {
+      const clientId = import.meta.env.VITE_CLIENT_ID || 'web';
       const res = await fetch(import.meta.env.VITE_GRAPHQL_URL || 'http://localhost:3000/graphql', {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-client-id': clientId },
         body: JSON.stringify({ query: 'mutation RefreshToken { refreshToken }' }),
       });
 
@@ -39,10 +40,12 @@ const httpLink = createHttpLink({
 
 const authLink = setContext((_, { headers }) => {
   const token = getAccessToken();
+  const clientId = import.meta.env.VITE_CLIENT_ID || 'web';
   return {
     headers: {
       ...headers,
       authorization: token ? `Bearer ${token}` : '',
+      'x-client-id': clientId,
     },
   };
 });

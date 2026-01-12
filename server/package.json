@@ -5,7 +5,7 @@
 	"main": "dist/main.js",
 	"scripts": {
 		"start": "node dist/main.js",
-		"start:dev": "nest start --watch",
+		"dev": "nest start --watch",
 		"build": "nest build",
 		"start:prod": "node dist/main.js",
 		"prisma:studio": "prisma studio",

@@ -21,33 +21,35 @@ enum Role {
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  username      String    @unique @db.VarChar(50)
-  firstName     String?   @map("first_name") @db.VarChar(100)
-  lastName      String?   @map("last_name") @db.VarChar(100)
-  middleName    String?   @map("middle_name") @db.VarChar(100)
-  email         String    @unique @db.VarChar(255)
-  phone         String?   @map("phone") @db.VarChar(30)
-  passwordHash  String    @map("password_hash")
-  role          Role      @default(student)
-  isActive      Boolean   @default(true) @map("is_active")
-  isStaff       Boolean   @default(false) @map("is_staff")
-  isSuperuser   Boolean   @default(false) @map("is_superuser")
-  isEmailVerified Boolean @default(false) @map("is_email_verified")
-  twoFactorEnabled Boolean @default(false) @map("two_factor_enabled")
-  twoFactorSecret  String? @map("two_factor_secret")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  lastLogin     DateTime? @map("last_login")
+  id               Int       @id @default(autoincrement())
+  username         String    @unique @db.VarChar(50)
+  firstName        String?   @map("first_name") @db.VarChar(100)
+  lastName         String?   @map("last_name") @db.VarChar(100)
+  middleName       String?   @map("middle_name") @db.VarChar(100)
+  email            String    @unique @db.VarChar(255)
+  phone            String?   @map("phone") @db.VarChar(30)
+  passwordHash     String    @map("password_hash")
+  role             Role      @default(student)
+  isActive         Boolean   @default(true) @map("is_active")
+  isStaff          Boolean   @default(false) @map("is_staff")
+  isSuperuser      Boolean   @default(false) @map("is_superuser")
+  isEmailVerified  Boolean   @default(false) @map("is_email_verified")
+  twoFactorEnabled Boolean   @default(false) @map("two_factor_enabled")
+  twoFactorSecret  String?   @map("two_factor_secret")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  lastLogin        DateTime? @map("last_login")
 
   // Relations
-  refreshTokens RefreshToken[]
-  auditLogs     AuditLog[]
-  testsCreated  Test[]     @relation("TestAuthor")
-  testsSolved   Result[]
+  refreshTokens         RefreshToken[]
+  auditLogs             AuditLog[]
+  testsCreated          Test[]                 @relation("TestAuthor")
+  testsSolved           Result[]
   studentCourseSubjects StudentCourseSubject[]
-  coursesCreated Course[]  @relation("CourseExpert")
-  studentAnalytics StudentAnalytics?
+  coursesCreated        Course[]               @relation("CourseExpert")
+  // Subjects where user is assigned as expert/teacher
+  subjectsExpert        Subject[]              @relation("SubjectExpert")
+  studentAnalytics      StudentAnalytics?
 
   @@map("users")
 }
@@ -75,11 +77,11 @@ model AuditLog {
 }
 
 model ServiceKey {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  keyHash   String   @map("key_hash")
+  keyHash   String    @map("key_hash")
   roles     Json?
-  createdAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime  @default(now()) @map("created_at")
   expiresAt DateTime? @map("expires_at")
 
   @@map("service_keys")
@@ -90,49 +92,66 @@ model ServiceKey {
 // ============================================
 
 model Subject {
-  id          Int      @id @default(autoincrement())
-  nameSubject String   @map("name_subject") @db.VarChar(100)
+  id          Int    @id @default(autoincrement())
+  nameSubject String @map("name_subject") @db.VarChar(100)
+
+  // Expert (teacher) assigned to subject
+  expertId Int?  @map("expert_id")
+  expert   User? @relation("SubjectExpert", fields: [expertId], references: [id], onDelete: SetNull)
 
   // Relations
-  themes      Theme[]
-  courses     Course[]
-  tests       Test[]
+  themes                Theme[]
+  courses               Course[]
+  tests                 Test[]
   studentCourseSubjects StudentCourseSubject[]
+  subjectMaterials      SubjectMaterial[]
 
   @@map("subjects")
 }
 
-model Theme {
+model SubjectMaterial {
   id        Int      @id @default(autoincrement())
-  nameTheme String   @map("name_theme") @db.VarChar(100)
   subjectId Int      @map("subject_id")
   subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  title     String?  @db.VarChar(255)
+  url       String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("subject_materials")
+}
+
+model Theme {
+  id        Int     @id @default(autoincrement())
+  nameTheme String  @map("name_theme") @db.VarChar(100)
+  subjectId Int     @map("subject_id")
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   // Relations
-  tests     Test[]
+  tests Test[]
 
   @@map("themes")
 }
 
 model Course {
-  id          Int      @id @default(autoincrement())
-  nameCourse  String   @map("name_course") @db.VarChar(100)
-  subjectId   Int      @map("subject_id")
-  subject     Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  expertId    Int?     @map("expert_id")
-  expert      User?    @relation("CourseExpert", fields: [expertId], references: [id], onDelete: SetNull)
-  description String?  @db.Text
+  id          Int     @id @default(autoincrement())
+  nameCourse  String  @map("name_course") @db.VarChar(100)
+  subjectId   Int     @map("subject_id")
+  subject     Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  expertId    Int?    @map("expert_id")
+  expert      User?   @relation("CourseExpert", fields: [expertId], references: [id], onDelete: SetNull)
+  description String? @db.Text
 
   @@map("courses")
 }
 
 model StudentCourseSubject {
-  id        Int      @id @default(autoincrement())
-  studentId Int?     @map("student_id")
-  student   User?    @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  subjectId Int      @map("subject_id")
-  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  expertId  Int?     @map("expert_id")
+  id        Int     @id @default(autoincrement())
+  studentId Int?    @map("student_id")
+  student   User?   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subjectId Int     @map("subject_id")
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  expertId  Int?    @map("expert_id")
 
   @@map("student_course_subjects")
 }
@@ -142,65 +161,65 @@ model StudentCourseSubject {
 // ============================================
 
 model Test {
-  id          Int      @id @default(autoincrement())
-  authorId    Int      @map("author_id")
-  author      User     @relation("TestAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  subjectId   Int      @map("subject_id")
-  subject     Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  themeId     Int      @map("theme_id")
-  theme       Theme    @relation(fields: [themeId], references: [id], onDelete: Cascade)
-  timesSolved Int      @default(0) @map("times_solved")
-  expertId    Int      @default(0) @map("expert_id")
-  maxPoints   Int      @default(0) @map("max_points")
+  id          Int     @id @default(autoincrement())
+  authorId    Int     @map("author_id")
+  author      User    @relation("TestAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  subjectId   Int     @map("subject_id")
+  subject     Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  themeId     Int     @map("theme_id")
+  theme       Theme   @relation(fields: [themeId], references: [id], onDelete: Cascade)
+  timesSolved Int     @default(0) @map("times_solved")
+  expertId    Int     @default(0) @map("expert_id")
+  maxPoints   Int     @default(0) @map("max_points")
 
   // Relations
-  questions   Question[]
-  results     Result[]
-  studentAnalyticsTests StudentAnalyticsTest[]
+  questions              Question[]
+  results                Result[]
+  studentAnalyticsTests  StudentAnalyticsTest[]
   studentLeadershipTests StudentLeadershipTest[]
 
   @@map("tests")
 }
 
 model Question {
-  id            Int      @id @default(autoincrement())
-  testId        Int      @map("test_id")
-  test          Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
-  questionText  String   @map("question_text") @db.VarChar(100)
-  additionInfo  String   @map("addition_info") @db.Text
-  questionPoints Int     @default(1) @map("question_points")
+  id             Int    @id @default(autoincrement())
+  testId         Int    @map("test_id")
+  test           Test   @relation(fields: [testId], references: [id], onDelete: Cascade)
+  questionText   String @map("question_text") @db.VarChar(100)
+  additionInfo   String @map("addition_info") @db.Text
+  questionPoints Int    @default(1) @map("question_points")
 
   // Relations
-  answers       Answer[]
-  solutions     Solution[]
+  answers   Answer[]
+  solutions Solution[]
 
   @@map("questions")
 }
 
 model Answer {
-  id          Int      @id @default(autoincrement())
-  questionId  Int      @map("question_id")
-  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  answerText  String   @map("answer_text") @db.Text
-  isCorrect   Boolean  @map("is_correct")
+  id         Int      @id @default(autoincrement())
+  questionId Int      @map("question_id")
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answerText String   @map("answer_text") @db.Text
+  isCorrect  Boolean  @map("is_correct")
 
   @@map("answers")
 }
 
 model Result {
-  id          Int      @id @default(autoincrement())
-  userId      Int      @map("user_id")
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  testId      Int      @map("test_id")
-  test        Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
-  subject     String   @db.Text
-  theme       String   @db.Text
-  pointsUser  Int?     @map("points_user")
+  id          Int       @id @default(autoincrement())
+  userId      Int       @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testId      Int       @map("test_id")
+  test        Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  subject     String    @db.Text
+  theme       String    @db.Text
+  pointsUser  Int?      @map("points_user")
   score       Float?
   passingDate DateTime? @map("passing_date")
 
   // Relations
-  solutions   Solution[]
+  solutions Solution[]
 
   @@map("results")
 }
@@ -222,70 +241,69 @@ model Solution {
 // ============================================
 
 model StudentAnalytics {
-  id          Int      @id @default(autoincrement())
-  studentId   Int      @unique @map("student_id")
-  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  analyticity Int      @default(0)
-  leadership  Int      @default(0)
+  id          Int  @id @default(autoincrement())
+  studentId   Int  @unique @map("student_id")
+  student     User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  analyticity Int  @default(0)
+  leadership  Int  @default(0)
 
   @@map("student_analytics")
 }
 
 model StudentAnalyticsTest {
-  id              Int      @id @default(autoincrement())
-  studentId       Int      @map("student_id")
-  testId          Int      @map("test_id")
-  test            Test     @relation(fields: [testId], references: [id], onDelete: Restrict)
-  analyticityTest Int      @default(0) @map("analyticity_test")
+  id              Int  @id @default(autoincrement())
+  studentId       Int  @map("student_id")
+  testId          Int  @map("test_id")
+  test            Test @relation(fields: [testId], references: [id], onDelete: Restrict)
+  analyticityTest Int  @default(0) @map("analyticity_test")
 
   @@map("student_analytics_tests")
 }
 
 model StudentAnalyticsTheme {
-  id              Int      @id @default(autoincrement())
-  studentId       Int      @map("student_id")
-  themeId         Int      @map("theme_id")
-  subjectId       Int      @map("subject_id")
-  analyticityTheme Int     @default(0) @map("analyticity_theme")
+  id               Int @id @default(autoincrement())
+  studentId        Int @map("student_id")
+  themeId          Int @map("theme_id")
+  subjectId        Int @map("subject_id")
+  analyticityTheme Int @default(0) @map("analyticity_theme")
 
   @@map("student_analytics_themes")
 }
 
 model StudentAnalyticsCourse {
-  id                Int      @id @default(autoincrement())
-  studentId         Int      @map("student_id")
-  subjectId         Int      @map("subject_id")
-  analyticityCourse Int      @default(0) @map("analyticity_course")
+  id                Int @id @default(autoincrement())
+  studentId         Int @map("student_id")
+  subjectId         Int @map("subject_id")
+  analyticityCourse Int @default(0) @map("analyticity_course")
 
   @@map("student_analytics_courses")
 }
 
 model StudentLeadershipTest {
-  id            Int      @id @default(autoincrement())
-  studentId     Int      @map("student_id")
-  testId        Int      @map("test_id")
-  test          Test     @relation(fields: [testId], references: [id], onDelete: Restrict)
-  leadershipTest Int     @default(0) @map("leadership_test")
+  id             Int  @id @default(autoincrement())
+  studentId      Int  @map("student_id")
+  testId         Int  @map("test_id")
+  test           Test @relation(fields: [testId], references: [id], onDelete: Restrict)
+  leadershipTest Int  @default(0) @map("leadership_test")
 
   @@map("student_leadership_tests")
 }
 
 model StudentLeadershipTheme {
-  id              Int      @id @default(autoincrement())
-  studentId       Int      @map("student_id")
-  themeId         Int      @map("theme_id")
-  subjectId       Int      @map("subject_id")
-  leadershipTheme Int      @default(0) @map("leadership_theme")
+  id              Int @id @default(autoincrement())
+  studentId       Int @map("student_id")
+  themeId         Int @map("theme_id")
+  subjectId       Int @map("subject_id")
+  leadershipTheme Int @default(0) @map("leadership_theme")
 
   @@map("student_leadership_themes")
 }
 
 model StudentLeadershipCourse {
-  id                Int      @id @default(autoincrement())
-  studentId         Int      @map("student_id")
-  subjectId         Int      @map("subject_id")
-  leadershipCourse  Int      @default(0) @map("leadership_course")
+  id               Int @id @default(autoincrement())
+  studentId        Int @map("student_id")
+  subjectId        Int @map("subject_id")
+  leadershipCourse Int @default(0) @map("leadership_course")
 
   @@map("student_leadership_courses")
 }
-

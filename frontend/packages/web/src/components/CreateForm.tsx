@@ -1,5 +1,5 @@
-import { Button, TextField, Box } from '@mui/material';
-import { useState, MouseEvent } from 'react';
+import { Button, TextField, Box } from "@mui/material";
+import { useState, MouseEvent } from "react";
 
 interface CreateFormProps {
   setState: (value: boolean) => void;
@@ -8,13 +8,18 @@ interface CreateFormProps {
   asyncFunc: (name: string) => Promise<void>;
 }
 
-const CreateForm = ({ setState, state, refreshFunc, asyncFunc }: CreateFormProps) => {
-  const [value, setValue] = useState('');
+const CreateForm = ({
+  setState,
+  state,
+  refreshFunc,
+  asyncFunc,
+}: CreateFormProps) => {
+  const [value, setValue] = useState("");
 
   const toggleForm = () => {
     setState(!state);
     refreshFunc();
-    setValue('');
+    setValue("");
   };
 
   const createItem = async (e: MouseEvent<HTMLButtonElement>) => {
@@ -25,14 +30,16 @@ const CreateForm = ({ setState, state, refreshFunc, asyncFunc }: CreateFormProps
       await asyncFunc(value);
       toggleForm();
     } catch (error) {
-      console.error('Ошибка при создании', error);
+      console.error("Ошибка при создании", error);
     }
   };
+
+  // return;
 
   return (
     <Box sx={{ mt: 2 }}>
       <Button variant="outlined" size="small" onClick={toggleForm}>
-        {state ? '-' : '+'} Добавить
+        {state ? "-" : "+"} Добавить
       </Button>
 
       {state && (
@@ -44,7 +51,12 @@ const CreateForm = ({ setState, state, refreshFunc, asyncFunc }: CreateFormProps
             value={value}
             onChange={(e) => setValue(e.target.value)}
           />
-          <Button onClick={(e) => createItem(e)} variant="contained" size="small" sx={{ mt: 1 }}>
+          <Button
+            onClick={(e) => createItem(e)}
+            variant="contained"
+            size="small"
+            sx={{ mt: 1 }}
+          >
             Создать
           </Button>
         </Box>
@@ -54,7 +66,3 @@ const CreateForm = ({ setState, state, refreshFunc, asyncFunc }: CreateFormProps
 };
 
 export default CreateForm;
-
-
-
-

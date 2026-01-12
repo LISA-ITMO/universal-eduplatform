@@ -1,10 +1,15 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, ForbiddenException } from '@nestjs/common';
 import { SubjectsService } from './subjects.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { Subject } from './entities/subject.entity';
 import { Theme } from './entities/theme.entity';
 import { Course } from './entities/course.entity';
+import { SubjectMaterial } from './entities/subject-material.entity';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { User } from '@prisma/client';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
 @Resolver()
 export class SubjectsResolver {
@@ -22,8 +27,15 @@ export class SubjectsResolver {
 
   @Mutation(() => Subject)
   @UseGuards(JwtAuthGuard)
-  async createSubject(@Args('nameSubject') nameSubject: string) {
-    return this.subjectsService.createSubject(nameSubject);
+  @Roles(Role.admin, Role.teacher)
+  async createSubject(
+    @Args('nameSubject') nameSubject: string,
+    @Args('expertId', { nullable: true, type: () => Int }) expertId?: number,
+    @CurrentUser() currentUser?: User,
+  ) {
+    // If teacher creates a subject and doesn't pass expertId, set them as expert
+    const resolvedExpertId = currentUser?.role === Role.teacher && !expertId ? currentUser.id : expertId;
+    return this.subjectsService.createSubject(nameSubject, resolvedExpertId);
   }
 
   @Query(() => [Theme])
@@ -38,6 +50,46 @@ export class SubjectsResolver {
     @Args('subjectId', { type: () => Int }) subjectId: number,
   ) {
     return this.subjectsService.createTheme(nameTheme, subjectId);
+  }
+
+  @Mutation(() => SubjectMaterial)
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.admin, Role.teacher)
+  async addSubjectMaterial(
+    @Args('subjectId', { type: () => Int }) subjectId: number,
+    @Args('url') url: string,
+    @Args('title', { nullable: true }) title?: string,
+    @CurrentUser() currentUser?: User,
+  ) {
+    return this.subjectsService.addSubjectMaterial(subjectId, title, url, currentUser);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.admin, Role.teacher)
+  async deleteSubjectMaterial(@Args('id', { type: () => Int }) id: number, @CurrentUser() currentUser?: User) {
+    return this.subjectsService.deleteSubjectMaterial(id, currentUser);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.admin, Role.teacher)
+  async deleteSubject(@Args('id', { type: () => Int }) id: number, @CurrentUser() currentUser?: User) {
+    return this.subjectsService.deleteSubject(id, currentUser);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.admin, Role.teacher)
+  async deleteTheme(@Args('id', { type: () => Int }) id: number, @CurrentUser() currentUser?: User) {
+    return this.subjectsService.deleteTheme(id, currentUser);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.admin, Role.teacher)
+  async deleteTest(@Args('id', { type: () => Int }) id: number, @CurrentUser() currentUser?: User) {
+    return this.subjectsService.deleteTest(id, currentUser);
   }
 
   @Query(() => [Course])

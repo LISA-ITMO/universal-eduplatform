@@ -23,6 +23,18 @@ export const SUBJECTS_QUERY = gql`
     subjects {
       id
       nameSubject
+      expertId
+      expert {
+        id
+        username
+        firstName
+        lastName
+      }
+      subjectMaterials {
+        id
+        title
+        url
+      }
       themes {
         id
         nameTheme
@@ -73,6 +85,19 @@ export const THEMES_BY_SUBJECT_QUERY = gql`
       id
       nameTheme
       subjectId
+    }
+  }
+`;
+
+export const ANALYTICS_BY_THEME_QUERY = gql`
+  query AnalyticsByTheme($subjectId: Int!, $themeId: Int!) {
+    analyticsByTheme(subjectId: $subjectId, themeId: $themeId) {
+      studentId
+      username
+      firstName
+      lastName
+      analyticityTheme
+      leadershipTheme
     }
   }
 `;

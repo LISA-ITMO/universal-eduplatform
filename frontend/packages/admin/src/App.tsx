@@ -4,6 +4,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Users from "./pages/Users";
+import Subjects from "./pages/Subjects";
+import Analytics from "./pages/Analytics";
 import RequireAuth from "./components/RequireAuth";
 import AdminMainPanel from "./components/AdminMainPanel";
 import { Outlet } from "react-router-dom";
@@ -26,6 +28,8 @@ export default function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/users" element={<Users />} />
+            <Route path="/subjects" element={<Subjects />} />
+            <Route path="/analytics" element={<Analytics />} />
           </Route>
         </Route>
 

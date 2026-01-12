@@ -196,6 +196,36 @@ export class AnalyticsService {
 
     return { analyticity, leadership };
   }
+
+  // Return analytics for all students for a given theme (analyticity + leadership)
+  async getAnalyticsByTheme(currentUserId: number | undefined, subjectId: number, themeId: number) {
+    // Note: permission check should be performed in resolver/service caller; here just fetch data
+    const analyt = await this.prisma.studentAnalyticsTheme.findMany({ where: { subjectId, themeId } });
+    const lead = await this.prisma.studentLeadershipTheme.findMany({ where: { subjectId, themeId } });
+
+    const map: Record<number, { analyticityTheme: number; leadershipTheme: number }> = {};
+    analyt.forEach((a: any) => {
+      map[a.studentId] = { analyticityTheme: a.analyticityTheme ?? 0, leadershipTheme: 0 };
+    });
+    lead.forEach((l: any) => {
+      if (!map[l.studentId]) map[l.studentId] = { analyticityTheme: 0, leadershipTheme: l.leadershipTheme ?? 0 };
+      else map[l.studentId].leadershipTheme = l.leadershipTheme ?? 0;
+    });
+
+    const studentIds = Object.keys(map).map((k) => Number(k));
+    if (studentIds.length === 0) return [];
+
+    const users = await this.prisma.user.findMany({ where: { id: { in: studentIds } }, select: { id: true, username: true, firstName: true, lastName: true } });
+
+    return users.map((u) => ({
+      studentId: u.id,
+      username: u.username,
+      firstName: u.firstName,
+      lastName: u.lastName,
+      analyticityTheme: map[u.id]?.analyticityTheme ?? 0,
+      leadershipTheme: map[u.id]?.leadershipTheme ?? 0,
+    }));
+  }
 }
 
 

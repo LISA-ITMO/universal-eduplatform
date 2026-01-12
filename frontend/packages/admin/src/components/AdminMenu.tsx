@@ -12,6 +12,8 @@ import {
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import PeopleIcon from "@mui/icons-material/People";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import DownloadIcon from "@mui/icons-material/Download";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@quiz-platform/ui";
@@ -42,6 +44,18 @@ const AdminMenu: React.FC<Props> = ({ isFull = true }) => {
       label: "Пользователи",
       icon: <PeopleIcon />,
       path: "/users",
+    },
+    {
+      key: "subjects",
+      label: "Предметы",
+      icon: <MenuBookIcon />,
+      path: "/subjects",
+    },
+    {
+      key: "analytics",
+      label: "Аналитика",
+      icon: <DownloadIcon />,
+      path: "/analytics",
     },
   ];
 

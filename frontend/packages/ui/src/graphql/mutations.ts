@@ -48,10 +48,11 @@ export const REFRESH_TOKEN_MUTATION = gql`
 
 // Subjects mutations
 export const CREATE_SUBJECT_MUTATION = gql`
-  mutation CreateSubject($nameSubject: String!) {
-    createSubject(nameSubject: $nameSubject) {
+  mutation CreateSubject($nameSubject: String!, $expertId: Int) {
+    createSubject(nameSubject: $nameSubject, expertId: $expertId) {
       id
       nameSubject
+      expertId
     }
   }
 `;
@@ -83,6 +84,41 @@ export const CREATE_COURSE_MUTATION = gql`
       nameCourse
       subjectId
     }
+  }
+`;
+
+export const ADD_SUBJECT_MATERIAL_MUTATION = gql`
+  mutation AddSubjectMaterial($subjectId: Int!, $url: String!, $title: String) {
+    addSubjectMaterial(subjectId: $subjectId, url: $url, title: $title) {
+      id
+      subjectId
+      title
+      url
+    }
+  }
+`;
+
+export const DELETE_SUBJECT_MATERIAL_MUTATION = gql`
+  mutation DeleteSubjectMaterial($id: Int!) {
+    deleteSubjectMaterial(id: $id)
+  }
+`;
+
+export const DELETE_SUBJECT_MUTATION = gql`
+  mutation DeleteSubject($id: Int!) {
+    deleteSubject(id: $id)
+  }
+`;
+
+export const DELETE_THEME_MUTATION = gql`
+  mutation DeleteTheme($id: Int!) {
+    deleteTheme(id: $id)
+  }
+`;
+
+export const DELETE_TEST_MUTATION = gql`
+  mutation DeleteTest($id: Int!) {
+    deleteTest(id: $id)
   }
 `;
 

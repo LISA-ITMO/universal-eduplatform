@@ -61,13 +61,18 @@ input LoginInput {
 }
 
 type Mutation {
+  addSubjectMaterial(subjectId: Int!, title: String, url: String!): SubjectMaterial!
   createAnswer(answerText: String!, isCorrect: Boolean!, questionId: Int!): Answer!
   createCourse(description: String, expertId: Int, nameCourse: String!, subjectId: Int!): Course!
   createQuestion(additionInfo: String!, questionPoints: Float!, questionText: String!, testId: Int!): Question!
-  createSubject(nameSubject: String!): Subject!
+  createSubject(expertId: Int, nameSubject: String!): Subject!
   createTest(expertId: Int, maxPoints: Float!, subjectId: Int!, themeId: Int!): Test!
   createTheme(nameTheme: String!, subjectId: Int!): Theme!
   createUser(input: CreateUserInput!): UserType!
+  deleteSubject(id: Int!): Boolean!
+  deleteSubjectMaterial(id: Int!): Boolean!
+  deleteTest(id: Int!): Boolean!
+  deleteTheme(id: Int!): Boolean!
   disable2FA: Boolean!
   enable2FA: String!
   login(input: LoginInput!): AuthPayloadType!
@@ -82,6 +87,7 @@ type Query {
   allTests: [Test!]!
   allUsers: [UserType!]!
   analyticsByTest(testId: Int!): StudentAnalyticsTest!
+  analyticsByTheme(subjectId: Int!, themeId: Int!): [StudentThemeAnalytics!]!
   auditLogs: [AuditLog!]!
   coursesBySubject(subjectId: Int!): [Course!]!
   me: UserType!
@@ -159,11 +165,32 @@ type StudentAnalyticsTest {
   testId: Int!
 }
 
+type StudentThemeAnalytics {
+  analyticityTheme: Int!
+  firstName: String
+  lastName: String
+  leadershipTheme: Int!
+  studentId: Int!
+  username: String!
+}
+
 type Subject {
   courses: [Course!]
+  expert: UserType
+  expertId: Int
   id: Int!
   nameSubject: String!
+  subjectMaterials: [SubjectMaterial!]
   themes: [Theme!]
+}
+
+type SubjectMaterial {
+  createdAt: DateTime!
+  id: Int!
+  subjectId: Int!
+  title: String
+  updatedAt: DateTime!
+  url: String!
 }
 
 type Test {

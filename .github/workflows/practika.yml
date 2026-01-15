@@ -2,7 +2,7 @@ name: CI/CD Pipeline test
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "practika-develop" ]
 
 jobs:
   build-and-publish:

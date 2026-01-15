@@ -27,6 +27,7 @@ jobs:
           SECRET_KEY: 'django-practice-key'
           DEBUG: 'True'
           ALLOWED_HOSTS: '*'
+          CSRF_TRUSTED_ORIGINS: 'http://localhost'
         run: python manage.py test
       # ------------------------------
 

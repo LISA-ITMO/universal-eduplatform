@@ -23,6 +23,10 @@ jobs:
 
       - name: Run Django Tests
         working-directory: ./tests
+        env:
+          SECRET_KEY: 'django-practice-key'
+          DEBUG: 'True'
+          ALLOWED_HOSTS: '*'
         run: python manage.py test
       # ------------------------------
 

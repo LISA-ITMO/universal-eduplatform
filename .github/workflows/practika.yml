@@ -43,31 +43,3 @@ jobs:
           context: ./tests
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/eduplatform:latest
-
-
-  deploy:
-    needs: build-and-validate
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to Server via SSH
-        uses: appleboy/ssh-action@master
-        with:
-          
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          password: ${{ secrets.SSH_PASSPHRASE }} 
-          
-          script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/eduplatform:latest
-            
-            docker stop practice-app || true
-            docker rm practice-app || true
-            
-            docker run -d \
-              --name practice-app \
-              -p 7070:7000 \
-              -e DEBUG='True' \
-              -e SECRET_KEY='django-practice-key' \
-              -e ALLOWED_HOSTS='*' \
-              -e CSRF_TRUSTED_ORIGINS='http://${{ secrets.HOST }}:7070' \
-              ${{ secrets.DOCKER_USERNAME }}/eduplatform:latest

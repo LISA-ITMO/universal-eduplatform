@@ -1,18 +1,25 @@
 FROM node:20-alpine AS builder
-
 RUN corepack enable && corepack prepare pnpm@latest --activate
-
 WORKDIR /app
 
-COPY package.json tsconfig.json vite.config.ts ./
+COPY package.json ./
+
+RUN echo "packages:" > pnpm-workspace.yaml && \
+    echo "  - 'packages/*'" >> pnpm-workspace.yaml
+
+RUN echo "link-workspace-packages=true" > .npmrc && \
+    echo "prefer-workspace-packages=true" >> .npmrc && \
+    echo "shamefully-hoist=true" >> .npmrc
+
+COPY packages ./packages
+
+RUN ls -la packages/ui/package.json
 
 RUN pnpm install
 
-COPY . .
-
-RUN pnpm run build
+RUN pnpm --filter web build
 
 FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/packages/web/dist /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

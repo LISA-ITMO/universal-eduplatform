@@ -27,6 +27,7 @@ services:
     environment:
       DATABASE_URL: "postgresql://myuser:mypassword@db:5432/mydb?schema=public"
       PORT: 3000
+      JWT_SECRET: "super-secret"
     depends_on:
       db:
         condition: service_healthy
@@ -36,8 +37,8 @@ services:
 
   web:
     build:
-      context: ./frontend        
-      dockerfile: packages/web/Dockerfile 
+      context: ./frontend
+      dockerfile: packages/web/Dockerfile
     container_name: edu_web
     ports:
       - "8080:80"
@@ -47,7 +48,7 @@ services:
 
   admin:
     build:
-      context: ./frontend      
+      context: ./frontend
       dockerfile: packages/admin/Dockerfile
     container_name: edu_admin
     ports:

@@ -13,8 +13,6 @@ RUN echo "link-workspace-packages=true" > .npmrc && \
 
 COPY packages ./packages
 
-RUN ls -la packages/ui/package.json
-
 RUN pnpm install
 
 RUN pnpm --filter web build

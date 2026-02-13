@@ -7,11 +7,6 @@ COPY package.json ./
 RUN echo "packages:" > pnpm-workspace.yaml && \
     echo "  - 'packages/*'" >> pnpm-workspace.yaml
 
-COPY package.json ./
-
-RUN echo "packages:" > pnpm-workspace.yaml && \
-    echo "  - 'packages/*'" >> pnpm-workspace.yaml
-
 RUN echo "link-workspace-packages=true" > .npmrc && \
     echo "prefer-workspace-packages=true" >> .npmrc && \
     echo "shamefully-hoist=true" >> .npmrc

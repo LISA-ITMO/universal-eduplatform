@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
@@ -282,6 +282,55 @@ export class AuthService {
         twoFactorSecret: null,
       },
     });
+  }
+
+  /**
+   * Change user password. Does not revoke existing refresh tokens (session is preserved).
+   */
+  async changePassword(userId: number, oldPassword: string, newPassword: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const isOldValid = await bcrypt.compare(oldPassword, user.passwordHash);
+    if (!isOldValid) {
+      throw new UnauthorizedException('Неверный старый пароль');
+    }
+
+    // Validate complexity: at least 8 chars, at least one digit and one special char
+    const complexityRegex = /^(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+    if (!complexityRegex.test(newPassword)) {
+      throw new BadRequestException('Пароль должен содержать 8 символов, как минимум одну цифру и один спецсимвол');
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await this.prisma.user.update({ where: { id: userId }, data: { passwordHash: newHash } });
+    // Intentionally do not revoke refresh tokens to keep session alive
+  }
+
+  /**
+   * Change password by login (used by non-authenticated clients like bots).
+   * Validates oldPassword and updates to newPassword (with complexity check).
+   */
+  async changePasswordByLogin(login: string, oldPassword: string, newPassword: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { username: login } });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const isOldValid = await bcrypt.compare(oldPassword, user.passwordHash);
+    if (!isOldValid) {
+      throw new UnauthorizedException('Неверный старый пароль');
+    }
+
+    const complexityRegex = /^(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+    if (!complexityRegex.test(newPassword)) {
+      throw new BadRequestException('Пароль должен содержать 8 символов, как минимум одну цифру и один спецсимвол');
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await this.prisma.user.update({ where: { id: user.id }, data: { passwordHash: newHash } });
   }
 }
 

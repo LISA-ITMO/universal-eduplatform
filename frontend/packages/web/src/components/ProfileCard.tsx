@@ -1,8 +1,10 @@
 import { Avatar, Box, TextField } from "@mui/material";
-import { useAuth } from "@quiz-platform/ui";
+import { useAuth, ChangePasswordAccordion } from "@quiz-platform/ui";
+// React import not required with automatic JSX runtime
 
 export const ProfileCard = () => {
   const { user } = useAuth();
+  // Password change UI moved to shared component
 
   return (
     <Box sx={{ my: 5, mx: 3, maxWidth: "900px" }}>
@@ -84,6 +86,18 @@ export const ProfileCard = () => {
               sx={{ width: "50%", minWidth: "200px" }}
               disabled
             />
+              <Box sx={{ mt: 1 }}>
+                <Box sx={{ fontWeight: 600 }}>Телефон</Box>
+                <TextField
+                  name="phone"
+                  value={user?.phone || "Нет значения"}
+                  variant="standard"
+                  size="small"
+                  sx={{ width: "50%", minWidth: "200px" }}
+                  disabled
+                />
+              </Box>
+            <ChangePasswordAccordion />
           </Box>
         </Box>
       </Box>

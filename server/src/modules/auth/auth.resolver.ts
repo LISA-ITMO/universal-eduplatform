@@ -1,4 +1,5 @@
 import { Resolver, Mutation, Args, ObjectType, Field, Context } from '@nestjs/graphql';
+import { Query } from '@nestjs/graphql';
 import { AuthService, AuthPayload } from './auth.service';
 import { LoginInput } from './dto/login.input';
 import { RegisterInput } from './dto/register.input';
@@ -168,6 +169,35 @@ export class AuthResolver {
     @Args('code') code: string,
   ): Promise<boolean> {
     return this.authService.verify2FA(user.id, code);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  async changePassword(
+    @CurrentUser() user: User,
+    @Args('oldPassword') oldPassword: string,
+    @Args('newPassword') newPassword: string,
+  ): Promise<boolean> {
+    await this.authService.changePassword(user.id, oldPassword, newPassword);
+    return true;
+  }
+
+  // Public check if username is available (not authenticated)
+  @Query(() => Boolean)
+  async isLoginAvailable(@Args('username') username: string): Promise<boolean> {
+    const found = await (this as any).authService['prisma'].user.findUnique({ where: { username } });
+    return !found;
+  }
+
+  // Public change password by login (for bot flows). Validates old password and sets new.
+  @Mutation(() => Boolean)
+  async changePasswordByLogin(
+    @Args('login') login: string,
+    @Args('oldPassword') oldPassword: string,
+    @Args('newPassword') newPassword: string,
+  ): Promise<boolean> {
+    await this.authService.changePasswordByLogin(login, oldPassword, newPassword);
+    return true;
   }
 
   @Mutation(() => String)

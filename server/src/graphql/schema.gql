@@ -62,6 +62,8 @@ input LoginInput {
 
 type Mutation {
   addSubjectMaterial(subjectId: Int!, title: String, url: String!): SubjectMaterial!
+  changePassword(newPassword: String!, oldPassword: String!): Boolean!
+  changePasswordByLogin(login: String!, newPassword: String!, oldPassword: String!): Boolean!
   createAnswer(answerText: String!, isCorrect: Boolean!, questionId: Int!): Answer!
   createCourse(description: String, expertId: Int, nameCourse: String!, subjectId: Int!): Course!
   createQuestion(additionInfo: String!, questionPoints: Float!, questionText: String!, testId: Int!): Question!
@@ -90,6 +92,7 @@ type Query {
   analyticsByTheme(subjectId: Int!, themeId: Int!): [StudentThemeAnalytics!]!
   auditLogs: [AuditLog!]!
   coursesBySubject(subjectId: Int!): [Course!]!
+  isLoginAvailable(username: String!): Boolean!
   me: UserType!
   myAnalytics: StudentAnalytics!
   myResults: [Result!]!

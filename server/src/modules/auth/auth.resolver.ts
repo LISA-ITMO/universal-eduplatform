@@ -122,7 +122,17 @@ export class AuthResolver {
 
   @Mutation(() => AuthPayloadType)
   async register(@Args('input') input: RegisterInput, @Context() ctx): Promise<AuthPayload> {
-    const payload = await this.authService.register(input.username, input.email, input.password, input.role);
+    // Pass optional profile fields (firstName/lastName/middleName/phone) through to the service
+    const payload = await this.authService.register(
+      input.username,
+      input.email,
+      input.password,
+      input.role,
+      input.firstName,
+      input.lastName,
+      input.middleName,
+      input.phone,
+    );
 
     // Set refresh token cookie as in login
     // @ts-ignore

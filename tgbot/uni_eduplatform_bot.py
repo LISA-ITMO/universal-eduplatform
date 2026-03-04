@@ -106,13 +106,18 @@ def is_valid_password(pwd: str) -> bool:
 def graphql_query(query: str, variables: dict = None) -> dict:
 	# TODO: enforce HTTPS in production (validate TLS). Currently bot accepts PLATFORM_ADDRESS with http or https for testing.
 	url = PLATFORM_ADDRESS.rstrip('/') + '/graphql'
-	headers = {'Content-Type': 'application/json'}
+	headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 	payload = {'query': query}
 	if variables is not None:
 		payload['variables'] = variables
 	try:
 		r = requests.post(url, json=payload, headers=headers, timeout=10)
-		r.raise_for_status()
+		try:
+			r.raise_for_status()
+		except requests.HTTPError as http_err:
+			# include response body for easier debugging
+			text = r.text
+			return {'ok': False, 'errors': [f'HTTP {r.status_code}: {text}']}
 		data = r.json()
 		if 'errors' in data:
 			return {'ok': False, 'errors': data['errors']}
@@ -131,16 +136,20 @@ def is_login_available(login: str) -> bool:
 
 
 def register_user(payload: dict) -> (bool, str):
-	query = '''mutation Register($input: RegisterInput!) { register(input: $input) { id username } }'''
+	query = '''mutation Register($input: RegisterInput!) { register(input: $input) { user { id username } accessToken } }'''
 	variables = {'input': payload}
 	res = graphql_query(query, variables)
 	if not res['ok']:
 		errs = res.get('errors')
 		return False, str(errs)
 	data = res.get('data') or {}
-	if data.get('register'):
+	reg = data.get('register')
+	if not reg:
+		return False, 'no register payload in response'
+	user = reg.get('user') if isinstance(reg, dict) else None
+	if user and user.get('username'):
 		return True, ''
-	return False, 'unknown error'
+	return False, f'unexpected register response: {reg}'
 
 
 def change_password_by_login(login: str, old_password: str, new_password: str) -> (bool, str):

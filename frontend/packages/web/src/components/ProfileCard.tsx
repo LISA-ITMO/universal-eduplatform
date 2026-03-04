@@ -86,17 +86,17 @@ export const ProfileCard = () => {
               sx={{ width: "50%", minWidth: "200px" }}
               disabled
             />
-              <Box sx={{ mt: 1 }}>
-                <Box sx={{ fontWeight: 600 }}>Телефон</Box>
-                <TextField
-                  name="phone"
-                  value={user?.phone || "Нет значения"}
-                  variant="standard"
-                  size="small"
-                  sx={{ width: "50%", minWidth: "200px" }}
-                  disabled
-                />
-              </Box>
+            <Box sx={{ mt: 1 }}>
+              <Box sx={{ fontWeight: 600 }}>Телефон</Box>
+              <TextField
+                name="phone"
+                value={user?.phone || "Нет значения"}
+                variant="standard"
+                size="small"
+                sx={{ width: "50%", minWidth: "200px" }}
+                disabled
+              />
+            </Box>
             <ChangePasswordAccordion />
           </Box>
         </Box>

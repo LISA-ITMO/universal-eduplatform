@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Accordion,
   AccordionSummary,
@@ -8,29 +8,32 @@ import {
   TextField,
   Typography,
   Alert,
-} from '@mui/material';
-import { useMutation } from '@apollo/client';
-import { CHANGE_PASSWORD_MUTATION } from '../graphql/mutations';
+} from "@mui/material";
+import { useMutation } from "@apollo/client";
+import { CHANGE_PASSWORD_MUTATION } from "../graphql/mutations";
 
-const validateComplexity = (p: string) => /^(?=.*\d)(?=.*[^\w\s]).{8,}$/.test(p);
+const validateComplexity = (p: string) =>
+  /^(?=.*\d)(?=.*[^\w\s]).{8,}$/.test(p);
 
-const ChangePasswordAccordion: React.FC<{ maxWidth?: number | string }> = ({ maxWidth }) => {
-  const [oldPassword, setOldPassword] = React.useState('');
-  const [newPassword, setNewPassword] = React.useState('');
-  const [confirmPassword, setConfirmPassword] = React.useState('');
+const ChangePasswordAccordion: React.FC<{ maxWidth?: number | string }> = ({
+  maxWidth,
+}) => {
+  const [oldPassword, setOldPassword] = React.useState("");
+  const [newPassword, setNewPassword] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
 
   const [changePassword, { loading }] = useMutation(CHANGE_PASSWORD_MUTATION, {
     onCompleted: () => {
-      setSuccess('Пароль успешно изменён');
+      setSuccess("Пароль успешно изменён");
       setError(null);
-      setOldPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
     },
     onError: (err) => {
-      setError(err?.message || 'Ошибка при изменении пароля');
+      setError(err?.message || "Ошибка при изменении пароля");
       setSuccess(null);
     },
   });
@@ -52,7 +55,7 @@ const ChangePasswordAccordion: React.FC<{ maxWidth?: number | string }> = ({ max
           <Typography>Изменить пароль</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             {error && <Alert severity="error">{error}</Alert>}
             {success && <Alert severity="success">{success}</Alert>}
             <TextField
@@ -70,8 +73,8 @@ const ChangePasswordAccordion: React.FC<{ maxWidth?: number | string }> = ({ max
               size="small"
               helperText={
                 newPassword && !validateComplexity(newPassword)
-                  ? 'Пароль должен содержать 8 символов, как минимум одну цифру и один спецсимвол'
-                  : ''
+                  ? "Пароль должен содержать 8 символов, как минимум одну цифру и один спецсимвол"
+                  : ""
               }
               error={!!(newPassword && !validateComplexity(newPassword))}
             />
@@ -83,12 +86,12 @@ const ChangePasswordAccordion: React.FC<{ maxWidth?: number | string }> = ({ max
               size="small"
               helperText={
                 confirmPassword && newPassword !== confirmPassword
-                  ? 'Пароли не совпадают'
-                  : ''
+                  ? "Пароли не совпадают"
+                  : ""
               }
               error={!!(confirmPassword && newPassword !== confirmPassword)}
             />
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
               <Button
                 variant="contained"
                 disabled={!canSubmit() || loading}
@@ -96,11 +99,13 @@ const ChangePasswordAccordion: React.FC<{ maxWidth?: number | string }> = ({ max
                   setError(null);
                   setSuccess(null);
                   if (newPassword !== confirmPassword) {
-                    setError('Пароли не совпадают');
+                    setError("Пароли не совпадают");
                     return;
                   }
                   if (!validateComplexity(newPassword)) {
-                    setError('Пароль должен содержать 8 символов, как минимум одну цифру и один спецсимвол');
+                    setError(
+                      "Пароль должен содержать 8 символов, как минимум одну цифру и один спецсимвол",
+                    );
                     return;
                   }
                   changePassword({ variables: { oldPassword, newPassword } });

@@ -1,61 +1,89 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
     image: postgres:15-alpine
-    container_name: edu_postgres
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydb
+      POSTGRES_DB: ${POSTGRES_DB:-quiz}
+      POSTGRES_USER: ${POSTGRES_USER:-quiz}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quiz}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-quiz} -d ${POSTGRES_DB:-quiz}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
-    restart: always
+    restart: unless-stopped
 
   server:
-    build: ./server
-    container_name: edu_server
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
     ports:
       - "3000:3000"
-    environment:
-      DATABASE_URL: "postgresql://myuser:mypassword@db:5432/mydb?schema=public"
-      PORT: 3000
-      JWT_SECRET: "super-secret"
+    networks:
+      - quiznet
     depends_on:
       db:
         condition: service_healthy
-    command: >
-      sh -c "npx prisma migrate deploy && node dist/main.js"
-    restart: always
+    restart: unless-stopped
 
   web:
     build:
-      context: ./frontend
-      dockerfile: packages/web/Dockerfile
-    container_name: edu_web
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        APP: web
     ports:
-      - "8080:80"
+      - "8888:80"
+    networks:
+      - quiznet
     depends_on:
       - server
-    restart: always
+    restart: unless-stopped
 
   admin:
     build:
-      context: ./frontend
-      dockerfile: packages/admin/Dockerfile
-    container_name: edu_admin
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        APP: admin
     ports:
-      - "8081:80"
+      - "9999:80"
+    networks:
+      - quiznet
     depends_on:
       - server
-    restart: always
+    restart: unless-stopped
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    env_file:
+      - .env
+    environment:
+      - PLATFORM_ADDRESS=http://web:80
+    networks:
+      - quiznet
+    depends_on:
+      - server
+    restart: unless-stopped
+
+networks:
+  quiznet:
+    driver: bridge
 
 volumes:
-  postgres_data:
+  db-data:

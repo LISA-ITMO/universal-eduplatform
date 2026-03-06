@@ -10,9 +10,10 @@ from dotenv import load_dotenv
 # Load .env
 load_dotenv()
 
-TOKEN = os.getenv('TG_BOT_TOKEN') or os.getenv('BOT_TOKEN')
-TEACHER_CODE = os.getenv('TEACHER_CODE') or os.getenv('TEACHER_ACCESS_CODE') or 'SECRET'
-PLATFORM_ADDRESS = os.getenv('PLATFORM_ADDRESS') or os.getenv('PLATFORM_URL') or 'http://localhost:3000'
+TOKEN = os.getenv('TG_BOT_TOKEN')
+TEACHER_CODE = os.getenv('TEACHER_CODE')
+PLATFORM_ADDRESS_SERVER = os.getenv('PLATFORM_ADDRESS_SERVER')
+PLATFORM_ADDRESS_CLIENT = os.getenv('PLATFORM_ADDRESS_CLIENT')
 
 if not TOKEN:
 	raise RuntimeError('Telegram bot token not found in environment (.env: TG_BOT_TOKEN or BOT_TOKEN)')
@@ -105,7 +106,7 @@ def is_valid_password(pwd: str) -> bool:
 
 def graphql_query(query: str, variables: dict = None) -> dict:
 	# TODO: enforce HTTPS in production (validate TLS). Currently bot accepts PLATFORM_ADDRESS with http or https for testing.
-	url = PLATFORM_ADDRESS.rstrip('/') + '/graphql'
+	url = PLATFORM_ADDRESS_SERVER.rstrip('/') + '/graphql'
 	headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 	payload = {'query': query}
 	if variables is not None:
@@ -365,7 +366,7 @@ def registration_flow(message):
 				reset_state(chat_id)
 				return
 
-			bot.send_message(chat_id, f"Пользователь успешно создан\nЛогин для авторизации: {data.get('login')}\nСистема доступна по адресу: {PLATFORM_ADDRESS}")
+			bot.send_message(chat_id, f"Пользователь успешно создан\nЛогин для авторизации: {data.get('login')}\nСистема доступна по адресу: {PLATFORM_ADDRESS_CLIENT}")
 			states.pop(chat_id, None)
 			send_welcome(chat_id)
 			return

@@ -18,6 +18,9 @@ PLATFORM_ADDRESS_CLIENT = os.getenv('PLATFORM_ADDRESS_CLIENT')
 if not TOKEN:
 	raise RuntimeError('Telegram bot token not found in environment (.env: TG_BOT_TOKEN or BOT_TOKEN)')
 
+if not PLATFORM_ADDRESS_SERVER:
+    raise RuntimeError('PLATFORM_ADDRESS_SERVER not found in environment (.env: PLATFORM_ADDRESS_SERVER)')
+
 bot = telebot.TeleBot(TOKEN)
 
 # In-memory registration/change-password state per chat
@@ -118,12 +121,22 @@ def graphql_query(query: str, variables: dict = None) -> dict:
 		except requests.HTTPError as http_err:
 			# include response body for easier debugging
 			text = r.text
+			print(f"[bot] GraphQL HTTP error: url={url} status={r.status_code} body={text}")
 			return {'ok': False, 'errors': [f'HTTP {r.status_code}: {text}']}
-		data = r.json()
+		try:
+			data = r.json()
+		except Exception as ejson:
+			print(f"[bot] Failed to parse JSON response from GraphQL: url={url} error={ejson} body={r.text}")
+			return {'ok': False, 'errors': [f'Invalid JSON response: {ejson}']}
 		if 'errors' in data:
+			print(f"[bot] GraphQL returned errors: {data['errors']}")
 			return {'ok': False, 'errors': data['errors']}
 		return {'ok': True, 'data': data.get('data')}
+	except requests.exceptions.RequestException as re:
+		print(f"[bot] Error connecting to GraphQL endpoint {url}: {re}")
+		return {'ok': False, 'errors': [str(re)]}
 	except Exception as e:
+		print(f"[bot] Unexpected error when calling GraphQL {url}: {e}")
 		return {'ok': False, 'errors': [str(e)]}
 
 

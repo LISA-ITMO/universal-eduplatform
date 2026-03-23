@@ -76,7 +76,7 @@ export class AuthResolver {
       const cookieName = clientId ? `refreshToken_${clientId}` : 'refreshToken';
       ctx.res.cookie(cookieName, refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        // secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge,
       });
@@ -112,7 +112,7 @@ export class AuthResolver {
         const cookieName = clientId ? `refreshToken_${clientId}` : 'refreshToken';
         ctx.res.clearCookie(cookieName, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
+          // secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
         });
       }
@@ -143,7 +143,7 @@ export class AuthResolver {
       const cookieName = clientId ? `refreshToken_${clientId}` : 'refreshToken';
       ctx.res.cookie(cookieName, refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        // secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge,
       });

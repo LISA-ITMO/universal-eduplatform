@@ -15,6 +15,7 @@ COPY packages ./packages
 
 RUN pnpm install
 
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN pnpm --filter admin build
 
 FROM nginx:alpine

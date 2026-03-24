@@ -19,7 +19,7 @@ async function bootstrap() {
   // Allow configuring multiple origins via CORS_ORIGIN env (comma-separated), or '*' to allow all.
   const corsOrigin = configService.get<string>('CORS_ORIGIN') || '*';
   if (corsOrigin === '*') {
-    app.enableCors({ origin: '*', credentials: true });
+    app.enableCors({ origin: true, credentials: true });
   } else {
     const allowed = corsOrigin.split(',').map((s) => s.trim()).filter(Boolean);
     app.enableCors({

@@ -1,6 +1,6 @@
 import React from "react";
 import { Avatar, Box, TextField } from "@mui/material";
-import { useAuth } from "@quiz-platform/ui";
+import { useAuth, ChangePasswordAccordion } from "@quiz-platform/ui";
 
 const AdminProfileCard: React.FC = () => {
   const { user } = useAuth() as any;
@@ -85,6 +85,18 @@ const AdminProfileCard: React.FC = () => {
               sx={{ width: "50%", minWidth: "200px" }}
               disabled
             />
+            <Box sx={{ mt: 1 }}>
+              <Box sx={{ fontWeight: 600 }}>Телефон</Box>
+              <TextField
+                name="phone"
+                value={user?.phone || "Нет значения"}
+                variant="standard"
+                size="small"
+                sx={{ width: "50%", minWidth: "200px" }}
+                disabled
+              />
+            </Box>
+            <ChangePasswordAccordion maxWidth={400} />
           </Box>
         </Box>
       </Box>

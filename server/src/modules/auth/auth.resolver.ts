@@ -1,4 +1,5 @@
 import { Resolver, Mutation, Args, ObjectType, Field, Context } from '@nestjs/graphql';
+import { Query } from '@nestjs/graphql';
 import { AuthService, AuthPayload } from './auth.service';
 import { LoginInput } from './dto/login.input';
 import { RegisterInput } from './dto/register.input';
@@ -75,7 +76,7 @@ export class AuthResolver {
       const cookieName = clientId ? `refreshToken_${clientId}` : 'refreshToken';
       ctx.res.cookie(cookieName, refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        // secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge,
       });
@@ -111,7 +112,7 @@ export class AuthResolver {
         const cookieName = clientId ? `refreshToken_${clientId}` : 'refreshToken';
         ctx.res.clearCookie(cookieName, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
+          // secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
         });
       }
@@ -121,7 +122,17 @@ export class AuthResolver {
 
   @Mutation(() => AuthPayloadType)
   async register(@Args('input') input: RegisterInput, @Context() ctx): Promise<AuthPayload> {
-    const payload = await this.authService.register(input.username, input.email, input.password, input.role);
+    // Pass optional profile fields (firstName/lastName/middleName/phone) through to the service
+    const payload = await this.authService.register(
+      input.username,
+      input.email,
+      input.password,
+      input.role,
+      input.firstName,
+      input.lastName,
+      input.middleName,
+      input.phone,
+    );
 
     // Set refresh token cookie as in login
     // @ts-ignore
@@ -132,7 +143,7 @@ export class AuthResolver {
       const cookieName = clientId ? `refreshToken_${clientId}` : 'refreshToken';
       ctx.res.cookie(cookieName, refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        // secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge,
       });
@@ -168,6 +179,35 @@ export class AuthResolver {
     @Args('code') code: string,
   ): Promise<boolean> {
     return this.authService.verify2FA(user.id, code);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  async changePassword(
+    @CurrentUser() user: User,
+    @Args('oldPassword') oldPassword: string,
+    @Args('newPassword') newPassword: string,
+  ): Promise<boolean> {
+    await this.authService.changePassword(user.id, oldPassword, newPassword);
+    return true;
+  }
+
+  // Public check if username is available (not authenticated)
+  @Query(() => Boolean)
+  async isLoginAvailable(@Args('username') username: string): Promise<boolean> {
+    const found = await (this as any).authService['prisma'].user.findUnique({ where: { username } });
+    return !found;
+  }
+
+  // Public change password by login (for bot flows). Validates old password and sets new.
+  @Mutation(() => Boolean)
+  async changePasswordByLogin(
+    @Args('login') login: string,
+    @Args('oldPassword') oldPassword: string,
+    @Args('newPassword') newPassword: string,
+  ): Promise<boolean> {
+    await this.authService.changePasswordByLogin(login, oldPassword, newPassword);
+    return true;
   }
 
   @Mutation(() => String)

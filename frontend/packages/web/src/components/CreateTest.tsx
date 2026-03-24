@@ -85,7 +85,7 @@ export const TestCreationPage: React.FC<TestCreationPageProps> = ({
     try {
       const points = data.questions.reduce(
         (acc: number, q: any) => acc + Number(q.question_points),
-        0
+        0,
       );
 
       const testResult = await createTest({
@@ -135,13 +135,13 @@ export const TestCreationPage: React.FC<TestCreationPageProps> = ({
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     prop: string,
     min: number,
-    max: number
+    max: number,
   ) => {
     const value = Number(e.target.value);
     if (!isNaN(value) && value <= max && value >= min)
       setValue(
         prop as "questionCount" | `questions.${number}.${string}`,
-        value
+        value,
       );
   };
 
@@ -222,7 +222,7 @@ export const TestCreationPage: React.FC<TestCreationPageProps> = ({
                           e,
                           `questions.${index}.answerCount`,
                           2,
-                          10
+                          10,
                         )
                       }
                       size="small"
@@ -232,7 +232,8 @@ export const TestCreationPage: React.FC<TestCreationPageProps> = ({
                 />
               </Box>
 
-              <Box sx={{ display: "flex", alignItems: "baseline" }}>
+              {/* @NOTE Пока скрыто */}
+              {/* <Box sx={{ display: "flex", alignItems: "baseline" }}>
                 <Box sx={{ fontWeight: 600, fontSize: 18, pr: 3 }}>
                   Балл за правильный ответ:
                 </Box>
@@ -250,7 +251,7 @@ export const TestCreationPage: React.FC<TestCreationPageProps> = ({
                     />
                   )}
                 />
-              </Box>
+              </Box> */}
 
               <Box sx={{ fontWeight: 600, fontSize: 18, pb: 1 }}>
                 Варианты ответов:
@@ -294,7 +295,7 @@ export const TestCreationPage: React.FC<TestCreationPageProps> = ({
                       )}
                     />
                   </Box>
-                )
+                ),
               )}
             </Box>
           ))}

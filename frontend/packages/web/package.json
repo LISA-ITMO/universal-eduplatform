@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.9.0",
-    "@quiz-platform/ui": "*",
+    "@quiz-platform/ui": "workspace:*",
     "@mui/material": "^6.4.0",
     "@mui/icons-material": "^6.4.0",
     "@emotion/react": "^11.14.0",

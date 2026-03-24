@@ -36,7 +36,7 @@ const Solution = () => {
   useEffect(() => {
     if (themeData?.themesBySubject && themeId) {
       const theme = themeData.themesBySubject.find(
-        (t: any) => t.id === parseInt(themeId)
+        (t: any) => t.id === parseInt(themeId),
       );
       if (theme) {
         setThemeName(theme.nameTheme);
@@ -69,7 +69,10 @@ const Solution = () => {
             )}
           </>
         ) : (
-          <ResultTest countCorrect={resultState?.pointsUser ?? 0} />
+          <ResultTest
+            countCorrect={resultState?.pointsUser ?? 0}
+            setTestId={setTestId}
+          />
         )}
       </Box>
     </Box>

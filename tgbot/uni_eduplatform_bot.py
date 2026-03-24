@@ -1,404 +1,392 @@
+import os
+import re
+import requests
+from typing import Dict, Any
+
 import telebot
 from telebot import types
-import sqlite3
-import numpy as np
-import config_eduplatform
+from dotenv import load_dotenv
 
-TOKEN = config_eduplatform.bot_token
+# Load .env
+load_dotenv()
+
+TOKEN = os.getenv('TG_BOT_TOKEN')
+TEACHER_CODE = os.getenv('TEACHER_CODE')
+PLATFORM_ADDRESS_SERVER = os.getenv('PLATFORM_ADDRESS_SERVER')
+PLATFORM_ADDRESS_CLIENT = os.getenv('PLATFORM_ADDRESS_CLIENT')
+
+if not TOKEN:
+	raise RuntimeError('Telegram bot token not found in environment (.env: TG_BOT_TOKEN or BOT_TOKEN)')
+
+if not PLATFORM_ADDRESS_SERVER:
+    raise RuntimeError('PLATFORM_ADDRESS_SERVER not found in environment (.env: PLATFORM_ADDRESS_SERVER)')
+
 bot = telebot.TeleBot(TOKEN)
 
+# In-memory registration/change-password state per chat
+states: Dict[int, Dict[str, Any]] = {}
 
-def connect_db():
-    return sqlite3.connect('test_bot.db')
+
+# NOTE: local sqlite DB was removed; bot uses platform GraphQL API directly.
+# The old connect_db() and sqlite logic have been deleted.
+
+
+def send_welcome(chat_id: int):
+	markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+	markup.row(types.KeyboardButton('Регистрация'), types.KeyboardButton('Изменение пароля'))
+	# Authorization button marked as in-development
+	markup.add(types.KeyboardButton('Авторизация (в разработке)'))
+	bot.send_message(
+		chat_id,
+		'Добро пожаловать! Бот создан для регистрации и авторизации пользователей на платформе кросс-тестирования. Для продолжения выберите действие',
+		reply_markup=markup,
+	)
 
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    chat_id = message.chat.id
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    register_button = types.KeyboardButton('Регистрация')
-    login_button = types.KeyboardButton('Авторизация')
-    markup.add(register_button, login_button)
-    bot.send_message(chat_id, "Добро пожаловать! Используйте кнопки ниже для навигации.", reply_markup=markup)
-
-
-@bot.message_handler(func=lambda message: message.text == 'Регистрация')
-def register(message):
-    chat_id = message.chat.id
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM users WHERE id = ?", (chat_id,))
-    if cursor.fetchone():
-        bot.send_message(chat_id, "Вы уже зарегистрированы!")
-    else:
-        msg = bot.send_message(chat_id, "Введите номер телефона:")
-        bot.register_next_step_handler(msg, process_register_phone)
-
-
-def process_register_phone(message):
-    chat_id = message.chat.id
-    phone = message.text
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM users WHERE phone = ?", (phone,))
-    if cursor.fetchone():
-        bot.send_message(chat_id, "Этот номер телефона уже зарегистрирован.")
-        return
-    msg = bot.send_message(chat_id, "Введите пароль:")
-    bot.register_next_step_handler(msg, process_register_password, phone)
-
-
-def process_register_password(message, phone):
-    chat_id = message.chat.id
-    password = message.text
-    msg = bot.send_message(chat_id, "Введите ваше имя:")
-    bot.register_next_step_handler(msg, process_register_first_name, phone, password)
-
-
-def process_register_first_name(message, phone, password):
-    chat_id = message.chat.id
-    first_name = message.text
-    msg = bot.send_message(chat_id, "Введите вашу фамилию:")
-    bot.register_next_step_handler(msg, process_register_last_name, phone, password, first_name)
-
-
-def process_register_last_name(message, phone, password, first_name):
-    chat_id = message.chat.id
-    last_name = message.text
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute("INSERT INTO users (id, phone, password, first_name, last_name, score) VALUES (?, ?, ?, ?, ?, ?)",
-                   (chat_id, phone, password, first_name, last_name, 0))
-    conn.commit()
-    conn.close()
-
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    createtest_button = types.KeyboardButton('Создать тест')
-    starttest_button = types.KeyboardButton('Пройти тест')
-    viewrating_button = types.KeyboardButton('Посмотреть рейтинг')
-    markup.add(createtest_button, starttest_button, viewrating_button)
-    bot.send_message(chat_id, f"Регистрация завершена! Ваш логин: {phone}", reply_markup=markup)
-
-
-@bot.message_handler(func=lambda message: message.text == 'Авторизация')
-def login(message):
-    chat_id = message.chat.id
-    msg = bot.send_message(chat_id, "Введите номер телефона:")
-    bot.register_next_step_handler(msg, process_login_phone)
-
-
-def process_login_phone(message):
-    chat_id = message.chat.id
-    phone = message.text
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM users WHERE phone = ?", (phone,))
-    user = cursor.fetchone()
-    if user:
-        msg = bot.send_message(chat_id, "Введите пароль:")
-        bot.register_next_step_handler(msg, process_login_password, phone)
-    else:
-        bot.send_message(chat_id,
-                         "Пользователь с таким номером телефона не найден. Пожалуйста, зарегистрируйтесь или введите номер телефона повторно.")
-        login(message)
-
-
-def process_login_password(message, phone):
-    chat_id = message.chat.id
-    password = message.text
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM users WHERE phone = ? AND password = ?", (phone, password))
-    user = cursor.fetchone()
-    if user:
-        # Пользователь успешно авторизован
-        user_id = user[0]
-        cursor.execute("UPDATE users SET id = ? WHERE phone = ?", (chat_id, phone))
-        conn.commit()
-
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        createtest_button = types.KeyboardButton('Создать тест')
-        starttest_button = types.KeyboardButton('Пройти тест')
-        viewrating_button = types.KeyboardButton('Посмотреть рейтинг')
-        markup.add(createtest_button, starttest_button, viewrating_button)
-        bot.send_message(chat_id, f"Авторизация успешна! Ваш логин: {phone}", reply_markup=markup)
-    else:
-        bot.send_message(chat_id, "Неправильный пароль, попробуйте снова.")
-        login(message)
-
-
-@bot.message_handler(func=lambda message: message.text == 'Создать тест')
-def createtest(message):
-    chat_id = message.chat.id
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM users WHERE id = ?", (chat_id,))
-    user = cursor.fetchone()
-    if user:
-        msg = bot.send_message(chat_id, "Введите тему теста:")
-        bot.register_next_step_handler(msg, process_create_topic)
-    else:
-        bot.send_message(chat_id,
-                         "Пожалуйста, авторизуйтесь с помощью кнопки 'Авторизация' или зарегистрируйтесь с помощью кнопки 'Регистрация'.")
-
-
-def process_create_topic(message):
-    chat_id = message.chat.id
-    topic = message.text
-    user_tests[chat_id] = {'topic': topic, 'questions': []}
-    msg = bot.send_message(chat_id, "Выберите уровень сложности (легкий, средний, сложный):")
-    bot.register_next_step_handler(msg, process_create_difficulty)
-
-
-def process_create_difficulty(message):
-    chat_id = message.chat.id
-    difficulty = message.text.lower()
-    if difficulty in ['легкий', 'средний', 'сложный']:
-        user_tests[chat_id]['difficulty'] = difficulty
-        msg = bot.send_message(chat_id, "Введите вопрос:")
-        bot.register_next_step_handler(msg, process_create_question)
-    else:
-        bot.send_message(chat_id, "Некорректный уровень сложности. Попробуйте снова.")
-        process_create_topic(message)
-
-
-def process_create_question(message):
-    chat_id = message.chat.id
-    question = message.text
-    user_tests[chat_id]['questions'].append({'question': question, 'answers': [], 'correct_answers': []})
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    add_answer_button = types.KeyboardButton('Добавить ответ')
-    done_button = types.KeyboardButton('Готово')
-    markup.add(add_answer_button, done_button)
-    bot.send_message(chat_id, "Введите вариант ответа или нажмите 'Готово' для завершения:", reply_markup=markup)
-    bot.register_next_step_handler(message, process_create_answers)
-
-
-def process_create_answers(message):
-    chat_id = message.chat.id
-    if message.text == 'Готово':
-        msg = bot.send_message(chat_id, "Введите правильный ответ (если несколько, через запятую):")
-        bot.register_next_step_handler(msg, process_create_correct_answer)
-    else:
-        answer = message.text
-        user_tests[chat_id]['questions'][-1]['answers'].append(answer)
-        msg = bot.send_message(chat_id, "Введите вариант ответа или нажмите 'Готово' для завершения:")
-        bot.register_next_step_handler(msg, process_create_answers)
-
-
-def process_create_correct_answer(message):
-    chat_id = message.chat.id
-    correct_answers = message.text.split(',')
-    user_tests[chat_id]['questions'][-1]['correct_answers'] = correct_answers
-    msg = bot.send_message(chat_id, "Добавить еще один вопрос? (да/нет)")
-    bot.register_next_step_handler(msg, process_add_more_questions)
-
-
-def process_add_more_questions(message):
-    chat_id = message.chat.id
-    if message.text.lower() == 'да':
-        msg = bot.send_message(chat_id, "Введите вопрос:")
-        bot.register_next_step_handler(msg, process_create_question)
-    else:
-        test = user_tests.pop(chat_id)
-        conn = connect_db()
-        cursor = conn.cursor()
-
-        cursor.execute("INSERT INTO tests (topic_id, difficulty) VALUES (?, ?)", (test['topic'], test['difficulty']))
-        test_id = cursor.lastrowid
-
-        for question in test['questions']:
-            cursor.execute("INSERT INTO questions (test_id, question) VALUES (?, ?)", (test_id, question['question']))
-            question_id = cursor.lastrowid
-            for answer in question['answers']:
-                is_correct = 1 if answer in question['correct_answers'] else 0
-                cursor.execute("INSERT INTO answers (question_id, answer, is_correct) VALUES (?, ?, ?)",
-                               (question_id, answer, is_correct))
-
-        conn.commit()
-        conn.close()
-
-        bot.send_message(chat_id, "Тест успешно создан!")
-
-
-@bot.message_handler(func=lambda message: message.text == 'Пройти тест')
-def starttest(message):
-    chat_id = message.chat.id
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM users WHERE id = ?", (chat_id,))
-    user = cursor.fetchone()
-    if user:
-        msg = bot.send_message(chat_id, "Введите ID теста, который хотите пройти:")
-        bot.register_next_step_handler(msg, process_test_id)
-    else:
-        bot.send_message(chat_id,
-                         "Пожалуйста, авторизуйтесь с помощью кнопки 'Авторизация' или зарегистрируйтесь с помощью кнопки 'Регистрация'.")
-
-
-def process_test_id(message):
-    chat_id = message.chat.id
-    test_id = int(message.text)
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM tests WHERE id = ?", (test_id,))
-    test = cursor.fetchone()
-    if test:
-        msg = bot.send_message(chat_id, "Выберите уровень сложности (легкий, средний, сложный):")
-        bot.register_next_step_handler(msg, process_test_difficulty, test_id)
-    else:
-        bot.send_message(chat_id, "Тест с таким ID не найден. Попробуйте снова.")
-        msg = bot.send_message(chat_id, "Введите ID теста, который хотите пройти:")
-        bot.register_next_step_handler(msg, process_test_id)
-
-
-def process_test_difficulty(message, test_id):
-    chat_id = message.chat.id
-    difficulty = message.text.lower()
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM tests WHERE id = ? AND difficulty = ?", (test_id, difficulty))
-    test = cursor.fetchone()
-    if test:
-        send_question(chat_id, test_id, 0)
-    else:
-        bot.send_message(chat_id, "Тест с таким уровнем сложности не найден. Попробуйте снова.")
-        msg = bot.send_message(chat_id, "Выберите уровень сложности (легкий, средний, сложный):")
-        bot.register_next_step_handler(msg, process_test_difficulty, test_id)
-
-
-def send_question(chat_id, test_id, question_index):
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM questions WHERE test_id = ? LIMIT 1 OFFSET ?", (test_id, question_index))
-    question = cursor.fetchone()
-    if question:
-        cursor.execute("SELECT * FROM answers WHERE question_id = ?", (question[0],))
-        answers = cursor.fetchall()
-
-        markup = types.InlineKeyboardMarkup(row_width=2)
-        for answer in answers:
-            markup.add(types.InlineKeyboardButton(answer[2], callback_data=f"{question[0]}_{answer[0]}"))
-        markup.add(types.InlineKeyboardButton("Нет правильного ответа", callback_data=f"{question[0]}_None"))
-
-        bot.send_message(chat_id, f"Вопрос: {question[2]}", reply_markup=markup)
-        bot.register_next_step_handler_by_chat_id(chat_id, process_test_answer, test_id, question_index)
-    else:
-        bot.send_message(chat_id, "Все вопросы теста завершены.")
-        conn.close()
-
-
-def process_test_answer(message, test_id, question_index):
-    chat_id = message.chat.id
-    selected_answers = message.data.split('_')
-    question_id = int(selected_answers[0])
-    answer_ids = selected_answers[1:]
-
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT id FROM answers WHERE question_id = ? AND is_correct = 1", (question_id,))
-    correct_answers = cursor.fetchall()
-    correct_answer_ids = [answer[0] for answer in correct_answers]
-
-    if all(answer_id in correct_answer_ids for answer_id in answer_ids):
-        bot.send_message(chat_id, "Правильно!")
-        cursor.execute("UPDATE users SET score = score + 1 WHERE id = ?", (chat_id,))
-    else:
-        correct_answers_text = ', '.join(
-            [cursor.execute("SELECT answer FROM answers WHERE id = ?", (answer_id,)).fetchone()[0] for answer_id in
-             correct_answer_ids])
-        bot.send_message(chat_id, f"Неправильно! Правильные ответы: {correct_answers_text}")
-
-    cursor.execute("INSERT INTO test_results (test_id, user_id, score) VALUES (?, ?, ?)",
-                   (test_id, chat_id, 1 if all(answer_id in correct_answer_ids for answer_id in answer_ids) else 0))
-
-    conn.commit()
-    conn.close()
-
-    send_question(chat_id, test_id, question_index + 1)
-
-
-def calculate_mean_without_outliers(scores):
-    q1 = np.percentile(scores, 25)
-    q3 = np.percentile(scores, 75)
-    iqr = q3 - q1
-    lower_bound = q1 - 1.5 * iqr
-    upper_bound = q3 + 1.5 * iqr
-    filtered_scores = [score for score in scores if lower_bound <= score <= upper_bound]
-    if len(filtered_scores) == 0:
-        return 0
-    return np.mean(filtered_scores)
-
-
-def calculate_median(scores):
-    return np.median(scores)
-
-
-def calculate_creativity(question_scores):
-    iq_range = np.percentile(question_scores, 75) - np.percentile(question_scores, 25)
-    median_score = np.median(question_scores)
-    if median_score == 0:
-        return 0
-    return iq_range / median_score
-
-
-@bot.message_handler(func=lambda message: message.text == 'Посмотреть рейтинг')
-def request_topic_for_rating(message):
-    chat_id = message.chat.id
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT name FROM topics")
-    topics = cursor.fetchall()
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    for topic in topics:
-        markup.add(types.KeyboardButton(topic[0]))
-
-    msg = bot.send_message(chat_id, "Выберите тему для просмотра рейтинга:", reply_markup=markup)
-    bot.register_next_step_handler(msg, view_rating)
-
-
-def view_rating(message):
-    chat_id = message.chat.id
-    topic_name = message.text
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT id FROM topics WHERE name = ?", (topic_name,))
-    topic_id = cursor.fetchone()[0]
-
-    cursor.execute("SELECT user_id, score FROM test_results WHERE test_id IN (SELECT id FROM tests WHERE topic_id = ?)",
-                   (topic_id,))
-    user_scores = cursor.fetchall()
-
-    users_scores_dict = {}
-    for user_id, score in user_scores:
-        if user_id not in users_scores_dict:
-            users_scores_dict[user_id] = []
-        users_scores_dict[user_id].append(score)
-
-    ratings = []
-    for user_id, scores in users_scores_dict.items():
-        cursor.execute("SELECT first_name, last_name FROM users WHERE id = ?", (user_id,))
-        first_name, last_name = cursor.fetchone()
-
-        analytic_score = calculate_mean_without_outliers(scores)
-        creativity_score = calculate_creativity(scores)
-
-        ratings.append(f"{first_name} {last_name}: Аналитичность: {analytic_score}, Креативность: {creativity_score}")
-
-    bot.send_message(chat_id, "Рейтинг пользователей по теме '{}':\n".format(topic_name) + "\n".join(ratings))
-
-
-bot.polling()
+	chat_id = message.chat.id
+	states.pop(chat_id, None)
+	send_welcome(chat_id)
+
+
+def reset_state(chat_id: int):
+	states.pop(chat_id, None)
+	send_welcome(chat_id)
+
+
+def make_cancel_markup():
+	markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+	markup.add(types.KeyboardButton('Отменить регистрацию'))
+	return markup
+
+
+def is_valid_login(login: str) -> bool:
+	return bool(re.match(r'^[A-Za-z0-9_]{3,30}$', login))
+
+
+def is_valid_fullname(fullname: str) -> bool:
+	parts = fullname.strip().split()
+	if len(parts) != 3:
+		return False
+	# allow Cyrillic and Latin letters and hyphen
+	for p in parts:
+		if not re.match(r'^[A-Za-zА-Яа-яЁё\-]+$', p):
+			return False
+	return True
+
+
+def is_valid_email(email: str) -> bool:
+	return bool(re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', email))
+
+
+def normalize_phone(phone: str) -> str:
+	digits = re.sub(r'\D', '', phone)
+	if phone.startswith('+') and digits.startswith('7'):
+		digits = '7' + digits[1:]
+	return digits
+
+
+def is_valid_phone(phone: str) -> bool:
+	# Accept formats starting with +7 or 8 and total 11 digits
+	digits = re.sub(r'\D', '', phone)
+	return len(digits) == 11 and (phone.startswith('+7') or phone.startswith('8'))
+
+
+def is_valid_password(pwd: str) -> bool:
+	if len(pwd) < 8:
+		return False
+	if not any(c.isdigit() for c in pwd):
+		return False
+	if not any(not c.isalnum() for c in pwd):
+		return False
+	# All letters must be ASCII (latin)
+	for c in pwd:
+		if c.isalpha() and (ord(c) > 127):
+			return False
+	return True
+
+
+def graphql_query(query: str, variables: dict = None) -> dict:
+	# TODO: enforce HTTPS in production (validate TLS). Currently bot accepts PLATFORM_ADDRESS with http or https for testing.
+	url = PLATFORM_ADDRESS_SERVER.rstrip('/') + '/graphql'
+	headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+	payload = {'query': query}
+	if variables is not None:
+		payload['variables'] = variables
+	try:
+		r = requests.post(url, json=payload, headers=headers, timeout=10)
+		try:
+			r.raise_for_status()
+		except requests.HTTPError as http_err:
+			# include response body for easier debugging
+			text = r.text
+			print(f"[bot] GraphQL HTTP error: url={url} status={r.status_code} body={text}")
+			return {'ok': False, 'errors': [f'HTTP {r.status_code}: {text}']}
+		try:
+			data = r.json()
+		except Exception as ejson:
+			print(f"[bot] Failed to parse JSON response from GraphQL: url={url} error={ejson} body={r.text}")
+			return {'ok': False, 'errors': [f'Invalid JSON response: {ejson}']}
+		if 'errors' in data:
+			print(f"[bot] GraphQL returned errors: {data['errors']}")
+			return {'ok': False, 'errors': data['errors']}
+		return {'ok': True, 'data': data.get('data')}
+	except requests.exceptions.RequestException as re:
+		print(f"[bot] Error connecting to GraphQL endpoint {url}: {re}")
+		return {'ok': False, 'errors': [str(re)]}
+	except Exception as e:
+		print(f"[bot] Unexpected error when calling GraphQL {url}: {e}")
+		return {'ok': False, 'errors': [str(e)]}
+
+
+def is_login_available(login: str) -> bool:
+	query = '''query IsLoginAvailable($username: String!) { isLoginAvailable(username: $username) }'''
+	res = graphql_query(query, {'username': login})
+	if not res['ok']:
+		return False
+	data = res['data'] or {}
+	return bool(data.get('isLoginAvailable'))
+
+
+def register_user(payload: dict) -> (bool, str):
+	query = '''mutation Register($input: RegisterInput!) { register(input: $input) { user { id username } accessToken } }'''
+	variables = {'input': payload}
+	res = graphql_query(query, variables)
+	if not res['ok']:
+		errs = res.get('errors')
+		return False, str(errs)
+	data = res.get('data') or {}
+	reg = data.get('register')
+	if not reg:
+		return False, 'no register payload in response'
+	user = reg.get('user') if isinstance(reg, dict) else None
+	if user and user.get('username'):
+		return True, ''
+	return False, f'unexpected register response: {reg}'
+
+
+def change_password_by_login(login: str, old_password: str, new_password: str) -> (bool, str):
+	query = '''mutation ChangePasswordByLogin($login: String!, $oldPassword: String!, $newPassword: String!) { changePasswordByLogin(login: $login, oldPassword: $oldPassword, newPassword: $newPassword) }'''
+	variables = {'login': login, 'oldPassword': old_password, 'newPassword': new_password}
+	res = graphql_query(query, variables)
+	if not res['ok']:
+		return False, str(res.get('errors'))
+	data = res.get('data') or {}
+	ok = data.get('changePasswordByLogin')
+	return bool(ok), '' if ok else 'invalid credentials or server rejected request'
+
+
+@bot.message_handler(func=lambda m: m.text == 'Регистрация')
+def start_registration(message):
+	chat_id = message.chat.id
+	states[chat_id] = {'mode': 'register', 'step': 'role', 'data': {}}
+	markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+	markup.row(types.KeyboardButton('Студент'), types.KeyboardButton('Преподаватель'))
+	markup.add(types.KeyboardButton('Отменить регистрацию'))
+	bot.send_message(chat_id, 'Укажите роль пользователя - Студент/Преподаватель. Выбор роли преподавателя потребует подтверждающего кода', reply_markup=markup)
+
+
+@bot.message_handler(func=lambda m: m.text == 'Отменить регистрация' or m.text == 'Отменить регистрацию')
+def cancel_registration(message):
+	chat_id = message.chat.id
+	reset_state(chat_id)
+
+
+@bot.message_handler(func=lambda m: m.text == 'Авторизация (в разработке)')
+def auth_in_dev(message):
+	bot.send_message(message.chat.id, 'Авторизация временно в разработке')
+
+
+@bot.message_handler(func=lambda m: m.text == 'Изменение пароля')
+def start_change_password(message):
+	chat_id = message.chat.id
+	states[chat_id] = {'mode': 'change_password', 'step': 'login', 'data': {}}
+	bot.send_message(chat_id, 'Укажите логин в системе:', reply_markup=make_cancel_markup())
+
+
+@bot.message_handler(func=lambda m: m.chat.id in states)
+def registration_flow(message):
+	chat_id = message.chat.id
+	state = states.get(chat_id)
+	text = message.text.strip() if message.text else ''
+
+	# Allow cancel at any time
+	if text in ['Отменить регистрация', 'Отменить регистрацию']:
+		reset_state(chat_id)
+		return
+
+	# Handle change password flow
+	if state.get('mode') == 'change_password':
+		step = state.get('step')
+		data = state['data']
+		if step == 'login':
+			login = text
+			if not is_valid_login(login):
+				bot.send_message(chat_id, 'Неверный формат данных. Укажите логин заново:', reply_markup=make_cancel_markup())
+				return
+			data['login'] = login
+			state['step'] = 'old_password'
+			bot.send_message(chat_id, 'Введите старый пароль:', reply_markup=make_cancel_markup())
+			return
+		if step == 'old_password':
+			data['old_password'] = text
+			state['step'] = 'new_password'
+			bot.send_message(chat_id, 'Укажите новый пароль:', reply_markup=make_cancel_markup())
+			return
+		if step == 'new_password':
+			if not is_valid_password(text):
+				bot.send_message(chat_id, 'Пароль должен состоять минимум из 8 символов, содержать только символы латиницы, иметь минимум одну цифру и спецсимвол', reply_markup=make_cancel_markup())
+				return
+			data['new_password'] = text
+			state['step'] = 'confirm_password'
+			# provide reset option
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+			markup.row(types.KeyboardButton('Сбросить пароль'), types.KeyboardButton('Отменить регистрацию'))
+			bot.send_message(chat_id, 'Повторите новый пароль (для повтора ввода пароля введите команду "Сбросить пароль"):', reply_markup=markup)
+			return
+		if step == 'confirm_password':
+			if text == 'Сбросить пароль':
+				state['step'] = 'new_password'
+				bot.send_message(chat_id, 'Укажите пароль для пользователя:', reply_markup=make_cancel_markup())
+				return
+			if text != data.get('new_password'):
+				bot.send_message(chat_id, 'Пароли не совпадают', reply_markup=make_cancel_markup())
+				return
+			# Call platform to change password by login
+			ok, err = change_password_by_login(data.get('login'), data.get('old_password'), text)
+			if not ok:
+				bot.send_message(chat_id, f'Не удалось изменить пароль: {err}', reply_markup=make_cancel_markup())
+				reset_state(chat_id)
+				return
+			bot.send_message(chat_id, 'Пароль успешно изменён')
+			reset_state(chat_id)
+			return
+
+	# Handle registration flow
+	if state.get('mode') == 'register':
+		step = state.get('step')
+		data = state['data']
+
+		if step == 'role':
+			if text not in ['Студент', 'Преподаватель']:
+				bot.send_message(chat_id, 'Неверный формат данных. Укажите роль: Студент или Преподаватель', reply_markup=types.ReplyKeyboardMarkup(resize_keyboard=True).row(types.KeyboardButton('Студент'), types.KeyboardButton('Преподаватель')))
+				return
+			data['role'] = 'teacher' if text == 'Преподаватель' else 'student'
+			if text == 'Преподаватель':
+				state['step'] = 'teacher_code'
+				bot.send_message(chat_id, 'Введите код доступа:', reply_markup=make_cancel_markup())
+				return
+			else:
+				state['step'] = 'login'
+				bot.send_message(chat_id, 'Укажите логин в системе:', reply_markup=make_cancel_markup())
+				return
+
+		if step == 'teacher_code':
+			code = text
+			if code != TEACHER_CODE:
+				bot.send_message(chat_id, 'Введен неверный код')
+				states.pop(chat_id, None)
+				send_welcome(chat_id)
+				return
+			state['step'] = 'login'
+			bot.send_message(chat_id, 'Код подтвержден. Укажите логин в системе:', reply_markup=make_cancel_markup())
+			return
+
+		if step == 'login':
+			login = text
+			if not is_valid_login(login):
+				bot.send_message(chat_id, 'Неверный формат данных. Укажите логин заново:', reply_markup=make_cancel_markup())
+				return
+			available = is_login_available(login)
+			if not available:
+				bot.send_message(chat_id, 'Пользователь с таким логином уже существует в системе или сервис недоступен', reply_markup=make_cancel_markup())
+				return
+			data['login'] = login
+			state['step'] = 'fullname'
+			bot.send_message(chat_id, 'Укажите ФИО (Фамилия Имя Отчество):', reply_markup=make_cancel_markup())
+			return
+
+		if step == 'fullname':
+			if not is_valid_fullname(text):
+				bot.send_message(chat_id, 'Неверный формат данных. Укажите ФИО в формате: Фамилия Имя Отчество', reply_markup=make_cancel_markup())
+				return
+			parts = text.split()
+			data['last_name'], data['first_name'], data['middle_name'] = parts[0], parts[1], parts[2]
+			state['step'] = 'email'
+			bot.send_message(chat_id, 'Укажите email:', reply_markup=make_cancel_markup())
+			return
+
+		if step == 'email':
+			if not is_valid_email(text):
+				bot.send_message(chat_id, 'Почта должна соответствовать шаблону "example@example.com"', reply_markup=make_cancel_markup())
+				return
+			data['email'] = text
+			state['step'] = 'phone'
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+			markup.row(types.KeyboardButton('Пропустить'), types.KeyboardButton('Отменить регистрацию'))
+			bot.send_message(chat_id, 'Укажите телефон (необязательно). Введите через +7 или 8 (11 цифр), либо нажмите Пропустить', reply_markup=markup)
+			return
+
+		if step == 'phone':
+			if text == 'Пропустить':
+				data['phone'] = None
+				state['step'] = 'password'
+				bot.send_message(chat_id, 'Укажите пароль для пользователя:', reply_markup=make_cancel_markup())
+				return
+			if not is_valid_phone(text):
+				bot.send_message(chat_id, 'Неверный формат номера телефона', reply_markup=make_cancel_markup())
+				return
+			data['phone'] = normalize_phone(text)
+			state['step'] = 'password'
+			bot.send_message(chat_id, 'Укажите пароль для пользователя:', reply_markup=make_cancel_markup())
+			return
+
+		if step == 'password':
+			if not is_valid_password(text):
+				bot.send_message(chat_id, 'Пароль должен состоять минимум из 8 символов, содержать только символы латиницы, иметь минимум одну цифру и спецсимвол', reply_markup=make_cancel_markup())
+				return
+			data['password'] = text
+			state['step'] = 'confirm_password'
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+			markup.row(types.KeyboardButton('Сбросить пароль'), types.KeyboardButton('Отменить регистрация'))
+			bot.send_message(chat_id, 'Повторите пароль (для повтора ввода пароля введите команду "Сбросить пароль"):', reply_markup=markup)
+			return
+
+		if step == 'confirm_password':
+			if text == 'Сбросить пароль':
+				state['step'] = 'password'
+				bot.send_message(chat_id, 'Укажите пароль для пользователя:', reply_markup=make_cancel_markup())
+				return
+			if text != data.get('password'):
+				bot.send_message(chat_id, 'Пароли не совпадают', reply_markup=make_cancel_markup())
+				return
+
+			# All data collected — create user via platform GraphQL
+			input_payload = {
+				'username': data.get('login'),
+				'email': data.get('email'),
+				'password': data.get('password'),
+				'role': data.get('role'),
+				'firstName': data.get('first_name'),
+				'lastName': data.get('last_name'),
+				'middleName': data.get('middle_name'),
+				'phone': data.get('phone'),
+			}
+			ok, err = register_user(input_payload)
+			if not ok:
+				bot.send_message(chat_id, f'Ошибка при создании пользователя: {err}', reply_markup=make_cancel_markup())
+				reset_state(chat_id)
+				return
+
+			bot.send_message(chat_id, f"Пользователь успешно создан\nЛогин для авторизации: {data.get('login')}\nСистема доступна по адресу: {PLATFORM_ADDRESS_CLIENT}")
+			states.pop(chat_id, None)
+			send_welcome(chat_id)
+			return
+
+	# Fallback: if state not recognized, show welcome
+	send_welcome(chat_id)
+
+
+if __name__ == '__main__':
+	bot.polling()

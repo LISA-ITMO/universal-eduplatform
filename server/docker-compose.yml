@@ -55,6 +55,18 @@ services:
       - ./prisma:/app/prisma
     command: sh -c "npx prisma migrate deploy && npm run start:prod"
 
+tgbot:
+    image: ${{ secrets.DOCKER_USERNAME }}/eduplatform-tgbot:latest
+    container_name: quiz-platform-tgbot
+    environment:
+      TG_BOT_TOKEN: ${TG_BOT_TOKEN:-"bot_token"}
+      TEACHER_CODE: ${TEACHER_CODE:-"secret_code"}
+      PLATFORM_ADDRESS_SERVER: ${PLATFORM_ADDRESS_SERVER:-"http://server:3000"}
+      PLATFORM_ADDRESS_CLIENT: ${PLATFORM_ADDRESS_CLIENT:-"http://localhost:8080"}
+    depends_on:
+      - server
+    restart: always
+
 volumes:
   postgres_data:
   redis_data:

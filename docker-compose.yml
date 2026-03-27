@@ -3,35 +3,48 @@ version: "3.8"
 services:
   db:
     image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-quiz}
-      POSTGRES_USER: ${POSTGRES_USER:-quiz}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quiz}
+    container_name: edu_postgres
+    env_file:
+      - .env
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
       - quiznet
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-quiz} -d ${POSTGRES_DB:-quiz}",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-quizuser} -d ${POSTGRES_DB:-quiz}"]
       interval: 5s
       timeout: 5s
       retries: 5
     restart: unless-stopped
 
-  server:
-    build:
-      context: .
-      dockerfile: Dockerfile.server
+  pgbackups:
+    image: prodrigestivill/postgres-backup-local
+    container_name: edu_pgbackups
+    restart: unless-stopped
     env_file:
       - .env
     environment:
-      - NODE_ENV=production
+      POSTGRES_HOST: db
+      SCHEDULE: "@daily"
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 3
+      BACKUP_KEEP_MONTHS: 6
+    networks:
+      - quiznet
+    volumes:
+      - ./backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+
+  server:
+    build:
+      context: ./server
+    container_name: edu_server
+    env_file:
+      - .env
     ports:
       - "3000:3000"
     networks:
@@ -39,14 +52,15 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    command: >
+      sh -c "npx prisma migrate deploy && node dist/main.js"
     restart: unless-stopped
 
   web:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend
-      args:
-        APP: web
+      context: ./frontend
+      dockerfile: packages/web/Dockerfile
+    container_name: edu_web
     ports:
       - "8888:80"
     networks:
@@ -57,10 +71,9 @@ services:
 
   admin:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend
-      args:
-        APP: admin
+      context: ./frontend
+      dockerfile: packages/admin/Dockerfile
+    container_name: edu_admin
     ports:
       - "9999:80"
     networks:
@@ -71,12 +84,10 @@ services:
 
   bot:
     build:
-      context: .
-      dockerfile: Dockerfile.bot
+      context: ./tgbot
+    container_name: edu_tgbot
     env_file:
       - .env
-    environment:
-      - PLATFORM_ADDRESS=http://web:80
     networks:
       - quiznet
     depends_on:
@@ -88,4 +99,4 @@ networks:
     driver: bridge
 
 volumes:
-  db-data:
+  postgres_data:

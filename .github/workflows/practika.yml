@@ -90,10 +90,20 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  deploy-to-vm:
+  deploy-to-new-vm:
     needs: build-tgbot
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Copy compose via ssh
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.SSH_PASSPHRASE }}
+          source: "docker-compose.yml"
+          target: "eduplatform/"
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -101,13 +111,12 @@ jobs:
           username: ${{ secrets.USER }}
           password: ${{ secrets.SSH_PASSPHRASE }}
           script: |
+            cd ~/eduplatform
+
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             
-            docker pull ${{ secrets.DOCKER_USERNAME }}/eduplatform-server:latest
-            docker pull ${{ secrets.DOCKER_USERNAME }}/eduplatform-web:latest
-            docker pull ${{ secrets.DOCKER_USERNAME }}/eduplatform-admin:latest
-            docker pull ${{ secrets.DOCKER_USERNAME }}/eduplatform-tgbot:latest
+            docker compose pull
             
             docker compose up -d --remove-orphans
             
-            docker image prune -f
+            docker system prune -af

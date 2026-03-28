@@ -115,6 +115,8 @@ jobs:
 
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             
+            export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            
             docker compose pull
             
             docker compose up -d --remove-orphans

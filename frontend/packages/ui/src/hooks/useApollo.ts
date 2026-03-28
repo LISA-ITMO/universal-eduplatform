@@ -6,13 +6,16 @@ import { onError } from '@apollo/client/link/error';
 // Single-flight refresh promise to avoid concurrent refresh requests
 let refreshPromise: Promise<string | null> | null = null;
 
+const { protocol, hostname } = window.location;
+const graphqlUrl = `http://${hostname}:3000/graphql`;
+
 export const refreshAccessTokenViaCookie = async (): Promise<string | null> => {
   if (refreshPromise) return refreshPromise;
 
   refreshPromise = (async () => {
     try {
-      const clientId = import.meta.env.VITE_CLIENT_ID || 'web';
-      const res = await fetch(import.meta.env.VITE_GRAPHQL_URL || 'http://localhost:3000/graphql', {
+      const clientId = 'web';
+      const res = await fetch(graphqlUrl, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json', 'x-client-id': clientId },
@@ -34,13 +37,13 @@ export const refreshAccessTokenViaCookie = async (): Promise<string | null> => {
 };
 
 const httpLink = createHttpLink({
-  uri: import.meta.env.VITE_GRAPHQL_URL || 'http://localhost:3000/graphql',
+  uri: graphqlUrl,
   credentials: 'include', // send cookies (refresh token) with requests
 });
 
 const authLink = setContext((_, { headers }) => {
   const token = getAccessToken();
-  const clientId = import.meta.env.VITE_CLIENT_ID || 'web';
+  const clientId = 'web';
   return {
     headers: {
       ...headers,

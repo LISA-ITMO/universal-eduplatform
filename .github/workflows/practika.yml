@@ -114,12 +114,14 @@ jobs:
             cd ~/eduplatform
 
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            
+
             export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-            
+
+            docker compose down || true
+
             docker compose pull
-            
-            docker compose up -d --remove-orphans
+
+            docker compose up -d --build --remove-orphans
 
             # === ВРЕМЕННЫЕ ЛОГИ ДЛЯ ДЕБАГА ===
             echo "--- LOGS FOR WEB CONTAINER ---"

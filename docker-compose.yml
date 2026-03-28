@@ -40,8 +40,7 @@ services:
         condition: service_healthy
 
   server:
-    build:
-      context: ./server
+    image: ${DOCKER_USERNAME}/eduplatform-server:latest
     container_name: edu_server
     env_file:
       - .env
@@ -57,9 +56,7 @@ services:
     restart: unless-stopped
 
   web:
-    build:
-      context: ./frontend
-      dockerfile: packages/web/Dockerfile
+    image: ${DOCKER_USERNAME}/eduplatform-web:latest
     container_name: edu_web
     ports:
       - "8888:80"
@@ -70,9 +67,7 @@ services:
     restart: unless-stopped
 
   admin:
-    build:
-      context: ./frontend
-      dockerfile: packages/admin/Dockerfile
+    image: ${DOCKER_USERNAME}/eduplatform-admin:latest
     container_name: edu_admin
     ports:
       - "9999:80"
@@ -83,8 +78,7 @@ services:
     restart: unless-stopped
 
   bot:
-    build:
-      context: ./tgbot
+    image: ${DOCKER_USERNAME}/eduplatform-tgbot:latest
     container_name: edu_tgbot
     env_file:
       - .env

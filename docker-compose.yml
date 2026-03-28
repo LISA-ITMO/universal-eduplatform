@@ -62,7 +62,7 @@ services:
       dockerfile: packages/web/Dockerfile
     container_name: edu_web
     ports:
-      - "8080:80"
+      - "8888:80"
     networks:
       - quiznet
     depends_on:
@@ -75,7 +75,7 @@ services:
       dockerfile: packages/admin/Dockerfile
     container_name: edu_admin
     ports:
-      - "8081:80"
+      - "9999:80"
     networks:
       - quiznet
     depends_on:

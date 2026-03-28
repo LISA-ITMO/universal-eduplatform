@@ -118,5 +118,14 @@ jobs:
             docker compose pull
             
             docker compose up -d --remove-orphans
-            
+
+            # === ВРЕМЕННЫЕ ЛОГИ ДЛЯ ДЕБАГА ===
+            echo "--- LOGS FOR WEB CONTAINER ---"
+            docker compose logs --tail=50 web
+            echo "--- LOGS FOR ADMIN CONTAINER ---"
+            docker compose logs --tail=50 admin
+            echo "--- LOGS FOR SERVER CONTAINER ---"
+            docker compose logs --tail=50 server
+            # =====================================
+
             docker system prune -af

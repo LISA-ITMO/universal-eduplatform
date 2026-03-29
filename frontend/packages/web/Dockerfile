@@ -13,10 +13,9 @@ RUN echo "link-workspace-packages=true" > .npmrc && \
 
 COPY packages ./packages
 
-RUN ls -la packages/ui/package.json
-
 RUN pnpm install
 
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN pnpm --filter web build
 
 FROM nginx:alpine

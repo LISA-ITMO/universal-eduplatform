@@ -7,11 +7,6 @@ COPY package.json ./
 RUN echo "packages:" > pnpm-workspace.yaml && \
     echo "  - 'packages/*'" >> pnpm-workspace.yaml
 
-COPY package.json ./
-
-RUN echo "packages:" > pnpm-workspace.yaml && \
-    echo "  - 'packages/*'" >> pnpm-workspace.yaml
-
 RUN echo "link-workspace-packages=true" > .npmrc && \
     echo "prefer-workspace-packages=true" >> .npmrc && \
     echo "shamefully-hoist=true" >> .npmrc
@@ -20,6 +15,7 @@ COPY packages ./packages
 
 RUN pnpm install
 
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN pnpm --filter admin build
 
 FROM nginx:alpine

@@ -4,11 +4,27 @@ import requests
 from typing import Dict, Any
 
 import telebot
+import telebot.apihelper as apihelper
 from telebot import types
 from dotenv import load_dotenv
 
 # Load .env
 load_dotenv()
+
+SOCKS5_PROXY = os.getenv('SOCKS5_PROXY')
+
+proxies = None
+if SOCKS5_PROXY:
+    proxies = {
+        'http': SOCKS5_PROXY,
+        'https': SOCKS5_PROXY,
+    }
+
+if SOCKS5_PROXY:
+	apihelper.proxy = {
+        'http': SOCKS5_PROXY,
+        'https': SOCKS5_PROXY,
+    }
 
 TOKEN = os.getenv('TG_BOT_TOKEN')
 TEACHER_CODE = os.getenv('TEACHER_CODE')
@@ -115,7 +131,7 @@ def graphql_query(query: str, variables: dict = None) -> dict:
 	if variables is not None:
 		payload['variables'] = variables
 	try:
-		r = requests.post(url, json=payload, headers=headers, timeout=10)
+		r = requests.post(url, json=payload, headers=headers, timeout=10, proxies=proxies)
 		try:
 			r.raise_for_status()
 		except requests.HTTPError as http_err:

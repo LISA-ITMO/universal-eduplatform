@@ -14,11 +14,11 @@ load_dotenv()
 SOCKS5_PROXY = os.getenv('SOCKS5_PROXY')
 
 proxies = None
-if SOCKS5_PROXY:
-    proxies = {
-        'http': SOCKS5_PROXY,
-        'https': SOCKS5_PROXY,
-    }
+# if SOCKS5_PROXY:
+#     proxies = {
+#         'http': SOCKS5_PROXY,
+#         'https': SOCKS5_PROXY,
+#     }
 
 if SOCKS5_PROXY:
 	apihelper.proxy = {

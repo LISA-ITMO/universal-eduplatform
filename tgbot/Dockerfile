@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY uni_eduplatform_bot.py .
 
-RUN pip install pyTelegramBotAPI requests python-dotenv PySocks
+RUN pip install pyTelegramBotAPI requests[socks] python-dotenv PySocks
 
 CMD ["python", "uni_eduplatform_bot.py"]

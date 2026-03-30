@@ -14,7 +14,7 @@ export const refreshAccessTokenViaCookie = async (): Promise<string | null> => {
 
   refreshPromise = (async () => {
     try {
-      const clientId = 'web';
+      const clientId = import.meta.env.VITE_CLIENT_ID || 'web';
       const res = await fetch(graphqlUrl, {
         method: 'POST',
         credentials: 'include',
@@ -43,7 +43,7 @@ const httpLink = createHttpLink({
 
 const authLink = setContext((_, { headers }) => {
   const token = getAccessToken();
-  const clientId = 'web';
+  const clientId = import.meta.env.VITE_CLIENT_ID || 'web';
   return {
     headers: {
       ...headers,

@@ -5,7 +5,11 @@ CREATE TYPE "Role" AS ENUM ('student', 'teacher', 'admin');
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
     "username" VARCHAR(50) NOT NULL,
+    "first_name" VARCHAR(100),
+    "last_name" VARCHAR(100),
+    "middle_name" VARCHAR(100),
     "email" VARCHAR(255) NOT NULL,
+    "phone" VARCHAR(30),
     "password_hash" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'student',
     "is_active" BOOLEAN NOT NULL DEFAULT true,
@@ -59,8 +63,21 @@ CREATE TABLE "service_keys" (
 CREATE TABLE "subjects" (
     "id" SERIAL NOT NULL,
     "name_subject" VARCHAR(100) NOT NULL,
+    "expert_id" INTEGER,
 
     CONSTRAINT "subjects_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "subject_materials" (
+    "id" SERIAL NOT NULL,
+    "subject_id" INTEGER NOT NULL,
+    "title" VARCHAR(255),
+    "url" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "subject_materials_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -97,6 +114,7 @@ CREATE TABLE "student_course_subjects" (
 CREATE TABLE "tests" (
     "id" SERIAL NOT NULL,
     "author_id" INTEGER NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
     "subject_id" INTEGER NOT NULL,
     "theme_id" INTEGER NOT NULL,
     "times_solved" INTEGER NOT NULL DEFAULT 0,
@@ -147,6 +165,7 @@ CREATE TABLE "solutions" (
     "result_id" INTEGER NOT NULL,
     "question_id" INTEGER NOT NULL,
     "user_answer" INTEGER NOT NULL,
+    "user_answers" JSONB,
 
     CONSTRAINT "solutions_pkey" PRIMARY KEY ("id")
 );
@@ -237,6 +256,12 @@ ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_fkey" FOREIG
 
 -- AddForeignKey
 ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "subjects" ADD CONSTRAINT "subjects_expert_id_fkey" FOREIGN KEY ("expert_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "subject_materials" ADD CONSTRAINT "subject_materials_subject_id_fkey" FOREIGN KEY ("subject_id") REFERENCES "subjects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "themes" ADD CONSTRAINT "themes_subject_id_fkey" FOREIGN KEY ("subject_id") REFERENCES "subjects"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -130,9 +130,8 @@ export const TEST_QUERY = gql`
         additionInfo
         questionPoints
         answers {
-          id
-          answerText
-          isCorrect
+        id
+        answerText
         }
       }
     }
@@ -143,10 +142,18 @@ export const TESTS_BY_AUTHOR_QUERY = gql`
   query TestsByAuthor($authorId: Int!) {
     testsByAuthor(authorId: $authorId) {
       id
+      name
+      questionsCount
       subjectId
       themeId
       timesSolved
       maxPoints
+      author {
+        id
+        username
+        firstName
+        lastName
+      }
     }
   }
 `;
@@ -155,7 +162,15 @@ export const TESTS_LIST_QUERY = gql`
   query TestsList($subjectId: Int!, $themeId: Int!) {
     testsBySubjectAndTheme(subjectId: $subjectId, themeId: $themeId) {
       id
+      name
+      questionsCount
       authorId
+      author {
+        id
+        username
+        firstName
+        lastName
+      }
       subjectId
       themeId
       timesSolved

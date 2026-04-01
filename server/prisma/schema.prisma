@@ -165,6 +165,7 @@ model Test {
   id          Int     @id @default(autoincrement())
   authorId    Int     @map("author_id")
   author      User    @relation("TestAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  name        String  @map("name") @db.VarChar(255)
   subjectId   Int     @map("subject_id")
   subject     Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   themeId     Int     @map("theme_id")

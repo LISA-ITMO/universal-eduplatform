@@ -3,19 +3,26 @@ import { useLocation } from "react-router-dom";
 import { Box } from "@mui/material";
 import { useQuery } from "@apollo/client";
 import ResultTest from "../components/ResultTest";
-import SelectCourse from "../components/SelectCourse";
 import TestComponent from "../components/SolutionTest";
 import { SUBJECT_QUERY, THEMES_BY_SUBJECT_QUERY } from "@quiz-platform/ui";
+import SelectTest from "@/components/SelectTest";
 
 const Solution = () => {
   const [subjectId, setSubjectId] = useState<string>("");
   const [themeId, setThemeId] = useState<string>("");
   const [subjectName, setSubjectName] = useState("");
   const [themeName, setThemeName] = useState("");
+  const [testName, setTestName] = useState("");
   const location = useLocation();
   const { pathname, state } = location as any;
   const resultState = state?.result;
   const [testId, setTestId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (pathname.includes("result") && !resultState) {
+      setTestId(null);
+    }
+  }, []);
 
   const { data: subjectData } = useQuery(SUBJECT_QUERY, {
     variables: { id: parseInt(subjectId || "0") },
@@ -26,6 +33,18 @@ const Solution = () => {
     variables: { subjectId: parseInt(subjectId || "0") },
     skip: !subjectId,
   });
+
+  const onSelect = (
+    subjectId: string,
+    themeId: string,
+    testId: string,
+    testName: string,
+  ) => {
+    setSubjectId(subjectId);
+    setThemeId(themeId);
+    setTestName(testName);
+    if (testId) setTestId(Number(testId));
+  };
 
   useEffect(() => {
     if (subjectData?.subject) {
@@ -50,20 +69,12 @@ const Solution = () => {
         {!pathname.includes("result") ? (
           <>
             {!testId ? (
-              <SelectCourse
-                path="solution"
-                isSolution={true}
-                goToText="Перейти к решению теста"
-                onSelect={(s, t, tst) => {
-                  setSubjectId(s);
-                  setThemeId(t);
-                  if (tst) setTestId(Number(tst));
-                }}
-              />
+              <SelectTest onSelect={onSelect} />
             ) : (
               <TestComponent
                 subjectName={subjectName}
                 themeName={themeName}
+                testName={testName}
                 testId={Number(testId)}
               />
             )}

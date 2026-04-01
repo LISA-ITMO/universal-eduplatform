@@ -21,6 +21,11 @@ const Creation = () => {
     skip: !subjectId,
   });
 
+  const onSelect = (subjectId: string, themeId: string) => {
+    setSubjectId(subjectId);
+    setThemeId(themeId);
+  };
+
   useEffect(() => {
     if (subjectData?.subject) {
       setSubjectName(subjectData.subject.nameSubject);
@@ -30,7 +35,7 @@ const Creation = () => {
   useEffect(() => {
     if (themeData?.themesBySubject && themeId) {
       const theme = themeData.themesBySubject.find(
-        (t: any) => t.id === parseInt(themeId)
+        (t: any) => t.id === parseInt(themeId),
       );
       if (theme) {
         setThemeName(theme.nameTheme);
@@ -42,14 +47,7 @@ const Creation = () => {
     <Box sx={{ width: "100%" }}>
       <Box sx={{ alignContent: "center", mx: "auto" }}>
         {!subjectId || !themeId ? (
-          <SelectCourse
-            path="creation"
-            goToText="Перейти к созданию теста"
-            onSelect={(s, t) => {
-              setSubjectId(s);
-              setThemeId(t);
-            }}
-          />
+          <SelectCourse onSelect={onSelect} />
         ) : (
           <TestCreationPage
             subjectName={subjectName}

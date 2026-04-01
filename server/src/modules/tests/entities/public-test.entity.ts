@@ -1,11 +1,11 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Question } from './question.entity';
+import { PublicQuestion } from './public-question.entity';
 import { UserType } from '../../auth/auth.resolver';
 import { Subject } from '../../subjects/entities/subject.entity';
 import { Theme } from '../../subjects/entities/theme.entity';
 
-@ObjectType()
-export class Test {
+@ObjectType('PublicTest')
+export class PublicTest {
   @Field(() => Int)
   id: number;
 
@@ -42,10 +42,6 @@ export class Test {
   @Field(() => Int)
   questionsCount?: number;
 
-  @Field(() => [Question], { nullable: true })
-  questions?: Question[];
+  @Field(() => [PublicQuestion], { nullable: true })
+  questions?: PublicQuestion[];
 }
-
-
-
-

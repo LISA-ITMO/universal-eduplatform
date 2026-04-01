@@ -128,15 +128,18 @@ export const CREATE_TEST_MUTATION = gql`
     $subjectId: Int!
     $themeId: Int!
     $maxPoints: Float!
+    $name: String
     $expertId: Int
   ) {
     createTest(
       subjectId: $subjectId
       themeId: $themeId
       maxPoints: $maxPoints
+      name: $name
       expertId: $expertId
     ) {
       id
+      name
       subjectId
       themeId
       maxPoints
@@ -196,9 +199,18 @@ export const SUBMIT_TEST_RESULT_MUTATION = gql`
       solutions: $solutions
     ) {
       id
+      testId
+      subject
+      theme
       pointsUser
       score
       passingDate
+      solutions {
+        id
+        questionId
+        userAnswer
+        userAnswers
+      }
     }
   }
 `;

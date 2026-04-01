@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import {
   TextField,
@@ -7,7 +7,11 @@ import {
   Container,
   Box,
   Typography,
+  IconButton,
+  Stack,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -16,6 +20,8 @@ import {
   CREATE_TEST_MUTATION,
   CREATE_QUESTION_MUTATION,
   CREATE_ANSWER_MUTATION,
+  TESTS_LIST_QUERY,
+  TESTS_BY_AUTHOR_QUERY,
 } from "@quiz-platform/ui";
 
 interface TestCreationPageProps {
@@ -39,13 +45,17 @@ export const TestCreationPage: React.FC<TestCreationPageProps> = ({
     formState: { errors },
   } = useForm({
     defaultValues: {
-      questionCount: 3,
-      questions: Array(3).fill({
-        question_text: "",
-        answers: Array(5).fill({ answer_text: "", is_correct: false }),
-        question_points: 1,
-        answerCount: 5,
-      }),
+      testName: "",
+      questions: [
+        {
+          question_text: "",
+          question_points: 1,
+          answers: [
+            { answer_text: "", is_correct: false },
+            { answer_text: "", is_correct: false },
+          ],
+        },
+      ],
     },
   });
 
@@ -54,37 +64,131 @@ export const TestCreationPage: React.FC<TestCreationPageProps> = ({
     name: "questions",
   });
 
-  const questionCount = watch("questionCount");
   const questions = watch("questions");
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [createTest] = useMutation(CREATE_TEST_MUTATION);
+  const [createTest] = useMutation(CREATE_TEST_MUTATION, {
+    update(cache, { data }: any) {
+      const created = data?.createTest;
+      if (!created) return;
+      const vars = {
+        subjectId: parseInt(subjectId),
+        themeId: parseInt(themeId),
+      } as any;
+      try {
+        const existing: any = cache.readQuery({
+          query: TESTS_LIST_QUERY,
+          variables: vars,
+        });
+        const prev = existing?.testsBySubjectAndTheme || [];
+        cache.writeQuery({
+          query: TESTS_LIST_QUERY,
+          variables: vars,
+          data: { testsBySubjectAndTheme: [...prev, created] },
+        });
+      } catch (e) {
+        // nothing to update in cache
+      }
+      try {
+        if (user?.id) {
+          const authorVars = { authorId: Number(user.id) } as any;
+          const existingAuthor: any = cache.readQuery({
+            query: TESTS_BY_AUTHOR_QUERY,
+            variables: authorVars,
+          });
+          const prevAuthor = existingAuthor?.testsByAuthor || [];
+
+          const testForAuthor = {
+            id: created.id,
+            name: created.name ?? "",
+            questionsCount: created.questionsCount ?? 0,
+            subjectId: created.subjectId,
+            themeId: created.themeId,
+            timesSolved: created.timesSolved ?? 0,
+            maxPoints: created.maxPoints ?? 0,
+            author: {
+              id: user.id,
+              username: user.username,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              __typename: "UserType",
+            },
+            __typename: "Test",
+          };
+
+          cache.writeQuery({
+            query: TESTS_BY_AUTHOR_QUERY,
+            variables: authorVars,
+            data: { testsByAuthor: [testForAuthor, ...prevAuthor] },
+          });
+        }
+      } catch (e) {
+        // ignore
+      }
+    },
+  });
   const [createQuestion] = useMutation(CREATE_QUESTION_MUTATION);
   const [createAnswer] = useMutation(CREATE_ANSWER_MUTATION);
 
-  useEffect(() => {
-    const difference = questionCount - fields.length;
-    if (difference > 0) {
-      for (let i = 0; i < difference; i++) {
-        append({
-          question_text: "",
-          answers: Array(5).fill({ answer_text: "", is_correct: false }),
-          question_points: 1,
-          answerCount: 5,
-        });
-      }
-    } else if (difference < 0) {
-      for (let i = 0; i < -difference; i++) {
-        remove(fields.length - 1);
-      }
+  const addQuestion = () => {
+    append({
+      question_text: "",
+      question_points: 1,
+      answers: [
+        { answer_text: "", is_correct: false },
+        { answer_text: "", is_correct: false },
+      ],
+    });
+  };
+
+  const removeQuestion = (index: number) => {
+    if (fields.length <= 1) {
+      toast.error("Должен быть как минимум 1 вопрос");
+      return;
     }
-  }, [questionCount, append, remove, fields.length]);
+    remove(index);
+  };
+
+  useEffect(() => {
+    if (fields.length === 0) addQuestion();
+  }, [fields.length]);
 
   const onSubmit = async (data: any) => {
     try {
+      const validationErrors: string[] = [];
+      if (!data.testName || data.testName.trim() === "") {
+        validationErrors.push("Наименование теста обязательно");
+      }
+      if (!data.questions || data.questions.length < 1) {
+        validationErrors.push("Должен быть как минимум 1 вопрос");
+      }
+      data.questions.forEach((q: any, qi: number) => {
+        if (!q.question_text || q.question_text.trim() === "")
+          validationErrors.push(`Вопрос ${qi + 1}: текст вопроса обязателен`);
+        if (!q.answers || q.answers.length < 2)
+          validationErrors.push(
+            `Вопрос ${qi + 1}: должно быть минимум 2 варианта ответа`,
+          );
+        const hasCorrect = q.answers.some((a: any) => a.is_correct);
+        if (!hasCorrect)
+          validationErrors.push(
+            `Вопрос ${qi + 1}: должен быть минимум 1 правильный ответ`,
+          );
+        q.answers.forEach((a: any, ai: number) => {
+          if (!a.answer_text || a.answer_text.trim() === "")
+            validationErrors.push(
+              `Вопрос ${qi + 1}, ответ ${ai + 1}: текст обязателен`,
+            );
+        });
+      });
+      if (validationErrors.length > 0) {
+        toast.error(validationErrors[0]);
+        return;
+      }
+
       const points = data.questions.reduce(
-        (acc: number, q: any) => acc + Number(q.question_points),
+        (acc: number, q: any) => acc + Number(q.question_points || 1),
         0,
       );
 
@@ -93,26 +197,27 @@ export const TestCreationPage: React.FC<TestCreationPageProps> = ({
           subjectId: parseInt(subjectId),
           themeId: parseInt(themeId),
           maxPoints: points,
+          ...(data.testName ? { name: data.testName } : {}),
         },
       });
 
       const testId = testResult.data?.createTest?.id;
       if (!testId) throw new Error("Test ID not returned");
 
-      for (const question of data.questions) {
+      for (const q of data.questions) {
         const questionResult = await createQuestion({
           variables: {
             testId,
-            questionText: question.question_text,
-            additionInfo: "null",
-            questionPoints: Number(question.question_points),
+            questionText: q.question_text,
+            additionInfo: q.additionInfo || "",
+            questionPoints: Number(q.question_points || 1),
           },
         });
 
         const questionId = questionResult.data?.createQuestion?.id;
         if (!questionId) continue;
 
-        for (const answer of question.answers.slice(0, question.answerCount)) {
+        for (const answer of q.answers) {
           await createAnswer({
             variables: {
               questionId,
@@ -131,20 +236,6 @@ export const TestCreationPage: React.FC<TestCreationPageProps> = ({
     }
   };
 
-  const validateNumberProps = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    prop: string,
-    min: number,
-    max: number,
-  ) => {
-    const value = Number(e.target.value);
-    if (!isNaN(value) && value <= max && value >= min)
-      setValue(
-        prop as "questionCount" | `questions.${number}.${string}`,
-        value,
-      );
-  };
-
   return (
     <Container maxWidth="md">
       <Box sx={{ my: 3 }}>
@@ -152,39 +243,58 @@ export const TestCreationPage: React.FC<TestCreationPageProps> = ({
           Создание теста: {subjectName} - {themeName}
         </Typography>
         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-          <Box sx={{ display: "flex", alignItems: "baseline" }}>
-            <Box sx={{ fontWeight: 600, fontSize: 18, pr: 3 }}>
-              Количество вопросов:
-            </Box>
-            <Controller
-              name="questionCount"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  type="number"
-                  label=""
-                  slotProps={{ htmlInput: { min: 1, max: 10 } }}
-                  onChange={(e) =>
-                    validateNumberProps(e, "questionCount", 1, 10)
-                  }
-                  size="small"
-                  sx={{ mb: 3, minWidth: 80 }}
-                />
-              )}
-            />
+          <Controller
+            name="testName"
+            control={control}
+            rules={{ required: "Наименование теста обязательно" }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Наименование теста"
+                fullWidth
+                size="small"
+                sx={{ mb: 2 }}
+                error={!!errors.testName}
+                helperText={errors.testName?.message as any}
+              />
+            )}
+          />
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <Box sx={{ fontWeight: 600, fontSize: 18, pr: 1 }}>Вопросы</Box>
+            <IconButton
+              size="small"
+              onClick={addQuestion}
+              aria-label="add-question"
+            >
+              <AddIcon />
+            </IconButton>
           </Box>
 
           {fields.map((field, index) => (
             <Box
               key={field.id}
-              sx={{ mb: 4, p: 2, border: "1px solid #ddd", borderRadius: 2 }}
+              sx={{
+                mb: 4,
+                p: 2,
+                border: "1px solid #ddd",
+                borderRadius: 2,
+                position: "relative",
+              }}
             >
+              <Box sx={{ position: "absolute", right: 8, top: 8 }}>
+                <IconButton
+                  size="small"
+                  onClick={() => removeQuestion(index)}
+                  disabled={fields.length <= 1}
+                >
+                  <RemoveIcon />
+                </IconButton>
+              </Box>
+
               <Box sx={{ fontWeight: 600, fontSize: 22, pb: 3 }}>
                 Вопрос {index + 1}
               </Box>
 
-              {/* Поле для текста вопроса  */}
               <Controller
                 name={`questions.${index}.question_text`}
                 control={control}
@@ -204,60 +314,29 @@ export const TestCreationPage: React.FC<TestCreationPageProps> = ({
                 )}
               />
 
-              <Box sx={{ display: "flex", alignItems: "baseline" }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                 <Box sx={{ fontWeight: 600, fontSize: 18, pr: 3 }}>
-                  Количество ответов:
+                  Варианты ответов:
                 </Box>
-                <Controller
-                  name={`questions.${index}.answerCount`}
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      type="number"
-                      label=""
-                      slotProps={{ htmlInput: { min: 2, max: 10 } }}
-                      onChange={(e) =>
-                        validateNumberProps(
-                          e,
-                          `questions.${index}.answerCount`,
-                          2,
-                          10,
-                        )
-                      }
-                      size="small"
-                      sx={{ mb: 2 }}
-                    />
-                  )}
-                />
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    const answers = questions[index].answers || [];
+                    setValue(`questions.${index}.answers`, [
+                      ...answers,
+                      { answer_text: "", is_correct: false },
+                    ]);
+                  }}
+                >
+                  <AddIcon />
+                </IconButton>
               </Box>
-
-              {/* @NOTE Пока скрыто */}
-              {/* <Box sx={{ display: "flex", alignItems: "baseline" }}>
-                <Box sx={{ fontWeight: 600, fontSize: 18, pr: 3 }}>
-                  Балл за правильный ответ:
-                </Box>
-                <Controller
-                  name={`questions.${index}.question_points`}
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      type="number"
-                      label=""
-                      slotProps={{ htmlInput: { min: 1, max: 100 } }}
-                      size="small"
-                      sx={{ mb: 2 }}
-                    />
-                  )}
-                />
-              </Box> */}
 
               <Box sx={{ fontWeight: 600, fontSize: 18, pb: 1 }}>
                 Варианты ответов:
               </Box>
-              {Array.from({ length: questions[index].answerCount }).map(
-                (_, aIndex) => (
+              {(questions[index].answers || []).map(
+                (ans: any, aIndex: number) => (
                   <Box
                     key={aIndex}
                     sx={{ display: "flex", alignItems: "center", mb: 1 }}
@@ -294,6 +373,20 @@ export const TestCreationPage: React.FC<TestCreationPageProps> = ({
                         />
                       )}
                     />
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        const answers = questions[index].answers || [];
+                        if (answers.length <= 2) return;
+                        const newAnswers = answers.filter(
+                          (_: any, i: number) => i !== aIndex,
+                        );
+                        setValue(`questions.${index}.answers`, newAnswers);
+                      }}
+                      disabled={(questions[index].answers || []).length <= 2}
+                    >
+                      <RemoveIcon />
+                    </IconButton>
                   </Box>
                 ),
               )}

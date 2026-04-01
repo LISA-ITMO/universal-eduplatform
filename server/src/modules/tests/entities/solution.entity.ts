@@ -1,5 +1,5 @@
 import { ObjectType, Field, Int, InputType } from '@nestjs/graphql';
-import { GraphQLJSONObject } from 'graphql-type-json';
+import { GraphQLJSON } from 'graphql-type-json';
 
 @ObjectType()
 export class Solution {
@@ -15,7 +15,7 @@ export class Solution {
   @Field(() => Int)
   userAnswer: number;
   
-  @Field(() => GraphQLJSONObject, { nullable: true })
+  @Field(() => GraphQLJSON, { nullable: true })
   userAnswers?: any;
 }
 

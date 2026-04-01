@@ -51,6 +51,11 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 """
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+"""
 The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
 scalar JSONObject
@@ -68,7 +73,7 @@ type Mutation {
   createCourse(description: String, expertId: Int, nameCourse: String!, subjectId: Int!): Course!
   createQuestion(additionInfo: String!, questionPoints: Float!, questionText: String!, testId: Int!): Question!
   createSubject(expertId: Int, nameSubject: String!): Subject!
-  createTest(expertId: Int, maxPoints: Float!, subjectId: Int!, themeId: Int!): Test!
+  createTest(expertId: Int, maxPoints: Float!, name: String, subjectId: Int!, themeId: Int!): Test!
   createTheme(nameTheme: String!, subjectId: Int!): Theme!
   createUser(input: CreateUserInput!): UserType!
   deleteSubject(id: Int!): Boolean!
@@ -85,6 +90,37 @@ type Mutation {
   verify2FA(code: String!): Boolean!
 }
 
+type PublicAnswer {
+  answerText: String!
+  id: Int!
+  questionId: Int!
+}
+
+type PublicQuestion {
+  additionInfo: String!
+  answers: [PublicAnswer!]
+  id: Int!
+  questionPoints: Int!
+  questionText: String!
+  testId: Int!
+}
+
+type PublicTest {
+  author: UserType
+  authorId: Int!
+  expertId: Int!
+  id: Int!
+  maxPoints: Int!
+  name: String!
+  questions: [PublicQuestion!]
+  questionsCount: Int!
+  subject: Subject
+  subjectId: Int!
+  theme: Theme
+  themeId: Int!
+  timesSolved: Int!
+}
+
 type Query {
   allTests: [Test!]!
   allUsers: [UserType!]!
@@ -98,7 +134,7 @@ type Query {
   myResults: [Result!]!
   subject(id: Int!): Subject!
   subjects: [Subject!]!
-  test(id: Int!): Test!
+  test(id: Int!): PublicTest!
   testsByAuthor(authorId: Int!): [Test!]!
   testsBySubjectAndTheme(subjectId: Int!, themeId: Int!): [Test!]!
   themesBySubject(subjectId: Int!): [Theme!]!
@@ -145,7 +181,7 @@ type Solution {
   questionId: Int!
   resultId: Int!
   userAnswer: Int!
-  userAnswers: JSONObject
+  userAnswers: JSON
 }
 
 input SolutionInput {
@@ -202,7 +238,9 @@ type Test {
   expertId: Int!
   id: Int!
   maxPoints: Int!
+  name: String!
   questions: [Question!]
+  questionsCount: Int!
   subject: Subject
   subjectId: Int!
   theme: Theme

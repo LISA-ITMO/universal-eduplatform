@@ -11,12 +11,28 @@ export class TestsService {
     authorId: number;
     subjectId: number;
     themeId: number;
+    name?: string;
     expertId?: number;
     maxPoints: number;
   }) {
-    return this.prisma.test.create({
-      data,
-    });
+    // Prisma nested create/connect pattern: connect relations by id instead of
+    // passing foreign key scalars directly in `data` to satisfy generated types.
+    const createData: any = {
+      name: data.name ?? '',
+      maxPoints: data.maxPoints,
+      // connect required relations
+      author: { connect: { id: data.authorId } },
+      subject: { connect: { id: data.subjectId } },
+      theme: { connect: { id: data.themeId } },
+    };
+
+    // expertId is optional - if present and non-zero, set scalar field or connect if needed
+    if (typeof data.expertId === 'number' && data.expertId > 0) {
+      // there is an `expertId` scalar field in the model so we can set it directly
+      createData.expertId = data.expertId;
+    }
+
+    return this.prisma.test.create({ data: createData });
   }
 
   async findTestById(id: number) {
@@ -36,7 +52,12 @@ export class TestsService {
   async findTestsByAuthor(authorId: number) {
     return this.prisma.test.findMany({
       where: { authorId },
-      include: { subject: true, theme: true },
+      include: {
+        subject: true,
+        theme: true,
+        questions: { select: { id: true } },
+        author: { select: { id: true, username: true, firstName: true, lastName: true } },
+      },
     });
   }
 
@@ -46,8 +67,17 @@ export class TestsService {
         subjectId,
         themeId,
       },
-      include: { subject: true, theme: true },
+      include: {
+        subject: true,
+        theme: true,
+        questions: { select: { id: true } },
+        author: { select: { id: true, username: true, firstName: true, lastName: true } },
+      },
     });
+  }
+
+  async countQuestions(testId: number) {
+    return this.prisma.question.count({ where: { testId } });
   }
 
   async createQuestion(data: {

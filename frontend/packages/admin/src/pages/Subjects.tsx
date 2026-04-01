@@ -36,6 +36,7 @@ import {
   DELETE_SUBJECT_MUTATION,
   DELETE_THEME_MUTATION,
   DELETE_TEST_MUTATION,
+  CREATE_THEME_MUTATION,
 } from "@quiz-platform/ui/src/graphql/mutations";
 import { useAuth } from "@quiz-platform/ui";
 
@@ -52,14 +53,14 @@ const SubjectsPage: React.FC = () => {
     ADD_SUBJECT_MATERIAL_MUTATION as any,
     {
       onCompleted: () => refetch(),
-    }
+    },
   );
 
   const [deleteSubjectMaterial] = useMutation(
     DELETE_SUBJECT_MATERIAL_MUTATION as any,
     {
       onCompleted: () => refetch(),
-    }
+    },
   );
 
   const [deleteSubject] = useMutation(DELETE_SUBJECT_MUTATION as any, {
@@ -76,8 +77,12 @@ const SubjectsPage: React.FC = () => {
 
   const [name, setName] = React.useState("");
   const [selectedTeacher, setSelectedTeacher] = React.useState<number | null>(
-    null
+    null,
   );
+
+  // Theme creation state for admin panel
+  const [themeSubjectId, setThemeSubjectId] = React.useState<number | "">("");
+  const [themeName, setThemeName] = React.useState("");
 
   React.useEffect(() => {
     if (user?.role === "teacher") setSelectedTeacher(user.id);
@@ -102,6 +107,23 @@ const SubjectsPage: React.FC = () => {
     }
   };
 
+  const [createThemeMutation] = useMutation(CREATE_THEME_MUTATION as any, {
+    onCompleted: () => refetch(),
+  });
+
+  const handleCreateThemeAdmin = async () => {
+    if (!themeName.trim() || !themeSubjectId) return;
+    try {
+      await createThemeMutation({
+        variables: { nameTheme: themeName, subjectId: Number(themeSubjectId) },
+      });
+      setThemeName("");
+      setThemeSubjectId("");
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleDeleteSubject = async (id: number) => {
     try {
       await deleteSubject({ variables: { id } });
@@ -113,7 +135,7 @@ const SubjectsPage: React.FC = () => {
   const addMaterial = async (
     subjectId: number,
     url: string,
-    title?: string
+    title?: string,
   ) => {
     try {
       await addSubjectMaterial({ variables: { subjectId, url, title } });
@@ -138,14 +160,18 @@ const SubjectsPage: React.FC = () => {
 
       <Stack direction="row" spacing={2} alignItems="center" mb={3}>
         <TextField
+          size="small"
           label="Название предмета"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
         {user?.role === "admin" && (
           <FormControl sx={{ minWidth: 200 }}>
-            <InputLabel id="teacher-select-label">Преподаватель</InputLabel>
+            <InputLabel id="teacher-select-label" sx={{ top: -7 }}>
+              Преподаватель
+            </InputLabel>
             <Select
+              size="small"
               labelId="teacher-select-label"
               value={selectedTeacher ?? ""}
               label="Преподаватель"
@@ -166,6 +192,44 @@ const SubjectsPage: React.FC = () => {
           variant="contained"
           startIcon={<AddIcon />}
           onClick={handleCreate}
+        >
+          Создать
+        </Button>
+      </Stack>
+
+      {/* New: Theme creation form in admin panel */}
+      <Stack direction="row" spacing={2} alignItems="center" mb={3}>
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel id="subject-for-theme-label" sx={{ top: -7 }}>
+            Предмет
+          </InputLabel>
+          <Select
+            labelId="subject-for-theme-label"
+            value={themeSubjectId}
+            label="Предмет"
+            onChange={(e) => setThemeSubjectId(e.target.value as any)}
+            size="small"
+          >
+            <MenuItem value="">— Не выбран —</MenuItem>
+            {subjects.map((s: any) => (
+              <MenuItem key={s.id} value={s.id}>
+                {s.nameSubject}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <TextField
+          label="Название темы"
+          value={themeName}
+          onChange={(e) => setThemeName(e.target.value)}
+          size="small"
+        />
+
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleCreateThemeAdmin}
         >
           Создать
         </Button>

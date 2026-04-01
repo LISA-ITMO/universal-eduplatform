@@ -2,193 +2,147 @@ import { useState } from "react";
 import {
   Box,
   Button,
+  Divider,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
   SelectChangeEvent,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { useQuery, useMutation } from "@apollo/client";
-import { toast } from "react-toastify";
+import { useQuery } from "@apollo/client";
 import {
   SUBJECTS_QUERY,
   THEMES_BY_SUBJECT_QUERY,
-  TESTS_LIST_QUERY,
-  CREATE_SUBJECT_MUTATION,
-  CREATE_THEME_MUTATION,
+  TESTS_BY_AUTHOR_QUERY,
 } from "@quiz-platform/ui";
 import { useAuth } from "@quiz-platform/ui";
-import CreateForm from "./CreateForm";
 
 interface SelectCourseProps {
-  path: string;
-  goToText: string;
-  isSolution?: boolean;
-  onSelect?: (subjectId: string, themeId: string, testId?: string) => void;
+  onSelect: (subjectId: string, themeId: string) => void;
 }
 
-const SelectCourse = ({
-  path,
-  goToText,
-  isSolution = false,
-  onSelect,
-}: SelectCourseProps) => {
+const SelectCourse = ({ onSelect }: SelectCourseProps) => {
   const [subject, setSubject] = useState("");
   const [theme, setTheme] = useState("");
-  const [test, setTest] = useState("");
 
   const { user } = useAuth();
-  const navigate = useNavigate();
 
-  const [isCreateTheme, setIsCreateTheme] = useState(false);
-  const [isCreateSubject, setIsCreateSubject] = useState(false);
-
-  const { data: subjectsData, refetch: refetchSubjects } =
-    useQuery(SUBJECTS_QUERY);
-  const { data: themesData, refetch: refetchThemes } = useQuery(
-    THEMES_BY_SUBJECT_QUERY,
-    {
-      variables: { subjectId: parseInt(subject) },
-      skip: !subject,
-    }
-  );
-  const { data: testsData } = useQuery(TESTS_LIST_QUERY, {
-    variables: {
-      subjectId: parseInt(subject),
-      themeId: parseInt(theme),
-    },
-    skip: !isSolution || !subject || !theme,
+  const { data: subjectsData } = useQuery(SUBJECTS_QUERY);
+  const { data: themesData } = useQuery(THEMES_BY_SUBJECT_QUERY, {
+    variables: { subjectId: parseInt(subject) },
+    skip: !subject,
   });
 
-  const [createSubject] = useMutation(CREATE_SUBJECT_MUTATION);
-  const [createTheme] = useMutation(CREATE_THEME_MUTATION);
+  const { data: myTestsData } = useQuery(TESTS_BY_AUTHOR_QUERY as any, {
+    variables: { authorId: user?.id || 0 },
+    skip: !user?.id,
+  });
 
   const subjects = subjectsData?.subjects || [];
   const themes = themesData?.themesBySubject || [];
-  const tests =
-    testsData?.testsBySubjectAndTheme?.filter(
-      (t: any) => t.authorId !== user?.id
-    ) || [];
+  const myTests = myTestsData?.testsByAuthor || [];
 
-  const handleCreateSubject = async (name: string) => {
-    try {
-      await createSubject({ variables: { nameSubject: name } });
-      await refetchSubjects();
-      setIsCreateSubject(false);
-      toast.success("Предмет создан");
-    } catch (error: any) {
-      toast.error("Ошибка создания предмета");
-      console.error(error);
-    }
-  };
+  const cards = myTests.filter((t: any) => {
+    if (subject && String(t.subjectId) !== String(subject)) return false;
+    if (theme && String(t.themeId) !== String(theme)) return false;
+    return true;
+  });
 
-  const handleCreateTheme = async (name: string) => {
-    try {
-      await createTheme({
-        variables: { nameTheme: name, subjectId: parseInt(subject) },
-      });
-      await refetchThemes();
-      setIsCreateTheme(false);
-      toast.success("Тема создана");
-    } catch (error: any) {
-      toast.error("Ошибка создания темы");
-      console.error(error);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleClick = (e: React.FormEvent) => {
     e.preventDefault();
-    if (onSelect) {
-      onSelect(subject, theme, test);
-      return;
-    }
-
-    const url = isSolution
-      ? `/${path}/${subject}/${theme}/${test}`
-      : `/${path}/${subject}/${theme}`;
-    navigate(url);
+    onSelect(subject, theme);
   };
 
   return (
-    <Box
-      component="form"
-      onSubmit={handleSubmit}
-      sx={{ width: "100%", maxWidth: 400, mx: "auto", mt: 5 }}
-    >
-      <Box sx={{ textAlign: "center", pt: 3, fontSize: 18, fontWeight: 600 }}>
+    <Box sx={{ width: "100%", px: 3, mt: 5 }}>
+      <Box sx={{ pt: 3, fontSize: 24, fontWeight: 600 }}>
         Выбор предмета и темы
       </Box>
-      <FormControl fullWidth margin="normal" required>
-        <InputLabel>Предмет</InputLabel>
-        <Select
-          value={subject}
-          onChange={(e: SelectChangeEvent) => setSubject(e.target.value)}
-        >
-          {subjects.map((item: any) => (
-            <MenuItem key={item.id} value={item.id.toString()}>
-              {item.nameSubject}
-            </MenuItem>
-          ))}
-        </Select>
-        {!isSolution && (
-          <CreateForm
-            setState={setIsCreateSubject}
-            state={isCreateSubject}
-            refreshFunc={refetchSubjects}
-            asyncFunc={handleCreateSubject}
-          />
-        )}
-      </FormControl>
-
-      <FormControl fullWidth margin="normal" required>
-        <InputLabel>Тема</InputLabel>
-        <Select
-          value={theme}
-          onChange={(e: SelectChangeEvent) => setTheme(e.target.value)}
-        >
-          {themes.map((item: any) => (
-            <MenuItem key={item.id} value={item.id.toString()}>
-              {item.nameTheme}
-            </MenuItem>
-          ))}
-        </Select>
-        {!isSolution && subject && (
-          <CreateForm
-            setState={setIsCreateTheme}
-            state={isCreateTheme}
-            refreshFunc={refetchThemes}
-            asyncFunc={handleCreateTheme}
-          />
-        )}
-      </FormControl>
-
-      {isSolution && (
-        <FormControl fullWidth margin="normal" required>
-          <InputLabel>Тест</InputLabel>
+      <Box
+        sx={{
+          display: "flex",
+          gap: 2,
+          alignItems: "center",
+          mt: 5,
+        }}
+      >
+        <FormControl sx={{ width: 240 }} required>
+          <InputLabel sx={{ top: -7 }}>Предмет</InputLabel>
           <Select
-            value={test}
-            onChange={(e: SelectChangeEvent) => setTest(e.target.value)}
+            size="small"
+            value={subject}
+            onChange={(e: SelectChangeEvent) => {
+              setSubject(e.target.value);
+              setTheme("");
+            }}
           >
-            {tests.map((item: any) => (
+            {subjects.map((item: any) => (
               <MenuItem key={item.id} value={item.id.toString()}>
-                id: {item.id}, автор: {item.authorId}, решено {item.timesSolved}{" "}
-                раз
+                {item.nameSubject}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
-      )}
 
-      <Button
-        type="submit"
-        variant="contained"
-        fullWidth
-        sx={{ mt: 3 }}
-        disabled={!subject || !theme || (isSolution && !test)}
-      >
-        {goToText}
-      </Button>
+        <FormControl sx={{ width: 240 }} required>
+          <InputLabel sx={{ top: -7 }}>Тема</InputLabel>
+          <Select
+            size="small"
+            value={theme}
+            onChange={(e: SelectChangeEvent) => setTheme(e.target.value)}
+            disabled={!subject}
+          >
+            {themes.map((item: any) => (
+              <MenuItem key={item.id} value={item.id.toString()}>
+                {item.nameTheme}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <Box sx={{ height: "auto" }}>
+          <Button
+            variant="contained"
+            disabled={!subject || !theme}
+            onClick={handleClick}
+          >
+            Перейти к созданию теста
+          </Button>
+        </Box>
+      </Box>
+
+      <Divider sx={{ my: 2 }} />
+
+      <Box sx={{ py: 2, fontSize: 24, fontWeight: 600 }}>Мои тесты</Box>
+
+      <Box>
+        {cards.length > 0 ? (
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "300px 300px 300px",
+              gap: 2,
+            }}
+          >
+            {cards.map((t: any) => (
+              <Box
+                key={t.id}
+                sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2 }}
+              >
+                <Box sx={{ fontWeight: 700 }}>{t.name || "Без названия"}</Box>
+                <Box>id: {t.id}</Box>
+                <Box>Вопросов: {t.questionsCount ?? "–"}</Box>
+                <Box>Макс. балл: {t.maxPoints}</Box>
+                <Box>Прохождений: {t.timesSolved}</Box>
+              </Box>
+            ))}
+          </Box>
+        ) : (
+          <Box sx={{ color: "text.secondary" }}>
+            Нет тестов для выбранных параметров
+          </Box>
+        )}
+      </Box>
     </Box>
   );
 };

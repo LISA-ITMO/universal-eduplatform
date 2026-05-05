@@ -446,7 +446,9 @@ const TestsTable: React.FC<{
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>ФИО</TableCell>
+              <TableCell>ID</TableCell>
+              <TableCell>Наименование</TableCell>
+              <TableCell>Автор</TableCell>
               <TableCell>Логин</TableCell>
               <TableCell>Прохождений</TableCell>
               <TableCell></TableCell>
@@ -457,12 +459,14 @@ const TestsTable: React.FC<{
               const author = usersMap[t.authorId];
               return (
                 <TableRow key={t.id}>
+                  <TableCell>{t.id}</TableCell>
+                  <TableCell>{t.name}</TableCell>
                   <TableCell>
                     {author
                       ? `${author.lastName || ""} ${author.firstName || ""}`
                       : ""}
                   </TableCell>
-                  <TableCell>{author ? author.username : t.authorId}</TableCell>
+                  <TableCell>{`${author.username} (ID: ${author.id})`}</TableCell>
                   <TableCell>{t.timesSolved ?? 0}</TableCell>
                   <TableCell>
                     <IconButton

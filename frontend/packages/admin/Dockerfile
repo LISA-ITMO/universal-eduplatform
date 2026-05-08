@@ -21,5 +21,6 @@ RUN pnpm --filter admin build
 
 FROM nginx:alpine
 COPY --from=builder /app/packages/admin/dist /usr/share/nginx/html
+COPY nginx/admin.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

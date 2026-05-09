@@ -218,7 +218,7 @@ def auth_in_dev(message):
 def start_change_password(message):
 	chat_id = message.chat.id
 	states[chat_id] = {'mode': 'change_password', 'step': 'login', 'data': {}}
-	bot.send_message(chat_id, 'Укажите логин в системе:', reply_markup=make_cancel_markup())
+	bot.send_message(chat_id, 'Придумайте логин. Логин должен состоять из 3-20 символов латиницы или цифр (без пробелов):', reply_markup=make_cancel_markup())
 
 
 @bot.message_handler(func=lambda m: m.chat.id in states)
@@ -255,22 +255,8 @@ def registration_flow(message):
 				bot.send_message(chat_id, 'Пароль должен состоять минимум из 8 символов, содержать только символы латиницы, иметь минимум одну цифру и спецсимвол', reply_markup=make_cancel_markup())
 				return
 			data['new_password'] = text
-			state['step'] = 'confirm_password'
-			# provide reset option
-			markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-			markup.row(types.KeyboardButton('Сбросить пароль'), types.KeyboardButton('Отменить регистрацию'))
-			bot.send_message(chat_id, 'Повторите новый пароль (для повтора ввода пароля введите команду "Сбросить пароль"):', reply_markup=markup)
-			return
-		if step == 'confirm_password':
-			if text == 'Сбросить пароль':
-				state['step'] = 'new_password'
-				bot.send_message(chat_id, 'Укажите пароль для пользователя:', reply_markup=make_cancel_markup())
-				return
-			if text != data.get('new_password'):
-				bot.send_message(chat_id, 'Пароли не совпадают', reply_markup=make_cancel_markup())
-				return
-			# Call platform to change password by login
-			ok, err = change_password_by_login(data.get('login'), data.get('old_password'), text)
+			# Immediately attempt to change password without confirmation step
+			ok, err = change_password_by_login(data.get('login'), data.get('old_password'), data['new_password'])
 			if not ok:
 				bot.send_message(chat_id, f'Не удалось изменить пароль: {err}', reply_markup=make_cancel_markup())
 				reset_state(chat_id)
@@ -278,6 +264,7 @@ def registration_flow(message):
 			bot.send_message(chat_id, 'Пароль успешно изменён')
 			reset_state(chat_id)
 			return
+
 
 	# Handle registration flow
 	if state.get('mode') == 'register':
@@ -291,11 +278,11 @@ def registration_flow(message):
 			data['role'] = 'teacher' if text == 'Преподаватель' else 'student'
 			if text == 'Преподаватель':
 				state['step'] = 'teacher_code'
-				bot.send_message(chat_id, 'Введите код доступа:', reply_markup=make_cancel_markup())
+				bot.send_message(chat_id, 'Введите код доступа. Код доступа можно запросить у администратора:', reply_markup=make_cancel_markup())
 				return
 			else:
 				state['step'] = 'login'
-				bot.send_message(chat_id, 'Укажите логин в системе:', reply_markup=make_cancel_markup())
+				bot.send_message(chat_id, 'Придумайте логин. Логин должен состоять из 3-20 символов латиницы или цифр (без пробелов):', reply_markup=make_cancel_markup())
 				return
 
 		if step == 'teacher_code':
@@ -306,7 +293,7 @@ def registration_flow(message):
 				send_welcome(chat_id)
 				return
 			state['step'] = 'login'
-			bot.send_message(chat_id, 'Код подтвержден. Укажите логин в системе:', reply_markup=make_cancel_markup())
+			bot.send_message(chat_id, 'Код подтвержден. Придумайте логин. Логин должен состоять из 3-20 символов латиницы или цифр (без пробелов):', reply_markup=make_cancel_markup())
 			return
 
 		if step == 'login':
@@ -320,7 +307,7 @@ def registration_flow(message):
 				return
 			data['login'] = login
 			state['step'] = 'fullname'
-			bot.send_message(chat_id, 'Укажите ФИО (Фамилия Имя Отчество):', reply_markup=make_cancel_markup())
+			bot.send_message(chat_id, 'Укажите ваше ФИО через пробел:', reply_markup=make_cancel_markup())
 			return
 
 		if step == 'fullname':
@@ -348,14 +335,14 @@ def registration_flow(message):
 			if text == 'Пропустить':
 				data['phone'] = None
 				state['step'] = 'password'
-				bot.send_message(chat_id, 'Укажите пароль для пользователя:', reply_markup=make_cancel_markup())
+				bot.send_message(chat_id, 'Придумайте пароль. Пароль должен состоять минимум из 8 символов, содержать только символы латиницы, иметь минимум одну цифру и спецсимвол:', reply_markup=make_cancel_markup())
 				return
 			if not is_valid_phone(text):
 				bot.send_message(chat_id, 'Неверный формат номера телефона', reply_markup=make_cancel_markup())
 				return
 			data['phone'] = normalize_phone(text)
 			state['step'] = 'password'
-			bot.send_message(chat_id, 'Укажите пароль для пользователя:', reply_markup=make_cancel_markup())
+			bot.send_message(chat_id, 'Придумайте пароль. Пароль должен состоять минимум из 8 символов, содержать только символы латиницы, иметь минимум одну цифру и спецсимвол:', reply_markup=make_cancel_markup())
 			return
 
 		if step == 'password':
@@ -363,10 +350,26 @@ def registration_flow(message):
 				bot.send_message(chat_id, 'Пароль должен состоять минимум из 8 символов, содержать только символы латиницы, иметь минимум одну цифру и спецсимвол', reply_markup=make_cancel_markup())
 				return
 			data['password'] = text
-			state['step'] = 'confirm_password'
-			markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-			markup.row(types.KeyboardButton('Сбросить пароль'), types.KeyboardButton('Отменить регистрация'))
-			bot.send_message(chat_id, 'Повторите пароль (для повтора ввода пароля введите команду "Сбросить пароль"):', reply_markup=markup)
+			# Immediately proceed to create user without asking to confirm password
+			# All data collected — create user via platform GraphQL
+			input_payload = {
+				'username': data.get('login'),
+				'email': data.get('email'),
+				'password': data.get('password'),
+				'role': data.get('role'),
+				'firstName': data.get('first_name'),
+				'lastName': data.get('last_name'),
+				'middleName': data.get('middle_name'),
+				'phone': data.get('phone'),
+			}
+			ok, err = register_user(input_payload)
+			if not ok:
+				bot.send_message(chat_id, f'Ошибка при создании пользователя: {err}', reply_markup=make_cancel_markup())
+				reset_state(chat_id)
+				return
+			bot.send_message(chat_id, f"Пользователь успешно создан\nЛогин для авторизации: {data.get('login')}\nСистема доступна по адресу: {PLATFORM_ADDRESS_CLIENT}")
+			states.pop(chat_id, None)
+			send_welcome(chat_id)
 			return
 
 		if step == 'confirm_password':

@@ -11,28 +11,53 @@ async function main() {
   const existing = await prisma.user.findUnique({ where: { username } });
   if (existing) {
     console.log('Admin user already exists');
-    return;
+  } else {
+    const hash = await bcrypt.hash(password, 10);
+    await prisma.user.create({
+      data: {
+        username,
+        email,
+        passwordHash: hash,
+        role: 'admin',
+        isActive: true,
+        firstName: 'Системный',
+        lastName: 'Администратор',
+        middleName: '',
+        phone: null,
+        lastLogin: null,
+      } as any,
+    });
+
+    console.log('Default admin created (username: admin, password: testpassword)');
   }
 
-  const hash = await bcrypt.hash(password, 10);
+  // Create AI bot user if env provided (or default)
+  const botUsername = process.env.AI_BOT_USERNAME || 'ai_bot';
+  const botEmail = process.env.AI_BOT_EMAIL || 'ai_bot@example.com';
+  const botPassword = process.env.AI_BOT_PASSWORD || 'ai_bot_password';
 
-  await prisma.user.create({
-    // Cast to any because Prisma client types may be out of sync until `prisma generate` is run.
-    data: {
-      username,
-      email,
-      passwordHash: hash,
-      role: 'admin',
-      isActive: true,
-      firstName: 'Системный',
-      lastName: 'Администратор',
-      middleName: '',
-      phone: null,
-      lastLogin: null,
-    } as any,
-  });
+  const existingBot = await prisma.user.findUnique({ where: { username: botUsername } });
+  if (existingBot) {
+    console.log('AI bot user already exists');
+  } else {
+    const botHash = await bcrypt.hash(botPassword, 10);
+    await prisma.user.create({
+      data: {
+        username: botUsername,
+        email: botEmail,
+        passwordHash: botHash,
+        role: 'student',
+        isActive: true,
+        firstName: 'AI',
+        lastName: 'Assistant',
+        middleName: '',
+        phone: null,
+        lastLogin: null,
+      } as any,
+    });
 
-  console.log('Default admin created (username: admin, password: testpassword)');
+    console.log(`AI bot created (username: ${botUsername}, password: ${botPassword})`);
+  }
 }
 
 main()

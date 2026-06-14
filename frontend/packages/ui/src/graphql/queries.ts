@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 // Auth queries
 export const ME_QUERY = gql`
@@ -47,9 +47,62 @@ export const SUBJECTS_QUERY = gql`
   }
 `;
 
+// AI assistant queries
+export const AI_BOT_AUTHORIZED_QUERY = gql`
+  query AiBotAuthorized {
+    aiBotAuthorized
+  }
+`;
+
+export const AI_BOT_USERNAME_QUERY = gql`
+  query AiBotUsername {
+    aiBotUsername
+  }
+`;
+
+export const AI_BOT_USERID_QUERY = gql`
+  query AiBotUserId {
+    aiBotUserId
+  }
+`;
+
+export const AI_BOT_ACTIVE_QUERY = gql`
+  query AiBotActive {
+    aiBotActive
+  }
+`;
+
+export const AI_REPORTS_QUERY = gql`
+  query AiReportsPaged(
+    $page: Int
+    $pageSize: Int
+    $includeTakeTest: Boolean
+    $includeCreateTest: Boolean
+  ) {
+    aiReports(
+      page: $page
+      pageSize: $pageSize
+      includeTakeTest: $includeTakeTest
+      includeCreateTest: $includeCreateTest
+    )
+  }
+`;
+
 export const USERS_PAGED_QUERY = gql`
-  query UsersPage($skip: Int, $take: Int, $search: String, $orderByField: String, $orderByDirection: String) {
-    usersPage(skip: $skip, take: $take, search: $search, orderByField: $orderByField, orderByDirection: $orderByDirection) {
+  query UsersPage(
+    $skip: Int
+    $take: Int
+    $search: String
+    $orderByField: String
+    $orderByDirection: String
+  ) {
+    usersPage(
+      skip: $skip
+      take: $take
+      search: $search
+      orderByField: $orderByField
+      orderByDirection: $orderByDirection
+    ) {
       items {
         id
         username
@@ -130,8 +183,8 @@ export const TEST_QUERY = gql`
         additionInfo
         questionPoints
         answers {
-        id
-        answerText
+          id
+          answerText
         }
       }
     }
@@ -237,4 +290,3 @@ export const USERS_QUERY = gql`
     }
   }
 `;
-

@@ -67,6 +67,9 @@ input LoginInput {
 
 type Mutation {
   addSubjectMaterial(subjectId: Int!, title: String, url: String!): SubjectMaterial!
+  aiCreateTest(questionsCount: Int, subjectId: Int!, themeId: Int!): String!
+  aiRunTest(testId: Int!): String!
+  authorizeAiAssistant: String!
   changePassword(newPassword: String!, oldPassword: String!): Boolean!
   changePasswordByLogin(login: String!, newPassword: String!, oldPassword: String!): Boolean!
   createAnswer(answerText: String!, isCorrect: Boolean!, questionId: Int!): Answer!
@@ -76,6 +79,7 @@ type Mutation {
   createTest(expertId: Int, maxPoints: Float!, name: String, subjectId: Int!, themeId: Int!): Test!
   createTheme(nameTheme: String!, subjectId: Int!): Theme!
   createUser(input: CreateUserInput!): UserType!
+  deauthorizeAiAssistant: String!
   deleteSubject(id: Int!): Boolean!
   deleteSubjectMaterial(id: Int!): Boolean!
   deleteTest(id: Int!): Boolean!
@@ -122,6 +126,11 @@ type PublicTest {
 }
 
 type Query {
+  aiBotActive: Boolean!
+  aiBotAuthorized: Boolean!
+  aiBotUserId: Float
+  aiBotUsername: String
+  aiReports(includeCreateTest: Boolean, includeTakeTest: Boolean, page: Int, pageSize: Int): String!
   allTests: [Test!]!
   allUsers: [UserType!]!
   analyticsByTest(testId: Int!): StudentAnalyticsTest!

@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 // Auth mutations
 export const LOGIN_MUTATION = gql`
@@ -232,6 +232,35 @@ export const CHANGE_PASSWORD_MUTATION = gql`
   }
 `;
 
+// AI Assistant mutations (admin)
+export const AUTHORIZE_AI_ASSISTANT_MUTATION = gql`
+  mutation AuthorizeAiAssistant {
+    authorizeAiAssistant
+  }
+`;
 
+export const DEAUTHORIZE_AI_ASSISTANT_MUTATION = gql`
+  mutation DeauthorizeAiAssistant {
+    deauthorizeAiAssistant
+  }
+`;
 
+export const AI_RUN_TEST_MUTATION = gql`
+  mutation AiRunTest($testId: Int!) {
+    aiRunTest(testId: $testId)
+  }
+`;
 
+export const AI_CREATE_TEST_MUTATION = gql`
+  mutation AiCreateTest(
+    $subjectId: Int!
+    $themeId: Int!
+    $questionsCount: Int
+  ) {
+    aiCreateTest(
+      subjectId: $subjectId
+      themeId: $themeId
+      questionsCount: $questionsCount
+    )
+  }
+`;

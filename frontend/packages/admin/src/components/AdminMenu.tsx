@@ -15,6 +15,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import DownloadIcon from "@mui/icons-material/Download";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import SmartToyIcon from "@mui/icons-material/SmartToy";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@quiz-platform/ui";
 
@@ -50,6 +51,18 @@ const AdminMenu: React.FC<Props> = ({ isFull = true }) => {
       label: "Предметы",
       icon: <MenuBookIcon />,
       path: "/subjects",
+    },
+    {
+      key: "ai-assistant",
+      label: "AI ассистент",
+      icon: <SmartToyIcon />,
+      path: "/ai-assistant",
+    },
+    {
+      key: "ai-moderation",
+      label: "Модерация бота",
+      icon: <SmartToyIcon />,
+      path: "/ai-moderation",
     },
     {
       key: "analytics",

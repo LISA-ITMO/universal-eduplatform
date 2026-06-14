@@ -13,7 +13,11 @@ services:
     networks:
       - quiznet
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-quizuser} -d ${POSTGRES_DB:-quiz}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-quizuser} -d ${POSTGRES_DB:-quiz}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -44,6 +48,10 @@ services:
     container_name: edu_server
     env_file:
       - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - AI_MODEL_API_URL=http://host.docker.internal:11434/api/chat
     ports:
       - "3000:3000"
     networks:

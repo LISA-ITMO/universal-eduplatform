@@ -1,4 +1,5 @@
-FROM node:20-alpine AS builder
+FROM node:22-bullseye AS builder
+RUN apt-get update && apt-get install -y python3 make g++ ca-certificates && rm -rf /var/lib/apt/lists/*
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
@@ -13,6 +14,7 @@ RUN echo "link-workspace-packages=true" > .npmrc && \
 
 COPY packages ./packages
 
+RUN pnpm approve-builds --all || true
 RUN pnpm install
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"

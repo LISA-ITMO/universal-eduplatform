@@ -154,6 +154,10 @@ export class BotService {
               max_tokens: 2000,
             } as any;
 
+            if (this.configService.get<boolean>('AI_DEBUG')) {
+              this.logger.debug('AI request body: ' + JSON.stringify(body));
+            }
+
             const res = await (globalThis as any).fetch(apiUrl, {
               method: 'POST',
               headers: {
@@ -189,6 +193,9 @@ export class BotService {
               format: 'json',
               stream: false,
             } as any;
+            if (this.configService.get<boolean>('AI_DEBUG')) {
+              this.logger.debug('AI request body (ollama): ' + JSON.stringify(body));
+            }
 
             const res = await (globalThis as any).fetch(apiUrl, {
               method: 'POST',
@@ -425,6 +432,9 @@ export class BotService {
               temperature: 0.8,
               max_tokens: 2000,
             } as any;
+            if (this.configService.get<boolean>('AI_DEBUG')) {
+              this.logger.debug('AI createTest request body: ' + JSON.stringify(body));
+            }
 
             const res = await (globalThis as any).fetch(apiUrl, {
               method: 'POST',
@@ -465,6 +475,9 @@ export class BotService {
               format: 'json',
               stream: false,
             } as any;
+            if (this.configService.get<boolean>('AI_DEBUG')) {
+              this.logger.debug('AI createTest request body (ollama): ' + JSON.stringify(body));
+            }
 
             const res = await (globalThis as any).fetch(apiUrl, {
               method: 'POST',

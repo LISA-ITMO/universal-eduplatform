@@ -1,6 +1,6 @@
 FROM node:22-bullseye AS builder
 RUN apt-get update && apt-get install -y python3 make g++ ca-certificates && rm -rf /var/lib/apt/lists/*
-RUN corepack enable && corepack prepare pnpm@7.34.0 --activate
+RUN npm install -g pnpm@7
 WORKDIR /app
 
 COPY package.json ./

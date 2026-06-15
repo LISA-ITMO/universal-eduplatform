@@ -382,12 +382,11 @@ export class BotService {
 
       // persist AI report
       try {
-        const metrics = this.computeMetrics('takeTest', report, modelResponse);
         await (this.prisma as any).aiReport.create({
           data: {
             action: 'takeTest',
             botUserId: this.botUser.id,
-            payload: { report, modelResponse, parsedSolutions, metrics },
+            payload: { report, modelResponse, parsedSolutions },
             resultId: result.id,
           },
         });
@@ -411,6 +410,21 @@ export class BotService {
       const apiUrl = this.configService.get<string>('AI_MODEL_API_URL');
       const apiKey = this.configService.get<string>('AI_MODEL_API_KEY');
 
+      let subjectName: string | null = null;
+      let themeName: string | null = null;
+      try {
+        const subj = await this.prisma.subject.findUnique({ where: { id: subjectId } });
+        subjectName = subj?.nameSubject ?? null;
+      } catch (e) {
+        this.logger.warn('Failed to load subject name: ' + String(e));
+      }
+      try {
+        const th = await this.prisma.theme.findUnique({ where: { id: themeId } });
+        themeName = th?.nameTheme ?? null;
+      } catch (e) {
+        this.logger.warn('Failed to load theme name: ' + String(e));
+      }
+
       let modelResponse: any = null;
       if (apiUrl && typeof (globalThis as any).fetch === 'function') {
         try {
@@ -425,7 +439,7 @@ export class BotService {
                   role: 'user',
                   content: JSON.stringify({
                     action: 'createTest',
-                    payload: { subjectId, themeId, questionsCount },
+                    payload: { subjectId, subjectName, themeId, themeName, questionsCount },
                   }),
                 },
               ],
@@ -468,7 +482,7 @@ export class BotService {
                   role: 'user',
                   content: JSON.stringify({
                     action: 'createTest',
-                    payload: { subjectId, themeId, questionsCount },
+                    payload: { subjectId, subjectName, themeId, themeName, questionsCount },
                   }),
                 },
               ],
@@ -513,7 +527,7 @@ export class BotService {
               },
               body: JSON.stringify({
                 action: 'createTest',
-                payload: { subjectId, themeId, questionsCount },
+                payload: { subjectId, subjectName, themeId, themeName, questionsCount },
               }),
             });
             modelResponse = await res.json();
@@ -558,12 +572,11 @@ export class BotService {
 
         // persist ai report for created test (include computed metrics)
         try {
-          const metrics = this.computeMetrics('createTest', null, modelResponse);
           await (this.prisma as any).aiReport.create({
             data: {
               action: 'createTest',
               botUserId: this.botUser.id,
-              payload: { modelResponse, createdTestId: created.id, metrics },
+              payload: { modelResponse, createdTestId: created.id },
               resultId: null,
             },
           });
@@ -606,58 +619,5 @@ export class BotService {
       this.logger.warn('Failed to load ai reports: ' + String(e));
       return { items: [], totalCount: 0 };
     }
-  }
-
-  private computeMetrics(
-    action: string,
-    report: any,
-    modelResponse: any,
-  ): { analyticity: number; creativity: number } {
-    let analyticity = 50;
-    let creativity = 50;
-
-    try {
-      if (report && Array.isArray(report.questions) && report.questions.length > 0) {
-        const totalQ = report.questions.length;
-        const totalIssues = report.questions.reduce(
-          (acc: number, q: any) => acc + (Array.isArray(q.issues) ? q.issues.length : 0),
-          0,
-        );
-        analyticity = Math.max(0, Math.round(((totalQ - totalIssues) / totalQ) * 100));
-      }
-
-      if (action === 'createTest') {
-        const questions = modelResponse?.test?.questions || report?.questions || [];
-        if (questions.length > 0) {
-          const avgWords =
-            questions.reduce(
-              (acc: number, q: any) =>
-                acc +
-                (q.text || q.questionText || '').split('\n').join(' ').split(/\s+/).filter(Boolean)
-                  .length,
-              0,
-            ) / questions.length;
-          creativity = Math.min(100, Math.round((avgWords / 15) * 100));
-        }
-      } else if (action === 'takeTest') {
-        const solutions = modelResponse?.solutions || [];
-        if (solutions.length > 0) {
-          const avgAnswers =
-            solutions.reduce(
-              (acc: number, s: any) =>
-                acc + (Array.isArray(s.userAnswers) ? s.userAnswers.length : 0),
-              0,
-            ) / solutions.length;
-          creativity = Math.min(100, Math.round((avgAnswers / 3) * 100 * 0.8 + 20));
-        }
-      }
-    } catch (e) {
-      this.logger.warn('Failed to compute metrics: ' + String(e));
-    }
-
-    analyticity = Math.max(0, Math.min(100, analyticity));
-    creativity = Math.max(0, Math.min(100, creativity));
-
-    return { analyticity, creativity };
   }
 }

@@ -446,6 +446,8 @@ const AiAssistantPage: React.FC = () => {
                                 </Typography>
                                 {r.payload.report.questions.map((q: any, idx: number) => {
                                   const solution = r.payload.parsedSolutions?.find((s: any) => s.questionId === q.questionId);
+                                  const validityLabel = q.validity === 'valid' ? '✅ Корректный' : q.validity === 'invalid' ? '❌ Некорректный' : '❓ Неизвестно';
+                                  const chipColor = q.validity === 'valid' ? 'success' : q.validity === 'invalid' ? 'error' : 'warning';
                                   return (
                                     <Box
                                       key={q.questionId || idx}
@@ -463,10 +465,10 @@ const AiAssistantPage: React.FC = () => {
                                         </Typography>
                                         {q.validity && (
                                           <Chip
-                                            label={q.validity}
+                                            label={validityLabel}
                                             size="small"
-                                            color={q.validity === 'valid' ? 'success' : q.validity === 'invalid' ? 'error' : 'warning'}
-                                            sx={{ fontSize: '0.7rem' }}
+                                            color={chipColor}
+                                            sx={{ fontSize: '0.7rem', fontWeight: 'bold' }}
                                           />
                                         )}
                                       </Box>

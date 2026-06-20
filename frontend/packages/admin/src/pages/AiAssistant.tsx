@@ -313,227 +313,40 @@ const AiAssistantPage: React.FC = () => {
                       {new Date(r.createdAt).toLocaleString()}
                     </Typography>
                     <details>
-                      <summary>Показать отчёт</summary>
-                      <Box sx={{ mt: 1 }}>
-                        {r.payload && typeof r.payload === 'object' && r.payload.report ? (
-                          <Box sx={{ p: 1, bgcolor: '#f8f9fa', borderRadius: 1 }}>
-                            {/* Резюме */}
-                            {r.payload.report.summary && (
-                              <Box sx={{ mb: 2 }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
-                                  ТестРезюме
-                                </Typography>
-                                <Typography variant="body2" sx={{ color: '#34495e', whiteSpace: 'pre-wrap' }}>
-                                  {r.payload.report.summary}
-                                </Typography>
-                              </Box>
-                            )}
-
-                            {/* Общая рекомендация */}
-                            {r.payload.report.recommendation && (
-                              <Box sx={{ mb: 2 }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
-                                  Рекомендация
-                                </Typography>
-                                <Chip
-                                  label={r.payload.report.recommendation}
-                                  color={r.payload.report.recommendation === 'оставить' ? 'success' : 'warning'}
-                                  size="small"
-                                  sx={{ fontWeight: 'bold' }}
-                                />
-                              </Box>
-                            )}
-
-                            {/* Вопросы */}
-                            {r.payload.report.questions && r.payload.report.questions.length > 0 && (
-                              <Box>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#2c3e50', mb: 1 }}>
-                                  Детали по вопросам
-                                </Typography>
-                                {r.payload.report.questions.map((q: any, idx: number) => (
-                                  <Box
-                                    key={q.questionId || idx}
-                                    sx={{
-                                      p: 1.5,
-                                      mb: 1.5,
-                                      border: '1px solid #e9ecef',
-                                      borderRadius: 1,
-                                      bgcolor: '#ffffff',
-                                    }}
-                                  >
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                                        Вопрос #{q.questionId || idx + 1}
-                                      </Typography>
-                                      {q.recommendation && (
-                                        <Chip
-                                          label={q.recommendation}
-                                          size="small"
-                                          color={q.recommendation === 'оставить' ? 'success' : 'warning'}
-                                          sx={{ fontSize: '0.7rem' }}
-                                        />
-                                      )}
-                                    </Box>
-                                    {q.summary && (
-                                      <Typography variant="body2" sx={{ color: '#495057', whiteSpace: 'pre-wrap' }}>
-                                        {q.summary}
-                                      </Typography>
-                                    )}
-                                    {q.issues && q.issues.length > 0 && (
-                                      <Box sx={{ mt: 0.5 }}>
-                                        <Typography variant="caption" sx={{ color: '#dc3545', fontWeight: 'bold' }}>
-                                          Проблемы:
-                                        </Typography>
-                                        <ul style={{ margin: 0, paddingLeft: 20 }}>
-                                          {q.issues.map((issue: any, i: number) => (
-                                            <li key={i}>
-                                              <Typography variant="caption" sx={{ color: '#dc3545' }}>
-                                                {typeof issue === 'string' ? issue : JSON.stringify(issue)}
-                                              </Typography>
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      </Box>
-                                    )}
-                                    {q.userAnswers && q.userAnswers.length > 0 && (
-                                      <Box sx={{ mt: 0.5 }}>
-                                        <Typography variant="caption" sx={{ color: '#6c757d' }}>
-                                          Ответы пользователя: {q.userAnswers.join(', ')}
-                                        </Typography>
-                                      </Box>
-                                    )}
-                                  </Box>
-                                ))}
-                              </Box>
-                            )}
-                          </Box>
-                        ) : r.payload && typeof r.payload === 'object' && r.payload.report && r.payload.report.questions ? (
-                          <Box sx={{ p: 1, bgcolor: '#f8f9fa', borderRadius: 1 }}>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#2c3e50', mb: 1 }}>
-                              Анализ прохождения теста
-                            </Typography>
-                            {r.payload.report.summary && (
-                              <Box sx={{ mb: 2 }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
-                                  Тест Резюме
-                                </Typography>
-                                <Typography variant="body2" sx={{ color: '#34495e', whiteSpace: 'pre-wrap' }}>
-                                  {r.payload.report.summary}
-                                </Typography>
-                              </Box>
-                            )}
-                            {r.payload.parsedSolutions && r.payload.parsedSolutions.length > 0 && (
-                              <Box sx={{ mb: 2 }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
-                                  Ответы пользователя
-                                </Typography>
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                  {r.payload.parsedSolutions.map((s: any) => (
-                                    <Chip
-                                      key={s.questionId}
-                                      label={`Вопрос ${s.questionId}: ${s.userAnswers.join(', ')}`}
-                                      size="small"
-                                      variant="outlined"
-                                    />
-                                  ))}
-                                </Box>
-                              </Box>
-                            )}
-                            {r.payload.report.questions && r.payload.report.questions.length > 0 && (
-                              <Box>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#2c3e50', mb: 1 }}>
-                                  Детали по вопросам
-                                </Typography>
-                                {r.payload.report.questions.map((q: any, idx: number) => {
-                                  const solution = r.payload.parsedSolutions?.find((s: any) => s.questionId === q.questionId);
-                                  const validityLabel = q.validity === 'valid' ? 'Корректный' : q.validity === 'invalid' ? 'Некорректный' : 'Неизвестно';
-                                  const chipColor = q.validity === 'valid' ? 'success' : q.validity === 'invalid' ? 'error' : 'warning';
-                                  return (
-                                    <Box
-                                      key={q.questionId || idx}
-                                      sx={{
-                                        p: 1.5,
-                                        mb: 1.5,
-                                        border: '1px solid #e9ecef',
-                                        borderRadius: 1,
-                                        bgcolor: '#ffffff',
-                                      }}
-                                    >
-                                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                                          Вопрос #{q.questionId || idx + 1}
-                                        </Typography>
-                                        {q.validity && (
-                                          <Chip
-                                            label={validityLabel}
-                                            size="small"
-                                            color={chipColor}
-                                            sx={{ fontSize: '0.7rem', fontWeight: 'bold' }}
-                                          />
-                                        )}
-                                      </Box>
-                                      {q.note && (
-                                        <Typography variant="body2" sx={{ color: '#6c757d', whiteSpace: 'pre-wrap' }}>
-                                          {q.note}
-                                        </Typography>
-                                      )}
-                                      {solution && (
-                                        <Box sx={{ mt: 0.5 }}>
-                                          <Typography variant="caption" sx={{ color: '#6c757d' }}>
-                                            Ответы пользователя: {solution.userAnswers.join(', ')}
-                                          </Typography>
-                                        </Box>
-                                      )}
-                                    </Box>
-                                  );
-                                })}
-                              </Box>
-                            )}
-                            {r.payload.modelResponse?.error && (
-                              <Box sx={{ mt: 2, p: 1, bgcolor: '#fff3cd', borderRadius: 1 }}>
-                                <Typography variant="caption" sx={{ color: '#856404' }}>
-                                  Ошибка модели: {r.payload.modelResponse.error}
-                                </Typography>
-                              </Box>
-                            )}
-                          </Box>
-                        ) : r.payload && typeof r.payload === 'object' && r.payload.createdTestId && r.payload.modelResponse ? (
-                          <Box sx={{ p: 1, bgcolor: '#f8f9fa', borderRadius: 1 }}>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#2c3e50', mb: 1 }}>
-                              Сгенерированный тест
-                            </Typography>
-                            <Box sx={{ mb: 1 }}>
-                              <Typography variant="body2" sx={{ color: '#6c757d' }}>
-                                <strong>ID созданного теста:</strong> {r.payload.createdTestId}
+                    <summary style={{ cursor: "pointer", fontWeight: 500 }}>Показать отчёт</summary>
+                    <Box sx={{ mt: 1 }}>
+                      {r.payload && typeof r.payload === "object" ? (
+                        <>
+                          {/* --- 1. СГЕНЕРИРОВАННЫЙ ТЕСТ (createTest) --- */}
+                          {r.payload.createdTestId && r.payload.modelResponse ? (
+                            <Box sx={{ p: 2, bgcolor: "#f8f9fa", borderRadius: 1 }}>
+                              <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#2c3e50", mb: 1 }}>
+                                Сгенерированный тест
                               </Typography>
-                              <Typography variant="body2" sx={{ color: '#6c757d' }}>
-                                <strong>Формат:</strong> {r.payload.modelResponse.formatVersion || 'N/A'}
-                              </Typography>
-                            </Box>
-                            {r.payload.modelResponse.test && (
-                              <Box sx={{ mt: 1 }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#2c3e50', mb: 1 }}>
-                                  Тест: {r.payload.modelResponse.test.name}
+                              <Box sx={{ mb: 2 }}>
+                                <Typography variant="body2" sx={{ color: "#6c757d" }}>
+                                  <strong>ID созданного теста:</strong> {r.payload.createdTestId}
                                 </Typography>
-                                <Typography variant="body2" sx={{ color: '#6c757d', mb: 1 }}>
-                                  Максимальный балл: {r.payload.modelResponse.test.maxPoints}
+                                <Typography variant="body2" sx={{ color: "#6c757d" }}>
+                                  <strong>Формат:</strong> {r.payload.modelResponse.formatVersion || "N/A"}
                                 </Typography>
-                                <Box sx={{ mt: 1 }}>
+                              </Box>
+
+                              {r.payload.modelResponse.test && (
+                                <Box>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#2c3e50", mb: 0.5 }}>
+                                    Тест: {r.payload.modelResponse.test.name}
+                                  </Typography>
+                                  <Typography variant="body2" sx={{ color: "#6c757d", mb: 2 }}>
+                                    Максимальный балл: {r.payload.modelResponse.test.maxPoints}
+                                  </Typography>
+
                                   {r.payload.modelResponse.test.questions.map((q: any, idx: number) => (
-                                    <Box
-                                      key={idx}
-                                      sx={{
-                                        p: 1.5,
-                                        mb: 1.5,
-                                        border: '1px solid #e9ecef',
-                                        borderRadius: 1,
-                                        bgcolor: '#ffffff',
-                                      }}
-                                    >
-                                      <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+                                    <Box key={idx} sx={{ p: 2, mb: 1.5, border: "1px solid #e9ecef", borderRadius: 1, bgcolor: "#ffffff" }}>
+                                      <Typography variant="body2" sx={{ fontWeight: "bold", mb: 1 }}>
                                         Вопрос {idx + 1} (баллов: {q.points})
                                       </Typography>
-                                      <Typography variant="body2" sx={{ color: '#495057', mb: 0.5 }}>
+                                      <Typography variant="body2" sx={{ color: "#495057", mb: 1.5 }}>
                                         {q.text}
                                       </Typography>
                                       <Box sx={{ ml: 1 }}>
@@ -542,29 +355,171 @@ const AiAssistantPage: React.FC = () => {
                                             key={aidx}
                                             variant="body2"
                                             sx={{
-                                              color: a.isCorrect ? '#2e7d32' : '#d32f2f',
-                                              display: 'flex',
-                                              alignItems: 'center',
-                                              gap: 0.5,
-                                              fontWeight: a.isCorrect ? 'bold' : 'normal',
+                                              color: a.isCorrect ? "#2e7d32" : "#d32f2f",
+                                              display: "flex",
+                                              alignItems: "center",
+                                              gap: 1,
+                                              mb: 0.5,
+                                              fontWeight: a.isCorrect ? "bold" : "normal",
                                             }}
                                           >
-                                            {a.isCorrect ? '✅' : '❌'} {a.text}
+                                            {a.isCorrect ? "✅" : "❌"} {a.text}
                                           </Typography>
                                         ))}
                                       </Box>
                                     </Box>
                                   ))}
                                 </Box>
-                              </Box>
-                            )}
-                          </Box>
-                        ) : (
-                          <pre style={{ whiteSpace: "pre-wrap" }}>
-                            {typeof r.payload === 'string' ? r.payload : JSON.stringify(r.payload, null, 2)}
-                          </pre>
-                        )}
-                      </Box>
+                              )}
+                            </Box>
+                          ) : r.payload.report ? (
+                            
+                            /* --- 2. АНАЛИЗ ТЕСТА (takeTest) --- */
+                            <Box sx={{ p: 2, bgcolor: "#f8f9fa", borderRadius: 1 }}>
+                              
+                              {/* Резюме */}
+                              {r.payload.report.summary && (
+                                <Box sx={{ mb: 2 }}>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#2c3e50", mb: 0.5 }}>
+                                    Резюме
+                                  </Typography>
+                                  <Typography variant="body2" sx={{ color: "#34495e", whiteSpace: "pre-wrap" }}>
+                                    {r.payload.report.summary}
+                                  </Typography>
+                                </Box>
+                              )}
+
+                              {/* Общая рекомендация */}
+                              {r.payload.report.recommendation && (
+                                <Box sx={{ mb: 2 }}>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#2c3e50", mb: 0.5 }}>
+                                    Рекомендация
+                                  </Typography>
+                                  <Chip
+                                    label={r.payload.report.recommendation}
+                                    color={r.payload.report.recommendation === "оставить" ? "success" : "warning"}
+                                    size="small"
+                                    sx={{ fontWeight: "bold" }}
+                                  />
+                                </Box>
+                              )}
+
+                              {/* Общие ответы пользователя */}
+                              {r.payload.parsedSolutions && r.payload.parsedSolutions.length > 0 && (
+                                <Box sx={{ mb: 2 }}>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#2c3e50", mb: 0.5 }}>
+                                    Ответы пользователя
+                                  </Typography>
+                                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                                    {r.payload.parsedSolutions.map((s: any) => (
+                                      <Chip key={s.questionId} label={`Вопрос ${s.questionId}: ${s.userAnswers.join(", ")}`} size="small" variant="outlined" />
+                                    ))}
+                                  </Box>
+                                </Box>
+                              )}
+
+                              {/* Достаем массив вопросов (он может лежать в разных местах JSON) */}
+                              {(() => {
+                                const questions = r.payload.report.questions || r.payload.modelResponse?.solutions || [];
+                                if (questions.length === 0) return null;
+
+                                return (
+                                  <Box>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#2c3e50", mb: 1, mt: 3 }}>
+                                      Детали по вопросам
+                                    </Typography>
+
+                                    {questions.map((q: any, idx: number) => {
+                                      const solution = r.payload.parsedSolutions?.find((s: any) => s.questionId === q.questionId);
+
+                                      // Определяем лейбл и цвет бейджа
+                                      let chipLabel = null;
+                                      let chipColor: any = "default";
+
+                                      if (q.recommendation) {
+                                        chipLabel = q.recommendation;
+                                        chipColor = q.recommendation === "оставить" ? "success" : "warning";
+                                      } else if (q.validity) {
+                                        chipLabel = q.validity;
+                                        chipColor = q.validity === "valid" ? "success" : q.validity === "invalid" ? "error" : "warning";
+                                      }
+
+                                      return (
+                                        <Box key={q.questionId || idx} sx={{ p: 2, mb: 1.5, border: "1px solid #e9ecef", borderRadius: 1, bgcolor: "#ffffff" }}>
+                                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                                              Вопрос #{q.questionId || idx + 1}
+                                            </Typography>
+                                            {chipLabel && (
+                                              <Chip label={chipLabel} size="small" color={chipColor} sx={{ fontSize: "0.7rem", fontWeight: "bold", height: 20 }} />
+                                            )}
+                                          </Box>
+
+                                          {/* Текст: summary или note */}
+                                          {q.summary && <Typography variant="body2" sx={{ color: "#495057", whiteSpace: "pre-wrap", mb: 1 }}>{q.summary}</Typography>}
+                                          {q.note && <Typography variant="body2" sx={{ color: "#6c757d", whiteSpace: "pre-wrap", mb: 1 }}>{q.note}</Typography>}
+
+                                          {/* Ошибки (issues) */}
+                                          {q.issues && q.issues.length > 0 && (
+                                            <Box sx={{ mt: 1, mb: 1 }}>
+                                              <Typography variant="caption" sx={{ color: "#dc3545", fontWeight: "bold" }}>
+                                                Проблемы:
+                                              </Typography>
+                                              <ul style={{ margin: 0, paddingLeft: 20 }}>
+                                                {q.issues.map((issue: any, i: number) => (
+                                                  <li key={i}>
+                                                    <Typography variant="caption" sx={{ color: "#dc3545" }}>
+                                                      {typeof issue === "string" ? issue : JSON.stringify(issue)}
+                                                    </Typography>
+                                                  </li>
+                                                ))}
+                                              </ul>
+                                            </Box>
+                                          )}
+
+                                          {/* Ответы (из самого вопроса или из parsedSolutions) */}
+                                          {q.userAnswers && q.userAnswers.length > 0 ? (
+                                            <Typography variant="caption" sx={{ color: "#6c757d", display: "block", mt: 1 }}>
+                                              Ответы: {q.userAnswers.map((a: any) => (typeof a === "object" ? a.answerText : a)).join(", ")}
+                                            </Typography>
+                                          ) : solution ? (
+                                            <Typography variant="caption" sx={{ color: "#6c757d", display: "block", mt: 1 }}>
+                                              Ответы пользователя: {solution.userAnswers.join(", ")}
+                                            </Typography>
+                                          ) : null}
+                                        </Box>
+                                      );
+                                    })}
+                                  </Box>
+                                );
+                              })()}
+
+                              {/* Ошибка модели */}
+                              {r.payload.modelResponse?.error && (
+                                <Box sx={{ mt: 2, p: 1.5, bgcolor: "#fff3cd", borderRadius: 1 }}>
+                                  <Typography variant="caption" sx={{ color: "#856404", fontWeight: 500 }}>
+                                    Ошибка модели: {r.payload.modelResponse.error}
+                                  </Typography>
+                                </Box>
+                              )}
+
+                            </Box>
+                          ) : (
+                            /* --- 3. НЕИЗВЕСТНЫЙ ОБЪЕКТ (Фоллбэк) --- */
+                            <Box sx={{ p: 2, bgcolor: "#f8f9fa", borderRadius: 1 }}>
+                              <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: "13px" }}>
+                                {JSON.stringify(r.payload, null, 2)}
+                              </pre>
+                            </Box>
+                          )}
+                        </>
+                      ) : (
+                        /* --- 4. ПРОСТАЯ СТРОКА (Фоллбэк) --- */
+                        <Box sx={{ p: 2, bgcolor: "#f8f9fa", borderRadius: 1 }}>
+                          <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: "13px" }}>{r.payload}</pre>
+                        </Box>
+                      )}
+                    </Box>
                     </details>
                   </Box>
                 ))}

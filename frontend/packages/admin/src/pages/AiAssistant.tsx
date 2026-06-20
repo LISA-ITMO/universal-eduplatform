@@ -321,7 +321,7 @@ const AiAssistantPage: React.FC = () => {
                             {r.payload.report.summary && (
                               <Box sx={{ mb: 2 }}>
                                 <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
-                                  Резюме
+                                  ТестРезюме
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: '#34495e', whiteSpace: 'pre-wrap' }}>
                                   {r.payload.report.summary}
@@ -415,7 +415,7 @@ const AiAssistantPage: React.FC = () => {
                             {r.payload.report.summary && (
                               <Box sx={{ mb: 2 }}>
                                 <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
-                                  Резюме
+                                  Тест Резюме
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: '#34495e', whiteSpace: 'pre-wrap' }}>
                                   {r.payload.report.summary}
@@ -446,7 +446,7 @@ const AiAssistantPage: React.FC = () => {
                                 </Typography>
                                 {r.payload.report.questions.map((q: any, idx: number) => {
                                   const solution = r.payload.parsedSolutions?.find((s: any) => s.questionId === q.questionId);
-                                  const validityLabel = q.validity === 'valid' ? '✅ Корректный' : q.validity === 'invalid' ? '❌ Некорректный' : '❓ Неизвестно';
+                                  const validityLabel = q.validity === 'valid' ? 'Корректный' : q.validity === 'invalid' ? 'Некорректный' : 'Неизвестно';
                                   const chipColor = q.validity === 'valid' ? 'success' : q.validity === 'invalid' ? 'error' : 'warning';
                                   return (
                                     <Box

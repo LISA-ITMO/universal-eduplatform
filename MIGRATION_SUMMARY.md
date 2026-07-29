@@ -106,7 +106,3 @@ pnpm build:web
 - Используется MUI вместо Chakra UI
 - Авторизация через JWT tokens в localStorage
 - Apollo Client настроен с автоматической подстановкой токена в headers
-
-
-
-

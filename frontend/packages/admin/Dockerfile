@@ -1,8 +1,4 @@
-FROM node:20-bullseye-slim AS builder
-
-RUN apt-get update && apt-get install -y python3 make g++ ca-certificates curl && rm -rf /var/lib/apt/lists/*
-
-RUN npm config set strict-ssl false
+FROM node:18-bullseye AS builder
 
 RUN npm install -g pnpm@8.15.6
 
@@ -19,15 +15,17 @@ RUN echo "link-workspace-packages=true" > .npmrc && \
 
 COPY packages ./packages
 
-RUN pnpm rebuild
+RUN pnpm approve-builds --all || true
 
 RUN pnpm install
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
+# === Для WEB ===
 ENV VITE_CLIENT_ID="admin"
 RUN pnpm --filter admin build
 
+# === NGINX ОСТАЕТСЯ БЕЗ ИЗМЕНЕНИЙ ===
 FROM nginx:alpine
 COPY --from=builder /app/packages/admin/dist /usr/share/nginx/html
 COPY nginx/admin.conf /etc/nginx/conf.d/default.conf

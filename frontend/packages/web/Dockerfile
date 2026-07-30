@@ -15,9 +15,9 @@ RUN echo "link-workspace-packages=true" > .npmrc && \
 
 COPY packages ./packages
 
-RUN pnpm approve-builds --all || true
-
 RUN pnpm install
+
+RUN pnpm rebuild esbuild
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 

@@ -17,7 +17,7 @@ COPY packages ./packages
 
 RUN pnpm install
 
-RUN pnpm rebuild esbuild @swc/core
+RUN pnpm rebuild esbuild
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
